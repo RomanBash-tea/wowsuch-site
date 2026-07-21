@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vessels · a concept preview — WowSuch</title>
+<meta name="description" content="Vessels is an early concept: bond an Entity to your machine, link it into a Chain with other owners, and share what the Chain earns. Phase 0 preview — not live yet.">
+<link rel="canonical" href="https://wowsuch.example/vessels.html">
+<meta name="theme-color" content="#211504">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="Vessels · a concept preview — WowSuch">
+<meta property="og:description" content="Bond an Entity to your machine, link it into a Chain, share what the Chain earns. Early concept — Phase 0.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+  /* ---- page-specific: vessels (concept preview) ---- */
+  .vs-hero{background:var(--night);color:var(--cream-on-dark);border-radius:var(--r-xl);
+    border:4px solid var(--gold);box-shadow:var(--sh-3);padding:52px 40px;position:relative;overflow:hidden;}
+  .vs-hero::before{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(255,185,46,.22),transparent 70%);}
+  .vs-hero .eyebrow{color:var(--gold-on-dark);}
+  .vs-hero h1{color:#fff;}
+  .vs-hero h1 .pop{color:var(--gold-on-dark);}
+  .vs-hero .sub{color:var(--soft-on-dark);max-width:56ch;}
+  .vs-quote{font-style:italic;font-weight:700;color:var(--gold-on-dark);font-size:1.15rem;
+    margin:20px 0 0;max-width:52ch;border-left:3px solid var(--gold);padding-left:16px;}
+  .vs-flow .node{background:var(--night);color:var(--cream-on-dark);border-color:var(--gold);}
+  .vs-flow .node b{color:var(--gold-on-dark);}
+  .vs-flow .node small{color:var(--soft-on-dark);}
+  .vs-flow .arw{color:var(--amber-ink);}
+  .rune-card{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-lg);box-shadow:var(--sh-3);padding:32px;text-align:center;}
+  .rune-card input{width:100%;max-width:340px;border:3px solid var(--gold);border-radius:var(--r-sm);
+    padding:12px 14px;font-family:var(--body);font-weight:700;font-size:1rem;background:#2A1B06;
+    color:#fff;margin:14px auto;display:block;}
+  .rune-card input::placeholder{color:var(--soft-on-dark);}
+  .rune-out{font-family:var(--display);font-weight:800;font-size:1.9rem;color:var(--gold-on-dark);
+    min-height:2.4em;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .rune-out .tribe{font-family:var(--meme);font-weight:700;font-size:.85rem;background:var(--gold);
+    color:var(--ink);border-radius:999px;padding:4px 14px;transform:rotate(-2deg);}
+  .vs-illus-band{background:var(--paper);border:3px dashed var(--ink);border-radius:var(--r-lg);
+    padding:26px 28px;}
+  .vs-illus-band .row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;
+    border-bottom:1px solid var(--ink-faint);font-weight:700;flex-wrap:wrap;}
+  .vs-illus-band .row:last-child{border-bottom:0;}
+  .vs-illus-band .row .v{font-family:var(--mono);color:var(--amber-ink);}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🔮 <b>Vessels</b> is an early concept — Phase 0, nothing live yet. This page previews the idea and nothing more.</span></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo · 12 chips</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html">Enterprise</a>
+    <a href="vessels.html" aria-current="page">Vessels <span class="chip" style="margin-left:4px">concept</span></a>
+    <a class="btn sm nav-cta" href="buy.html">Buy an L9 <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="tight"><div class="wrap">
+  <div class="vs-hero reveal in">
+    <span class="eyebrow">phase 0 · concept preview</span>
+    <h1>Every machine is a <span class="pop">Body</span>.<br>Some day, yours joins a <span class="pop">Chain</span>.</h1>
+    <p class="sub">Vessels is a game layer we're sketching on top of ownership: bond an Entity to your machine, link it into a Chain with other owners, and share what the Chain earns together. Nothing below is live — this is the idea, out loud, before we build it.</p>
+    <p class="vs-quote">"A Body doesn't earn alone for long. Sooner or later, it finds its Chain."</p>
+    <div class="hero-ctas">
+      <a class="btn" href="#waitlist">Get early access <span class="arrow">→</span></a>
+      <a class="btn alt" href="rent-to-own.html">See a real Body (Rent to Own) <span class="arrow">→</span></a>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section><div class="wrap">
+  <div class="sec-head center">
+    <span class="eyebrow">the idea</span>
+    <h2>From a machine to a Chain</h2>
+    <p>Four steps, none of them live yet. This is the shape we're testing with Igor before any of it touches real payouts.</p>
+  </div>
+  <div class="flow vs-flow">
+    <div class="node"><b>Body</b><small>your L9, or your chip of one</small></div>
+    <div class="arw">→</div>
+    <div class="node"><b>Bonded Entity</b><small>name it, give it a Rune</small></div>
+    <div class="arw">→</div>
+    <div class="node"><b>Joins a Chain</b><small>through a Seams compatibility check</small></div>
+    <div class="arw">→</div>
+    <div class="node"><b>Earns with a Tribe</b><small>Watcher keeps it healthy</small></div>
+  </div>
+</div></section>
+
+<!-- ============ CONCEPTS ============ -->
+<section class="band-alt"><div class="wrap">
+  <div class="sec-head center">
+    <span class="eyebrow">the mechanics we're testing</span>
+    <h2>Five ideas, still on the whiteboard</h2>
+  </div>
+  <div class="sol-grid">
+    <div class="sol-card">
+      <h3>Seams</h3>
+      <p>Not every Body fits every Chain. Seams are the compatibility check — matching uptime, hosting site, and hashrate before two Bodies link up.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Tribes</h3>
+      <p>Chains that keep good company become a Tribe — a standing group of owners who choose to Chain together again and again.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Watcher</h3>
+      <p>Every Chain gets a Watcher — one owner (or WowSuch itself, early on) who keeps an eye on uptime and flags repairs first.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Healing</h3>
+      <p>A Body offline for repair shouldn't drag its whole Chain down. Healing is the payout-smoothing rule that covers a Chain through downtime.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Reincarnation</h3>
+      <p>Buy your Body out of the Chain whole, or let it Reincarnate — roll its value straight into a new Body when you upgrade.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Energy</h3>
+      <p>Energy is what a Chain actually earns: the combined LTC + DOGE flowing from every linked Body, split by the rule the Chain agreed to going in.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ ILLUSTRATIVE MATH ============ -->
+<section class="tight"><div class="wrap">
+  <div class="vs-illus-band">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <h3 style="margin:0">If we had to put numbers on it today</h3>
+      <span class="illus">illustrative · pre-Phase 0</span>
+    </div>
+    <div class="row"><span>Entry per Body-slot</span><span class="v">$20 – $50</span></div>
+    <div class="row"><span>WowSuch service cut</span><span class="v">~15%</span></div>
+    <div class="row"><span>Minimum Chain reserve</span><span class="v">~2%</span></div>
+    <div class="row"><span>Healing smoothing rate</span><span class="v">0.5% – 8%</span></div>
+    <div class="row"><span>Earnings split (owner / Chain pool / Tribe pool)</span><span class="v">50 / 30 / 20</span></div>
+    <p class="chart-note">Every figure here is a placeholder for modeling, not a promise. All of it needs a Phase 0 simulation and Igor's sign-off before it means anything. Don't plan around these numbers.</p>
+  </div>
+</div></section>
+
+<!-- ============ RUNE GENERATOR ============ -->
+<section><div class="wrap">
+  <div class="sec-head center">
+    <span class="eyebrow">try the fun part</span>
+    <h2>Bond a name to your Body</h2>
+    <p>This bit actually works — nothing else on the page does yet. Type anything and see what Rune it becomes.</p>
+  </div>
+  <div class="rune-card" style="max-width:560px;margin:0 auto">
+    <label for="runeSeed" style="font-family:var(--display);font-weight:700;color:var(--gold-on-dark)">Your Body's callsign</label>
+    <input id="runeSeed" placeholder="e.g. Rig 12, or your own name" autocomplete="off">
+    <button class="btn" id="runeBtn" type="button">Bond a Rune <span class="arrow">→</span></button>
+    <div class="rune-out" id="runeOut" aria-live="polite"></div>
+  </div>
+</div></section>
+
+<!-- ============ WAITLIST ============ -->
+<section class="tight" id="waitlist"><div class="wrap contact-grid">
+  <div>
+    <span class="eyebrow">still Phase 0</span>
+    <h2>Want first pick when Chains open?</h2>
+    <p class="sub">Leave your email and we'll reach out if Vessels moves past the concept stage — no commitment, no spam, and it may never ship at all.</p>
+  </div>
+  <form class="lead reveal" id="leadForm">
+    <input type="hidden" id="opt" value="Vessels waitlist">
+    <div class="ftwo">
+      <div><label for="nm">Your name</label><input id="nm" required placeholder="Alex Doge" autocomplete="name"></div>
+      <div><label for="em">Email</label><input id="em" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+    </div>
+    <button class="btn block" type="submit">Join the Vessels waitlist <span class="arrow">→</span></button>
+    <p class="form-status" id="leadStatus"></p>
+  </form>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="vessels.html">Vessels (concept preview)</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Vessels is an unreleased concept, shown here only as a preview of an idea we're testing internally with Igor. Nothing on this page reflects a live feature, a financial product, or a commitment — mechanics, names, and every number shown are illustrative and subject to change or cancellation without notice. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var PRE = ["Ember","Doge","Volt","Amber","Litec","Shard","Glim","Husk","Rune","Cipher","Umbra","Fenwick"];
+  var ROOT = ["seam","forge","chain","spark","warden","hollow","glint","core","reach","vale","mark","thread"];
+  var TRIBES = ["Ridge Tribe","Hollow Tribe","Spark Tribe","Deep Chain Tribe","Glint Tribe","Warden's Tribe"];
+  function hashStr(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+  var btn = document.getElementById("runeBtn");
+  var out = document.getElementById("runeOut");
+  var seed = document.getElementById("runeSeed");
+  if (btn) {
+    btn.addEventListener("click", function () {
+      var raw = (seed.value || "body").trim() || "body";
+      var h = hashStr(raw + Math.random());
+      var pre = PRE[h % PRE.length];
+      var root = ROOT[(h >> 3) % ROOT.length];
+      var num = (h % 89) + 10;
+      var tribe = TRIBES[(h >> 5) % TRIBES.length];
+      out.innerHTML = pre + root + "-" + num + " <span class=\"tribe\">" + tribe + "</span>";
+    });
+  }
+
+  var status = document.getElementById("leadStatus");
+  var form = document.getElementById("leadForm");
+  if (form && status) {
+    form.addEventListener("submit", function () {
+      status.textContent = "";
+      status.className = "form-status ok";
+      setTimeout(function () { status.textContent = "Added to the waitlist — thanks for the interest."; }, 30);
+    });
+  }
+})();
+</script>
+</body>
+</html>
