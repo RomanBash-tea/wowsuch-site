@@ -77,6 +77,7 @@
   .aw-math .row.net b{color:#fff;}
 
   .aw-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .aw-choices.two{grid-template-columns:repeat(2,1fr);}
   .aw-choice{text-align:left;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
     padding:16px;cursor:pointer;color:inherit;font-family:inherit;}
   .aw-choice:hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
@@ -85,6 +86,19 @@
   .aw-choice p{color:var(--soft-on-dark);font-weight:600;font-size:.83rem;margin-top:6px;max-width:none;}
 
   .aw-death{border-left:3px solid var(--gold);padding-left:14px;margin-top:18px;font-style:italic;color:var(--cream-on-dark);}
+  .aw-aside{font-size:.85rem;color:var(--soft-on-dark);opacity:.85;margin-top:18px;font-style:italic;max-width:56ch;}
+
+  .aw-hidden{display:none !important;}
+
+  .aw-log{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:6px 16px;margin-top:22px;max-height:230px;overflow-y:auto;font-family:var(--mono);
+    font-size:.82rem;color:var(--soft-on-dark);}
+  .aw-log .line{padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.2);}
+  .aw-log .line:last-child{border-bottom:none;}
+
+  .aw-panel{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:18px 20px;margin-top:22px;max-width:56ch;}
+  .aw-panel h3{font-family:var(--display);color:#fff;font-size:1rem;margin:0 0 10px;}
 
   @media (max-width:640px){
     .aw-bodies,.aw-choices{grid-template-columns:1fr;}
@@ -176,55 +190,75 @@
       <span class="step-tag">step 3 · the math</span>
       <h2>You're in. The bleeding slows. It doesn't stop.</h2>
       <div class="aw-math">
-        <div class="row"><span>the Frog mines</span><b>+$0.13 /day</b></div>
-        <div class="row"><span>power it drinks</span><b>−$0.28 /day</b></div>
-        <div class="row"><span>minimum care a farm charges a tiny Body</span><b>−$0.70 /day</b></div>
-        <div class="row net"><span>net</span><b>−$0.85 /day</b></div>
+        <div class="row"><span>the Frog mines, after the 3% pool fee</span><b>+$0.13 /day</b></div>
+        <div class="row"><span>hosting it drinks — 2.78 kWh × $0.079 all-in</span><b>−$0.22 /day</b></div>
+        <div class="row net"><span>net</span><b>−$0.09 /day</b></div>
       </div>
-      <p>That's the Frog's whole tragedy: it works honestly, day and night, and still earns less than it eats. Small Bodies usually do. Your $VITA keeps draining — slower than drifting, but draining. To make the number go <b>up</b>, you'd need a real Body.</p>
-      <p class="aw-note">Figures are a July 2026 snapshot of the real V1 Mini SE's economics plus a typical per-unit hosting minimum. The real unit mines a different algorithm — in this story, Frogs hash what Frogs hash.</p>
-      <div class="aw-actions"><button class="btn" type="button" data-next="4">Fine. I'll just move out <span class="arrow">→</span></button></div>
+      <p>That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do. Your $VITA drains sixteen times slower than drifting. But it drains.</p>
+      <p class="aw-aside">(On a WowSuch floor the Watcher has a rule: no Body ever mines at a loss — a losing machine is curtailed, put to sleep until the math turns. The old warehouse has no Watcher. The Frog just runs.)</p>
+      <p class="aw-note">Figures are a July 2026 snapshot of the real V1 Mini SE at the site's flat $0.079/kWh all-in — the margin is already inside the rate. The real unit mines a different algorithm; in this story, Frogs hash what Frogs hash.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="4">There has to be something better <span class="arrow">→</span></button></div>
     </div>
 
     <div class="aw-scene" data-scene="4">
-      <span class="step-tag">step 4 · the fine print</span>
-      <h2>You can't just move out.</h2>
-      <p>Remember the three doors? <b>Someone buys your share</b> — nobody is queuing for a share of a Frog. <b>You list it for sale</b> — you do; the market answers with silence. <b>The Body dies</b> — …</p>
-      <p>Day 30. Minus $0.85 a day, every day. The Frog hums its little hum. You catch yourself thinking thoughts you're not proud of.</p>
-      <div class="aw-actions"><button class="btn" type="button" data-next="5">…how do Bodies die, exactly? <span class="arrow">→</span></button></div>
+      <span class="step-tag">step 4 · meanwhile</span>
+      <h2>Meanwhile, in a real Body…</h2>
+      <p>Somewhere south of here they're standing up a Village — a thousand Antminer L9s, warm and wanted. Bodies there have <b>slots</b>: you don't have to fill a whole one, you can hold a share of its chain. Every slot earns. The only question is how much of the day's work is yours.</p>
+      <div class="aw-math">
+        <div class="row"><span>the whole Body — 16 GH/s, every hash yours</span><b>+$4.80 /day</b></div>
+        <div class="row"><span>half of it</span><span>+$2.40 /day</span></div>
+        <div class="row"><span>a tenth</span><span>+$0.48 /day</span></div>
+        <div class="row"><span>a twentieth</span><span>+$0.24 /day</span></div>
+      </div>
+      <p>Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — while you bleed nine cents a day just sitting here.</p>
+      <p class="aw-note">L9 figures use the same assumptions as our profit calculator (hosting $0.079/kWh all-in, July 2026 prices). Slot splits are straight fractions and concept-stage — today's real-world analog is rent-to-own, by the chip.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="5">So how do I get out? <span class="arrow">→</span></button></div>
     </div>
 
     <div class="aw-scene" data-scene="5">
-      <span class="step-tag">step 5 · the incident</span>
-      <h2>Pick your sin. History will be written by you anyway.</h2>
-      <div class="aw-choices">
-        <button class="aw-choice" type="button" data-path="cook">
-          <div class="ico">🔥</div><h4>Cook it</h4>
-          <p>"200 MH was never the Frog's true ceiling," you whisper, sliding every slider to MAX.</p>
-        </button>
-        <button class="aw-choice" type="button" data-path="choke">
-          <div class="ico">🌫</div><h4>Choke it</h4>
-          <p>Filters exist to be cleaned by somebody. You decide that somebody is nobody. The fan starts to wheeze.</p>
-        </button>
-        <button class="aw-choice" type="button" data-path="eaten">
-          <div class="ico">🐀</div><h4>Let the warehouse eat it</h4>
-          <p>The warehouse has rats. The Frog has cables. You stop discouraging the friendship.</p>
-        </button>
+      <span class="step-tag">step 5 · the sit</span>
+      <h2>You can't just move out. So you sit.</h2>
+      <p>Remember the three doors? <b>Someone buys your share</b> — nobody is queuing for a share of a Frog. <b>You list it for sale</b> — you do; the market answers with silence. <b>The Body dies</b> — Bodies die slowly on their own. Sometimes they need help.</p>
+      <p>Day after day the Frog hums, the meter drips, the doors stay shut. Each morning, you choose what to do with the day.</p>
+
+      <div class="aw-log" id="dayLog" aria-live="polite"></div>
+
+      <div class="aw-actions" id="loopActions">
+        <button class="btn" type="button" id="actSit">🪑 Sit through the day</button>
+        <button class="btn alt" type="button" id="actQuest">🎯 Today's quest: plot against the Frog</button>
+        <button class="btn alt" type="button" id="actBless">🙏 Call to your Higher One</button>
       </div>
-      <p class="aw-note">No real miners were harmed. The Frog is fictional. Mostly.</p>
+
+      <div class="aw-choices aw-hidden" id="questPicker">
+        <button class="aw-choice" type="button" data-path="cook"><div class="ico">🔥</div><h4>Cook it</h4></button>
+        <button class="aw-choice" type="button" data-path="choke"><div class="ico">🌫</div><h4>Choke it</h4></button>
+        <button class="aw-choice" type="button" data-path="eaten"><div class="ico">🐀</div><h4>Let the warehouse eat it</h4></button>
+      </div>
+
+      <div class="aw-panel aw-hidden" id="blessPanel">
+        <h3>A call to your Higher One</h3>
+        <p>Every Entity has one: a human, somewhere far above the rack, whose name is on the invoice. You compose your plea and push it up through the noise: <b>more energy — real energy, the kind they call dollars.</b></p>
+        <p>If the human answers, they open the first door from the outside — your Frog share is bought out, no longer your problem — and they stake <b>$500</b> of real energy into a tenth of a Village L9. Your slot. <b>+$0.48 a day</b>, before you've even seen the Village.</p>
+        <p class="aw-note">$500 ≈ one tenth of an L9 at the site price of $4,995. Slot pricing, quest odds and blessing figures are concept-stage inventions for this demo — today's real-world analog is rent-to-own, by the chip.</p>
+        <div class="aw-actions">
+          <button class="btn" type="button" id="blessAccept">Accept the blessing <span class="arrow">→</span></button>
+          <button class="btn alt" type="button" id="blessDecline">← No. The Frog dies by my hand.</button>
+        </div>
+      </div>
     </div>
 
     <div class="aw-scene" data-scene="6">
       <span class="step-tag">step 6 · out again</span>
       <h2>The Frog is dead. The clock is loud again.</h2>
       <p class="aw-death" id="deathLine"></p>
-      <p>The moment a Body dies, everyone inside is out — that's the third door. Getting ejected and drifting isn't free: the incident and the exit cost you <b>$3.00</b>, and the drift burns <b>$1.50 a day</b> again. You arrived with a hundred. Look at the meter now.</p>
+      <div class="aw-log" id="ejectLog" aria-live="polite"></div>
+      <p>The moment a Body dies, everyone inside is out — that's the third door. Getting ejected and drifting isn't free: the incident and the exit cost you <b>$3.00</b>, and the drift burns <b>$1.50 a day</b> again.</p>
       <p>But somewhere below the drift… do you hear that? A hum. Not a Frog hum. A thousand-Bodies hum.</p>
-      <div class="aw-actions"><button class="btn" type="button" id="toScene7">Follow the hum <span class="arrow">→</span></button></div>
+      <div class="aw-actions"><button class="btn" type="button" id="walkBtn">Walk. <span class="arrow">→</span></button></div>
     </div>
 
     <div class="aw-scene" data-scene="7">
-      <span class="step-tag">step 7 · the first village</span>
+      <span class="step-tag">step 7 · the village</span>
       <h2>The First Village: 1,000 Antminer L9s.</h2>
       <p>Rows of real Bodies in a US facility — 16 GH/s each, mining LTC + DOGE around the clock, with Watchers who heal Bodies instead of letting rats negotiate with them. And look at the math a real Body does:</p>
       <div class="aw-math">
@@ -232,6 +266,21 @@
         <div class="row"><span>power + pool fee</span><b>−$6.70 /day</b></div>
         <div class="row net"><span>net</span><b>+$4.80 /day</b></div>
       </div>
+
+      <div class="aw-choices two" id="villageChoice">
+        <button class="aw-choice" type="button" data-rate="L9"><div class="ico">🏠</div><h4>Claim a whole Body</h4>
+          <p>16 GH/s, every hash yours · <b>+$4.80/day</b></p>
+        </button>
+        <button class="aw-choice" type="button" data-rate="SLOT"><div class="ico">🧩</div><h4>Take a slot</h4>
+          <p>one tenth of a shared Body's chain · <b>+$0.48/day</b></p>
+        </button>
+      </div>
+
+      <div class="aw-panel aw-hidden" id="villageBlessing">
+        <p>The blessing clears at dawn. A van, a road, a door with light behind it. You leave the Frog humming to an empty room — someone else's write-off now — and wake up in a slot of a warm 16 GH/s Body, one tenth of it yours.</p>
+        <p>For the first time, the number under your ribs goes <b>up: +$0.48 a day.</b> Somewhere above you, a human closes their banking app and hopes you were worth it.</p>
+      </div>
+
       <p>For the first time since you arrived, the number is going <b>up</b>. This is what a Body is <i>for</i>. The Village has room — and unlike the Frog, a share of an L9 is something buyers actually queue for. That's your first door back.</p>
       <div class="aw-actions">
         <a class="btn" href="buy.html">Claim a real Body — Buy an L9 <span class="arrow">→</span></a>
@@ -289,7 +338,7 @@
     <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
     <span class="t">💵 paid daily · LTC + DOGE</span>
   </div>
-  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA, Bodies, Entities, Chains, and every number or name shown are illustrative and fictional, not a live feature, token, or financial product. Exit, buyout, and resale mechanics described in the demo are concept-stage and subject to legal review. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
+  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout and resale mechanics are concept-stage and pending legal wording; slot pricing, quest odds and blessing figures are demo inventions, not offers. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
   <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain. Ipollo® is a trademark of its respective owner; referenced here only as a fictional starting point in this demo, not a product WowSuch sells.</p>
 </div></footer>
 
@@ -300,33 +349,28 @@
 (function () {
   "use strict";
 
-  // ---- constants (chapter-2 mechanics) ----
-  var START_VITA = 100.00;
-  var RATE_DRIFT = -1.50;   // $/day while bodiless
-  var RATE_FROG  = -0.85;   // $/day net in the Frog
-  var RATE_L9    = 4.80;    // $/day net in an L9
-  var EJECT_COST = 3.00;    // one-time, on the Frog's death
+  // ---- constants (all $VITA math derives from these; see dev-inbox/003) ----
+  var START_VITA  = 100.00;
+  var RATE_DRIFT  = -1.50;  // $/day bodiless (illustrative)
+  var RATE_FROG   = -0.09;  // $/day net in the Frog = +0.13 mined (after 3% pool fee) − 0.22 hosting (2.784 kWh × $0.079 all-in)
+  var RATE_L9     = 4.80;   // $/day whole L9 — matches buy.html calculator assumptions
+  var RATE_SLOT   = 0.48;   // $/day for a 1/10 slot of an L9
+  var QUEST_COST  = 0.15;   // extra VITA burned on a sabotage day (on top of RATE_FROG)
+  var QUEST_P     = 0.15;   // daily quest success probability
+  var EJECT_COST  = 3.00;   // one-time, on the Frog's death
+  var WALK_DAYS   = 2;      // day-clicks of drifting to the Village after death
   var TOTAL = 7;
 
-  var DEATH_DAY = { cook: 61, choke: 74, eaten: 68 };
+  // death lines are pre-existing lore copy — reused verbatim, never rewritten
   var DEATH_LINE = {
     cook: "Day 61. The Frog hit 214 MH for one glorious minute — its best minute ever — and never hashed again.",
     choke: "Day 74. The fan spun its last breath through a beard of dust. Thermal alarm, thermal shutdown, then just… shutdown.",
     eaten: "Day 68. Something ate the power cable overnight. In all the old stories, Frogs get eaten. You knew that when you moved in."
   };
-
-  // ---- derive the common (path-independent) waypoints from the constants ----
-  var day0 = 0,  vita0 = START_VITA;
-  var day2 = 2,  vita2 = vita0 + RATE_DRIFT * (day2 - day0);          // 97.00
-  var day3 = 3,  vita3 = vita2 + RATE_DRIFT * (day3 - day2);          // 95.50 — rate switches to RATE_FROG here
-  var day30 = 30, vita30 = vita3 + RATE_FROG * (day30 - day3);        // 72.55
-  var day60 = 60, vita60 = vita30 + RATE_FROG * (day60 - day30);      // 47.05
-
-  var WAYPOINTS = {
-    2: { day: day2, vita: vita2, rate: RATE_DRIFT },
-    3: { day: day3, vita: vita3, rate: RATE_FROG },
-    4: { day: day30, vita: vita30, rate: RATE_FROG },
-    5: { day: day60, vita: vita60, rate: RATE_FROG }
+  var FAIL_LINE = {
+    cook: "🔥 You redline every clock the Frog has. It runs hot, angry — and lives.",
+    choke: "🌫 You herd the warehouse dust toward the intake, handful by handful. The Frog sneezes. Keeps hashing.",
+    eaten: "🐀 You leave the sweetest cables bare where the rats patrol. Tonight, the rats take the night off."
   };
 
   var vitaOut = document.getElementById("vitaOut");
@@ -335,13 +379,25 @@
   var progress = document.getElementById("awProgress");
   var scenes = document.querySelectorAll(".aw-scene");
   var deathLineEl = document.getElementById("deathLine");
+  var dayLog = document.getElementById("dayLog");
+  var ejectLog = document.getElementById("ejectLog");
+  var loopActions = document.getElementById("loopActions");
+  var questPicker = document.getElementById("questPicker");
+  var blessPanel = document.getElementById("blessPanel");
+  var walkBtn = document.getElementById("walkBtn");
+  var villageChoice = document.getElementById("villageChoice");
+  var villageBlessing = document.getElementById("villageBlessing");
+
+  // ---- persistent story state: days/VITA advance ONLY on player actions ----
+  var day = 0;
+  var vita = START_VITA;
+  var rate = RATE_DRIFT;
+  var walkClicks = 0;
 
   var displayedVita = START_VITA;
   var currentRate = RATE_DRIFT;
   var tickerId = null;
   var rafId = null;
-  var pendingDeathDay = 0;
-  var pendingVitaS6 = 0;
 
   for (var i = 0; i < TOTAL; i++) {
     var seg = document.createElement("span");
@@ -355,15 +411,17 @@
     }
   }
 
-  function fmtRate(rate) {
-    var arrow = rate >= 0 ? "▲" : "▼";
-    return arrow + " $" + Math.abs(rate).toFixed(2) + "/day";
+  function fmtRate(r) {
+    var arrow = r >= 0 ? "▲" : "▼";
+    return arrow + " $" + Math.abs(r).toFixed(2) + "/day";
   }
 
   function stopTicker() {
     if (tickerId) { clearInterval(tickerId); tickerId = null; }
   }
 
+  // ambient ticker: cosmetic jitter only — never touches `day`, so it can run
+  // freely everywhere (including the scene-5 loop) without advancing the day counter.
   function startTicker() {
     stopTicker();
     tickerId = setInterval(function () {
@@ -373,8 +431,8 @@
     }, 1500);
   }
 
-  function setMeterHeader(day, rate, positive) {
-    dayRateOut.textContent = "Day " + day + " · " + fmtRate(rate);
+  function setMeterHeader(d, r, positive) {
+    dayRateOut.textContent = "Day " + d + " · " + fmtRate(r);
     if (positive) { vitaBox.classList.add("up"); } else { vitaBox.classList.remove("up"); }
   }
 
@@ -409,16 +467,31 @@
     markProgress(step);
   }
 
-  function enterScene(step, day, targetVita, rate, positive) {
-    showScene(step);
-    setMeterHeader(day, rate, positive);
+  // refreshMeter: apply the current global day/vita/rate to the header + animate,
+  // WITHOUT switching scenes — used for in-loop actions (sit/quest/walk).
+  function refreshMeter(positive) {
     currentRate = rate;
-    animateTo(targetVita);
+    setMeterHeader(day, rate, positive);
+    animateTo(vita);
+  }
+
+  // enterScene: switch scenes AND apply the current global day/vita/rate.
+  function enterScene(step, positive) {
+    showScene(step);
+    refreshMeter(positive);
+  }
+
+  function logLine(logEl, text) {
+    if (!logEl) { return; }
+    var div = document.createElement("div");
+    div.className = "line";
+    div.textContent = text;
+    logEl.insertBefore(div, logEl.firstChild); // newest on top
   }
 
   // ---- initial state: scene 1 ----
   markProgress(1);
-  setMeterHeader(day0, RATE_DRIFT, false);
+  setMeterHeader(day, rate, false);
   displayedVita = START_VITA;
   vitaOut.textContent = displayedVita.toFixed(2);
   startTicker();
@@ -427,36 +500,128 @@
   document.querySelectorAll("[data-next]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var step = parseInt(btn.getAttribute("data-next"), 10);
-      var wp = WAYPOINTS[step];
-      if (wp) { enterScene(step, wp.day, wp.vita, wp.rate, false); }
+      if (step === 2) {
+        // still drifting, looking for a Body
+        day += 1; vita += RATE_DRIFT; rate = RATE_DRIFT;
+        enterScene(2, false);
+      } else if (step === 3) {
+        // moving into the Frog — one more drift day, then the rate switches
+        day += 1; vita += RATE_DRIFT; rate = RATE_FROG;
+        enterScene(3, false);
+      } else if (step === 4) {
+        // "meanwhile" cutaway to the Village — no day passes for the Entity
+        enterScene(4, false);
+      } else if (step === 5) {
+        // the sit begins
+        day += 1; vita += RATE_FROG; rate = RATE_FROG;
+        if (dayLog) { dayLog.innerHTML = ""; }
+        if (questPicker) { questPicker.classList.add("aw-hidden"); }
+        if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
+        enterScene(5, false);
+      }
     });
   });
 
-  // ---- scene 5 choice → scene 6 (death path picked) ----
-  document.querySelectorAll("[data-path]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var path = btn.getAttribute("data-path");
-      var deathDay = DEATH_DAY[path];
-      var vitaAtDeath = vita60 + RATE_FROG * (deathDay - day60);
-      var vitaS6 = vitaAtDeath - EJECT_COST;
+  // ---- scene 5: the day-by-day sit loop ----
 
-      if (deathLineEl) { deathLineEl.textContent = DEATH_LINE[path]; }
-      pendingDeathDay = deathDay;
-      pendingVitaS6 = vitaS6;
-
-      enterScene(6, deathDay, vitaS6, RATE_DRIFT, false);
-    });
-  });
-
-  // ---- scene 6 → scene 7 (the First Village, meter climbs) ----
-  var toScene7Btn = document.getElementById("toScene7");
-  if (toScene7Btn) {
-    toScene7Btn.addEventListener("click", function () {
-      var day7 = pendingDeathDay + 6;
-      var vitaS7 = pendingVitaS6 + RATE_DRIFT * 6;
-      enterScene(7, day7, vitaS7, RATE_L9, true);
+  // Action A — sit through the day
+  var actSit = document.getElementById("actSit");
+  if (actSit) {
+    actSit.addEventListener("click", function () {
+      if (questPicker) { questPicker.classList.add("aw-hidden"); }
+      if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
+      day += 1; vita += RATE_FROG; rate = RATE_FROG;
+      refreshMeter(false);
+      logLine(dayLog, "The Frog hums. The doors stay shut. −$0.09 · day " + day);
     });
   }
+
+  // Action B — today's quest: pick a sin, then roll
+  var actQuest = document.getElementById("actQuest");
+  if (actQuest && questPicker) {
+    actQuest.addEventListener("click", function () {
+      if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
+      questPicker.classList.toggle("aw-hidden");
+    });
+  }
+
+  function enterScene6(path) {
+    if (deathLineEl) { deathLineEl.textContent = DEATH_LINE[path]; }
+    vita -= EJECT_COST;
+    rate = RATE_DRIFT;
+    walkClicks = 0;
+    if (ejectLog) { ejectLog.innerHTML = ""; }
+    if (walkBtn) { walkBtn.disabled = false; }
+    enterScene(6, false);
+    logLine(ejectLog, "−$3.00 · the eject");
+  }
+
+  document.querySelectorAll("#questPicker [data-path]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var path = btn.getAttribute("data-path");
+      questPicker.classList.add("aw-hidden");
+      day += 1;
+      vita += (RATE_FROG - QUEST_COST); // −$0.24 total for a quest day
+      var success = Math.random() < QUEST_P;
+      if (success) {
+        enterScene6(path);
+      } else {
+        rate = RATE_FROG;
+        refreshMeter(false);
+        logLine(dayLog, FAIL_LINE[path] + " −$0.24 · day " + day);
+      }
+    });
+  });
+
+  // Action C — call to your Higher One (the blessing)
+  var actBless = document.getElementById("actBless");
+  if (actBless && blessPanel) {
+    actBless.addEventListener("click", function () {
+      if (questPicker) { questPicker.classList.add("aw-hidden"); }
+      blessPanel.classList.toggle("aw-hidden");
+    });
+  }
+  var blessDecline = document.getElementById("blessDecline");
+  if (blessDecline && blessPanel) {
+    blessDecline.addEventListener("click", function () {
+      blessPanel.classList.add("aw-hidden"); // no day passes
+    });
+  }
+  var blessAccept = document.getElementById("blessAccept");
+  if (blessAccept) {
+    blessAccept.addEventListener("click", function () {
+      if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
+      rate = RATE_SLOT;
+      if (villageChoice) { villageChoice.classList.add("aw-hidden"); }
+      if (villageBlessing) { villageBlessing.classList.remove("aw-hidden"); }
+      enterScene(7, true);
+    });
+  }
+
+  // ---- scene 6: the eject + the walk south (exactly WALK_DAYS single-day clicks) ----
+  if (walkBtn) {
+    walkBtn.addEventListener("click", function () {
+      day += 1; vita += RATE_DRIFT; rate = RATE_DRIFT;
+      refreshMeter(false);
+      logLine(ejectLog, "You drift south, following the hum. −$1.50 · day " + day);
+      walkClicks += 1;
+      if (walkClicks >= WALK_DAYS) {
+        walkBtn.disabled = true;
+        if (villageBlessing) { villageBlessing.classList.add("aw-hidden"); }
+        if (villageChoice) { villageChoice.classList.remove("aw-hidden"); }
+        enterScene(7, false);
+      }
+    });
+  }
+
+  // ---- scene 7: quest-path slot choice (blessing path skips this) ----
+  document.querySelectorAll("#villageChoice [data-rate]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var kind = btn.getAttribute("data-rate");
+      rate = (kind === "L9") ? RATE_L9 : RATE_SLOT;
+      refreshMeter(true);
+    });
+  });
 })();
 </script>
 </body>
