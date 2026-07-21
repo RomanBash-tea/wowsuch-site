@@ -55,6 +55,25 @@
   @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
   .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
   .cta-final .eyebrow{color:var(--ink);}
+  .vessels-band{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-xl);box-shadow:var(--sh-3);padding:40px 44px;position:relative;overflow:hidden;
+    display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center;}
+  .vessels-band::before{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(255,185,46,.22),transparent 70%);}
+  .vessels-band .eyebrow{color:var(--gold-on-dark);}
+  .vessels-band h2{color:#fff;}
+  .vessels-band h2 .pop{color:var(--gold-on-dark);}
+  .vessels-band p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:52ch;}
+  .vessels-band p b{color:var(--cream-on-dark);}
+  .vb-chain{position:relative;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
+    padding:26px 22px;text-align:center;}
+  .vb-runes{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;}
+  .vb-runes span{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--gold-on-dark);
+    background:var(--night);border:2px solid var(--gold);border-radius:var(--r-sm);padding:7px 11px;}
+  .vb-runes .lnk{background:none;border:0;padding:0;color:var(--soft-on-dark);}
+  .vb-name{font-family:var(--display);font-weight:800;font-size:1.35rem;color:#fff;margin-top:14px;}
+  .vb-cap{font-weight:700;font-size:.85rem;color:var(--soft-on-dark);margin-top:6px;}
+  @media(max-width:900px){.vessels-band{grid-template-columns:1fr;padding:32px 26px;}}
 </style>
 </head>
 <body class="has-mobile-cta">
@@ -197,6 +216,27 @@
       <p>Ship us the rigs you already own. Institutional US hosting on a site that powers <b>6,000+ DOGE miners for a public company</b> — same pool + MPC stack.</p>
       <span class="s-go">Go enterprise →</span>
     </a>
+  </div>
+</div></section>
+
+<!-- ============ VESSELS (concept) ============ -->
+<section class="tight" id="vessels"><div class="wrap">
+  <div class="vessels-band reveal">
+    <div>
+      <span class="eyebrow">…and a fifth is brewing · concept preview</span>
+      <h2>Vessels: your machine becomes a <span class="pop">Body</span></h2>
+      <p>A game layer we're sketching on top of real ownership. Every L9 is a <b>Body</b>; the owners settled into it are <b>Entities</b>, linked into a <b>Chain</b> that shares the <b>Energy</b> it mines. Two letters of each Entity's name become a <b>Rune</b> — and the Runes, in Chain order, name the Body itself.</p>
+      <p style="font-size:.9rem">Phase 0 — nothing is live and no numbers are final. But the whole idea is written up, and there's a waitlist.</p>
+      <div class="hero-ctas" style="margin-top:18px">
+        <a class="btn" href="vessels.html">Peek at Vessels <span class="arrow">→</span></a>
+        <a class="btn alt" href="vessels.html#waitlist">Join the waitlist</a>
+      </div>
+    </div>
+    <div class="vb-chain" aria-hidden="true">
+      <div class="vb-runes"><span>RO</span><span class="lnk">—</span><span>IG</span><span class="lnk">—</span><span>AN</span><span class="lnk">—</span><span>MA</span></div>
+      <div class="vb-name">= a Body named “Roiganma”</div>
+      <div class="vb-cap">four Entities · one Chain · one machine</div>
+    </div>
   </div>
 </div></section>
 
@@ -397,6 +437,8 @@
       <div class="ans"><p>Our techs fix it on-site — typically under 14 business days, free for the first 6 months (and the entire term on rent-to-own). Every repair carries its own fresh 90-day warranty.</p></div></div>
     <div class="q"><button type="button">How do I cash out? <span class="plus">+</span></button>
       <div class="ans"><p>Four ways: withdraw LTC + DOGE to any wallet; cash out to USD after one-time KYC; swap cross-chain on DeFi via integrated Thorchain; or spend via gift cards and prepaid Visa (coming soon). Your coins, your call.</p></div></div>
+    <div class="q"><button type="button">What is Vessels? <span class="plus">+</span></button>
+      <div class="ans"><p>An early concept for a game layer on top of real ownership: every machine is a <b>Body</b>, its owners are <b>Entities</b> linked into a <b>Chain</b>, and the Chain shares the <b>Energy</b> it mines. It's Phase 0 — nothing is live yet and no numbers are final — but you can <a href="vessels.html" style="text-decoration:underline;color:var(--amber)">preview the whole idea</a> and join the waitlist.</p></div></div>
   </div>
 </div></section>
 
