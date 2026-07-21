@@ -41,9 +41,7 @@
     color:#fff;margin:14px auto;display:block;}
   .rune-card input::placeholder{color:var(--soft-on-dark);}
   .rune-out{font-family:var(--display);font-weight:800;font-size:1.9rem;color:var(--gold-on-dark);
-    min-height:2.4em;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
-  .rune-out .tribe{font-family:var(--meme);font-weight:700;font-size:.85rem;background:var(--gold);
-    color:var(--ink);border-radius:999px;padding:4px 14px;transform:rotate(-2deg);}
+    min-height:2.4em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;text-align:center;}
   .vs-illus-band{background:var(--paper);border:3px dashed var(--ink);border-radius:var(--r-lg);
     padding:26px 28px;}
   .vs-illus-band .row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;
@@ -115,11 +113,11 @@
   <div class="flow vs-flow">
     <div class="node"><b>Body</b><small>your L9, or your chip of one</small></div>
     <div class="arw">→</div>
-    <div class="node"><b>Bonded Entity</b><small>name it, give it a Rune</small></div>
+    <div class="node"><b>Entity settles in</b><small>small entry fee, get a Rune</small></div>
     <div class="arw">→</div>
-    <div class="node"><b>Joins a Chain</b><small>through a Seams compatibility check</small></div>
+    <div class="node"><b>Joins the Chain</b><small>settle order sets your position</small></div>
     <div class="arw">→</div>
-    <div class="node"><b>Earns with a Tribe</b><small>Watcher keeps it healthy</small></div>
+    <div class="node"><b>Energy flows</b><small>commission runs 15% down to a ~2% floor</small></div>
   </div>
 </div></section>
 
@@ -127,32 +125,36 @@
 <section class="band-alt"><div class="wrap">
   <div class="sec-head center">
     <span class="eyebrow">the mechanics we're testing</span>
-    <h2>Five ideas, still on the whiteboard</h2>
+    <h2>Seven ideas, still on the whiteboard</h2>
   </div>
   <div class="sol-grid">
     <div class="sol-card">
       <h3>Seams</h3>
-      <p>Not every Body fits every Chain. Seams are the compatibility check — matching uptime, hosting site, and hashrate before two Bodies link up.</p>
+      <p>Neighbors in a Chain aren't always well matched — mismatched uptime or hosting leaks a slice of Energy at the Seam between them. Sync up and the leak shrinks; ignore it and you're closer to the worst case.</p>
     </div>
     <div class="sol-card">
       <h3>Tribes</h3>
-      <p>Chains that keep good company become a Tribe — a standing group of owners who choose to Chain together again and again.</p>
+      <p>Every Body lives in a physical container at the farm — that container is a Tribe. Tribes run weekly on real KPIs (uptime, efficiency), so there's bragging rights on the line too.</p>
     </div>
     <div class="sol-card">
       <h3>Watcher</h3>
-      <p>Every Chain gets a Watcher — one owner (or WowSuch itself, early on) who keeps an eye on uptime and flags repairs first.</p>
+      <p>Watcher is a role, not a job title — track your own Body's telemetry closely enough and you earn a bonus for it, plus the standing right to pull its real logs: restarts, hashrate drops, repairs.</p>
     </div>
     <div class="sol-card">
       <h3>Healing</h3>
-      <p>A Body offline for repair shouldn't drag its whole Chain down. Healing is the payout-smoothing rule that covers a Chain through downtime.</p>
+      <p>Hardware ages honestly here. When a Body goes in for real repair, that's a Healing event — tracked on real telemetry, not glossed over like the rest of the category tends to.</p>
+    </div>
+    <div class="sol-card">
+      <h3>Buyout</h3>
+      <p>Want the whole Body? Buy it out — no Chain, no neighbors, just the minimum commission. Open slots afterward and you become the head, earning the reverse flow from whoever settles in below you.</p>
     </div>
     <div class="sol-card">
       <h3>Reincarnation</h3>
-      <p>Buy your Body out of the Chain whole, or let it Reincarnate — roll its value straight into a new Body when you upgrade.</p>
+      <p>When a Body reaches end of life, its Entities carry their standing into a new Body of the same class. Die early instead, and the insurance reserve covers the move — no new payment.</p>
     </div>
     <div class="sol-card">
       <h3>Energy</h3>
-      <p>Energy is what a Chain actually earns: the combined LTC + DOGE flowing from every linked Body, split by the rule the Chain agreed to going in.</p>
+      <p>Energy is what a Body actually mines — real LTC + DOGE. It flows down the Chain in settling order, split by position, Seams, and the commission each link pays along the way.</p>
     </div>
   </div>
 </div></section>
@@ -165,10 +167,10 @@
       <span class="illus">illustrative · pre-Phase 0</span>
     </div>
     <div class="row"><span>Entry per Body-slot</span><span class="v">$20 – $50</span></div>
-    <div class="row"><span>WowSuch service cut</span><span class="v">~15%</span></div>
-    <div class="row"><span>Minimum Chain reserve</span><span class="v">~2%</span></div>
-    <div class="row"><span>Healing smoothing rate</span><span class="v">0.5% – 8%</span></div>
-    <div class="row"><span>Earnings split (owner / Chain pool / Tribe pool)</span><span class="v">50 / 30 / 20</span></div>
+    <div class="row"><span>Commission range (worst case → floor everyone pays)</span><span class="v">15% → ~2%</span></div>
+    <div class="row"><span>Example Chain cascade (head → tail, keep-rate)</span><span class="v">98 / 96 / 94 / 92 / 89 / 86%</span></div>
+    <div class="row"><span>Chain reshuffle cadence</span><span class="v">weekly</span></div>
+    <div class="row"><span>Rune length</span><span class="v">2 letters, from your email</span></div>
     <p class="chart-note">Every figure here is a placeholder for modeling, not a promise. All of it needs a Phase 0 simulation and Igor's sign-off before it means anything. Don't plan around these numbers.</p>
   </div>
 </div></section>
@@ -178,11 +180,11 @@
   <div class="sec-head center">
     <span class="eyebrow">try the fun part</span>
     <h2>Bond a name to your Body</h2>
-    <p>This bit actually works — nothing else on the page does yet. Type anything and see what Rune it becomes.</p>
+    <p>This bit actually works — nothing else on the page does yet. In the real thing, your Rune is the first two letters of your email; type yours (or anything) to see how it'd slot into a Body's name.</p>
   </div>
   <div class="rune-card" style="max-width:560px;margin:0 auto">
-    <label for="runeSeed" style="font-family:var(--display);font-weight:700;color:var(--gold-on-dark)">Your Body's callsign</label>
-    <input id="runeSeed" placeholder="e.g. Rig 12, or your own name" autocomplete="off">
+    <label for="runeSeed" style="font-family:var(--display);font-weight:700;color:var(--gold-on-dark)">Your email (just for this demo — nothing is sent or stored)</label>
+    <input id="runeSeed" placeholder="you@example.com" autocomplete="off">
     <button class="btn" id="runeBtn" type="button">Bond a Rune <span class="arrow">→</span></button>
     <div class="rune-out" id="runeOut" aria-live="polite"></div>
   </div>
@@ -261,26 +263,21 @@
 <script>
 (function () {
   "use strict";
-  var PRE = ["Ember","Doge","Volt","Amber","Litec","Shard","Glim","Husk","Rune","Cipher","Umbra","Fenwick"];
-  var ROOT = ["seam","forge","chain","spark","warden","hollow","glint","core","reach","vale","mark","thread"];
-  var TRIBES = ["Ridge Tribe","Hollow Tribe","Spark Tribe","Deep Chain Tribe","Glint Tribe","Warden's Tribe"];
-  function hashStr(s) {
-    var h = 0;
-    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
-    return h;
-  }
+  var CHAINMATES = ["IG", "AN", "MA"];
   var btn = document.getElementById("runeBtn");
   var out = document.getElementById("runeOut");
   var seed = document.getElementById("runeSeed");
   if (btn) {
     btn.addEventListener("click", function () {
-      var raw = (seed.value || "body").trim() || "body";
-      var h = hashStr(raw + Math.random());
-      var pre = PRE[h % PRE.length];
-      var root = ROOT[(h >> 3) % ROOT.length];
-      var num = (h % 89) + 10;
-      var tribe = TRIBES[(h >> 5) % TRIBES.length];
-      out.innerHTML = pre + root + "-" + num + " <span class=\"tribe\">" + tribe + "</span>";
+      var raw = (seed.value || "you@wowsuch.com").trim() || "you@wowsuch.com";
+      var letters = raw.replace(/[^a-zA-Z]/g, "").toUpperCase();
+      var rune = (letters.slice(0, 2) || "XX");
+      if (rune.length < 2) { rune = (rune + "XX").slice(0, 2); }
+      var bodyName = CHAINMATES.concat([rune]).join("");
+      bodyName = bodyName.charAt(0) + bodyName.slice(1).toLowerCase();
+      out.innerHTML = "Your Rune: <b>" + rune + "</b>" +
+        "<br><span style=\"font-size:.55em;font-weight:600\">Settle behind " + CHAINMATES.join(", ") +
+        " and this Body's name becomes <b>" + bodyName + "</b></span>";
     });
   }
 
