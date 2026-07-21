@@ -44,6 +44,9 @@
   .aw-vita{position:absolute;top:22px;right:26px;text-align:right;font-family:var(--mono);}
   .aw-vita .lbl{font-size:.72rem;font-weight:700;color:var(--soft-on-dark);letter-spacing:.04em;text-transform:uppercase;}
   .aw-vita .num{font-size:1.3rem;font-weight:800;color:var(--gold-on-dark);}
+  .aw-vita .rate{margin-top:4px;font-size:.72rem;font-weight:700;color:var(--soft-on-dark);white-space:nowrap;}
+  .aw-vita.up .num{color:#FFD873;text-shadow:0 0 12px rgba(255,185,46,.55);}
+  .aw-vita.up .rate{color:#FFD873;font-weight:800;}
 
   .aw-bodies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
   .aw-body-card{border:3px solid var(--gold);border-radius:var(--r-md);padding:16px 14px;text-align:center;
@@ -62,6 +65,31 @@
   .aw-progress{display:flex;gap:6px;margin-bottom:18px;}
   .aw-progress span{height:5px;flex:1;border-radius:99px;background:#2A1B06;border:1px solid var(--gold);}
   .aw-progress span.done{background:var(--gold-on-dark);}
+
+  .aw-math{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:6px 16px;margin-top:20px;max-width:56ch;}
+  .aw-math .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;
+    font-family:var(--mono);font-size:.85rem;color:var(--soft-on-dark);font-weight:700;
+    border-bottom:1px solid rgba(255,185,46,.25);}
+  .aw-math .row:last-child{border-bottom:none;}
+  .aw-math .row b{color:var(--gold-on-dark);}
+  .aw-math .row.net{font-weight:800;}
+  .aw-math .row.net b{color:#fff;}
+
+  .aw-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .aw-choice{text-align:left;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
+    padding:16px;cursor:pointer;color:inherit;font-family:inherit;}
+  .aw-choice:hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-choice .ico{font-size:1.6rem;}
+  .aw-choice h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
+  .aw-choice p{color:var(--soft-on-dark);font-weight:600;font-size:.83rem;margin-top:6px;max-width:none;}
+
+  .aw-death{border-left:3px solid var(--gold);padding-left:14px;margin-top:18px;font-style:italic;color:var(--cream-on-dark);}
+
+  @media (max-width:640px){
+    .aw-bodies,.aw-choices{grid-template-columns:1fr;}
+    .aw-vita{position:static;text-align:left;margin-bottom:18px;}
+  }
 </style>
 </head>
 <body>
@@ -108,46 +136,110 @@
   <div class="aw-hero reveal in">
     <span class="eyebrow">phase 0 · playable teaser</span>
     <h1>You just became an <span class="pop">Entity</span>.</h1>
-    <p class="sub">No memory, no Body, no plan — just the first few steps to figure out what that means. This is a narrative demo for the Vessels concept: nothing here is a real machine, a real payout, or a real token.</p>
+    <p class="sub">No memory, no Body — just a pocketful of $VITA and a clock that's already running. This is a narrative demo for the Vessels concept: nothing here is a real machine, a real payout, or a real token.</p>
   </div>
 </div></section>
 
 <!-- ============ INTERACTIVE STAGE ============ -->
 <section><div class="wrap">
   <div class="aw-stage reveal">
-    <div class="aw-vita"><span class="lbl">$VITA banked</span><br><span class="num" id="vitaOut">0.00</span></div>
+    <div class="aw-vita">
+      <span class="lbl">$VITA banked</span><br><span class="num" id="vitaOut">100.00</span>
+      <div class="rate" id="vitaRate">Day 0 · ▼ $1.50/day</div>
+    </div>
     <div class="aw-progress" id="awProgress"></div>
 
     <div class="aw-scene active" data-scene="1">
       <span class="step-tag">step 1 · arrival</span>
-      <h2>No memory. No Body. No plan.</h2>
-      <p>Just raw, undeniable, brand-new Entity — pulled down from wherever new Entities come from. Somewhere below you, machines are already running. One of them has an open slot. You're about to find out which one.</p>
+      <h2>You arrive with a pocketful of $VITA.</h2>
+      <p>Every Entity is born holding a starting stock of Energy — WowSuch calls it <b>$VITA</b>, and yours reads <b>$100.00</b>. Keep it simple: 1 $VITA = 1 dollar.</p>
+      <p class="aw-vita-def">$VITA — <b>V</b>essel <b>I</b>ntrinsic <b>T</b>oken <b>A</b>ccumulator. The Energy an Entity carries — and the only thing it truly owns.</p>
+      <p>One more thing nobody warns you about: <b>existing costs money.</b> An Entity without a Body burns about <b>$1.50 a day</b> just drifting and searching. A Body isn't a luxury — it's how you slow the bleeding.</p>
       <div class="aw-actions"><button class="btn" type="button" data-next="2">Find a Body <span class="arrow">→</span></button></div>
     </div>
 
     <div class="aw-scene" data-scene="2">
       <span class="step-tag">step 2 · the pull</span>
       <h2>Three Bodies flicker into view.</h2>
-      <p>Two are already spoken for — full Chains, no room for you. One is sitting alone, half-forgotten, hashing quietly by itself. Nobody's dream Body. But it's open, and it's warm.</p>
+      <p>Two are spoken for — full Chains, no room for you. One is sitting alone, half-forgotten: an <b>iPollo V1 Mini SE</b>, 200 MH, nobody's dream Body. Around here they call it <b>the Frog</b>.</p>
       <div class="aw-bodies">
         <div class="aw-body-card"><div class="ico">⛏</div><h4>Antminer L9</h4><small>full Chain</small><span class="tag">occupied</span></div>
         <div class="aw-body-card"><div class="ico">⛏</div><h4>Antminer L9</h4><small>full Chain</small><span class="tag">occupied</span></div>
         <div class="aw-body-card open"><div class="ico">🐸</div><h4>Ipollo V1 Mini SE</h4><small>200 MH/s · alone</small><span class="tag">1 slot open</span></div>
       </div>
-      <p class="aw-note">Not something WowSuch actually sells — just where this story starts. It's nicknamed "the Frog" for a reason.</p>
-      <div class="aw-actions"><button class="btn" type="button" data-next="3">Settle in <span class="arrow">→</span></button></div>
+      <p><b>Read before you leap.</b> A Body is not a hotel. Once you're in, you stay in — until someone buys out your share, until you list it and a buyer actually shows up, or until the Body dies. Those are the three doors. There is no fourth.</p>
+      <p class="aw-note">(Exact exit and resale terms are for the lawyers to word. In this story it's simpler: no take-backs.)</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="3">Take the Frog — better than bleeding <span class="arrow">→</span></button></div>
     </div>
 
     <div class="aw-scene" data-scene="3">
-      <span class="step-tag">step 3 · first breath</span>
-      <h2>You're in. It's cramped. It's yours.</h2>
-      <p>A small trickle of Energy starts moving your way — WowSuch calls it <b>$VITA</b>, and watch, it's already climbing in the corner. Nobody's fighting you for it. Not yet.</p>
-      <p class="aw-vita-def">$VITA — <b>V</b>essel <b>I</b>ntrinsic <b>T</b>oken <b>A</b>ccumulator. Our playful name for the Energy a Body banks over time.</p>
-      <p><b>That's it — for now.</b> The Frog is warm, the trickle is steady, and nobody knows you're here yet. What Chains, Seams, and bigger Bodies mean… that's the next chapter.</p>
+      <span class="step-tag">step 3 · the math</span>
+      <h2>You're in. The bleeding slows. It doesn't stop.</h2>
+      <div class="aw-math">
+        <div class="row"><span>the Frog mines</span><b>+$0.13 /day</b></div>
+        <div class="row"><span>power it drinks</span><b>−$0.28 /day</b></div>
+        <div class="row"><span>minimum care a farm charges a tiny Body</span><b>−$0.70 /day</b></div>
+        <div class="row net"><span>net</span><b>−$0.85 /day</b></div>
+      </div>
+      <p>That's the Frog's whole tragedy: it works honestly, day and night, and still earns less than it eats. Small Bodies usually do. Your $VITA keeps draining — slower than drifting, but draining. To make the number go <b>up</b>, you'd need a real Body.</p>
+      <p class="aw-note">Figures are a July 2026 snapshot of the real V1 Mini SE's economics plus a typical per-unit hosting minimum. The real unit mines a different algorithm — in this story, Frogs hash what Frogs hash.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="4">Fine. I'll just move out <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="aw-scene" data-scene="4">
+      <span class="step-tag">step 4 · the fine print</span>
+      <h2>You can't just move out.</h2>
+      <p>Remember the three doors? <b>Someone buys your share</b> — nobody is queuing for a share of a Frog. <b>You list it for sale</b> — you do; the market answers with silence. <b>The Body dies</b> — …</p>
+      <p>Day 30. Minus $0.85 a day, every day. The Frog hums its little hum. You catch yourself thinking thoughts you're not proud of.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="5">…how do Bodies die, exactly? <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="aw-scene" data-scene="5">
+      <span class="step-tag">step 5 · the incident</span>
+      <h2>Pick your sin. History will be written by you anyway.</h2>
+      <div class="aw-choices">
+        <button class="aw-choice" type="button" data-path="cook">
+          <div class="ico">🔥</div><h4>Cook it</h4>
+          <p>"200 MH was never the Frog's true ceiling," you whisper, sliding every slider to MAX.</p>
+        </button>
+        <button class="aw-choice" type="button" data-path="choke">
+          <div class="ico">🌫</div><h4>Choke it</h4>
+          <p>Filters exist to be cleaned by somebody. You decide that somebody is nobody. The fan starts to wheeze.</p>
+        </button>
+        <button class="aw-choice" type="button" data-path="eaten">
+          <div class="ico">🐀</div><h4>Let the warehouse eat it</h4>
+          <p>The warehouse has rats. The Frog has cables. You stop discouraging the friendship.</p>
+        </button>
+      </div>
+      <p class="aw-note">No real miners were harmed. The Frog is fictional. Mostly.</p>
+    </div>
+
+    <div class="aw-scene" data-scene="6">
+      <span class="step-tag">step 6 · out again</span>
+      <h2>The Frog is dead. The clock is loud again.</h2>
+      <p class="aw-death" id="deathLine"></p>
+      <p>The moment a Body dies, everyone inside is out — that's the third door. Getting ejected and drifting isn't free: the incident and the exit cost you <b>$3.00</b>, and the drift burns <b>$1.50 a day</b> again. You arrived with a hundred. Look at the meter now.</p>
+      <p>But somewhere below the drift… do you hear that? A hum. Not a Frog hum. A thousand-Bodies hum.</p>
+      <div class="aw-actions"><button class="btn" type="button" id="toScene7">Follow the hum <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="aw-scene" data-scene="7">
+      <span class="step-tag">step 7 · the first village</span>
+      <h2>The First Village: 1,000 Antminer L9s.</h2>
+      <p>Rows of real Bodies in a US facility — 16 GH/s each, mining LTC + DOGE around the clock, with Watchers who heal Bodies instead of letting rats negotiate with them. And look at the math a real Body does:</p>
+      <div class="aw-math">
+        <div class="row"><span>an L9 mines</span><b>+$11.50 /day</b></div>
+        <div class="row"><span>power + pool fee</span><b>−$6.70 /day</b></div>
+        <div class="row net"><span>net</span><b>+$4.80 /day</b></div>
+      </div>
+      <p>For the first time since you arrived, the number is going <b>up</b>. This is what a Body is <i>for</i>. The Village has room — and unlike the Frog, a share of an L9 is something buyers actually queue for. That's your first door back.</p>
       <div class="aw-actions">
+        <a class="btn" href="buy.html">Claim a real Body — Buy an L9 <span class="arrow">→</span></a>
+        <a class="btn alt" href="rent-to-own.html">Move in chip by chip <span class="arrow">→</span></a>
         <a class="btn alt" href="vessels.html">Peek at the full Vessels concept <span class="arrow">→</span></a>
       </div>
-      <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet.</p>
+      <p class="aw-note">L9 figures use the same assumptions as our profit calculator (hosting $0.079/kWh, July 2026 prices). Markets move daily — nothing here is a promise or an offer.</p>
+      <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout, and resale mechanics are concept-stage and pending legal wording.</p>
     </div>
   </div>
 </div></section>
@@ -197,7 +289,7 @@
     <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
     <span class="t">💵 paid daily · LTC + DOGE</span>
   </div>
-  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA, Bodies, Entities, Chains, and every number or name shown are illustrative and fictional, not a live feature, token, or financial product. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
+  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA, Bodies, Entities, Chains, and every number or name shown are illustrative and fictional, not a live feature, token, or financial product. Exit, buyout, and resale mechanics described in the demo are concept-stage and subject to legal review. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
   <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain. Ipollo® is a trademark of its respective owner; referenced here only as a fictional starting point in this demo, not a product WowSuch sells.</p>
 </div></footer>
 
@@ -207,12 +299,49 @@
 <script>
 (function () {
   "use strict";
-  var TOTAL = 3;
-  var vita = 0;
+
+  // ---- constants (chapter-2 mechanics) ----
+  var START_VITA = 100.00;
+  var RATE_DRIFT = -1.50;   // $/day while bodiless
+  var RATE_FROG  = -0.85;   // $/day net in the Frog
+  var RATE_L9    = 4.80;    // $/day net in an L9
+  var EJECT_COST = 3.00;    // one-time, on the Frog's death
+  var TOTAL = 7;
+
+  var DEATH_DAY = { cook: 61, choke: 74, eaten: 68 };
+  var DEATH_LINE = {
+    cook: "Day 61. The Frog hit 214 MH for one glorious minute — its best minute ever — and never hashed again.",
+    choke: "Day 74. The fan spun its last breath through a beard of dust. Thermal alarm, thermal shutdown, then just… shutdown.",
+    eaten: "Day 68. Something ate the power cable overnight. In all the old stories, Frogs get eaten. You knew that when you moved in."
+  };
+
+  // ---- derive the common (path-independent) waypoints from the constants ----
+  var day0 = 0,  vita0 = START_VITA;
+  var day2 = 2,  vita2 = vita0 + RATE_DRIFT * (day2 - day0);          // 97.00
+  var day3 = 3,  vita3 = vita2 + RATE_DRIFT * (day3 - day2);          // 95.50 — rate switches to RATE_FROG here
+  var day30 = 30, vita30 = vita3 + RATE_FROG * (day30 - day3);        // 72.55
+  var day60 = 60, vita60 = vita30 + RATE_FROG * (day60 - day30);      // 47.05
+
+  var WAYPOINTS = {
+    2: { day: day2, vita: vita2, rate: RATE_DRIFT },
+    3: { day: day3, vita: vita3, rate: RATE_FROG },
+    4: { day: day30, vita: vita30, rate: RATE_FROG },
+    5: { day: day60, vita: vita60, rate: RATE_FROG }
+  };
+
   var vitaOut = document.getElementById("vitaOut");
+  var dayRateOut = document.getElementById("vitaRate");
+  var vitaBox = vitaOut.parentElement;
   var progress = document.getElementById("awProgress");
   var scenes = document.querySelectorAll(".aw-scene");
-  var ticker = null;
+  var deathLineEl = document.getElementById("deathLine");
+
+  var displayedVita = START_VITA;
+  var currentRate = RATE_DRIFT;
+  var tickerId = null;
+  var rafId = null;
+  var pendingDeathDay = 0;
+  var pendingVitaS6 = 0;
 
   for (var i = 0; i < TOTAL; i++) {
     var seg = document.createElement("span");
@@ -222,34 +351,112 @@
   function markProgress(step) {
     var segs = progress.querySelectorAll("span");
     for (var i = 0; i < segs.length; i++) {
-      if (i < step) { segs[i].className = "done"; }
+      segs[i].className = (i < step) ? "done" : "";
     }
   }
 
-  function startTicker() {
-    if (ticker) { return; }
-    ticker = setInterval(function () {
-      vita += Math.random() * 0.8 + 0.2;
-      vitaOut.textContent = vita.toFixed(2);
-    }, 700);
+  function fmtRate(rate) {
+    var arrow = rate >= 0 ? "▲" : "▼";
+    return arrow + " $" + Math.abs(rate).toFixed(2) + "/day";
   }
 
-  function goTo(step) {
+  function stopTicker() {
+    if (tickerId) { clearInterval(tickerId); tickerId = null; }
+  }
+
+  function startTicker() {
+    stopTicker();
+    tickerId = setInterval(function () {
+      var dir = currentRate >= 0 ? 1 : -1;
+      displayedVita = Math.max(0, displayedVita + dir * (Math.random() * 0.02));
+      vitaOut.textContent = displayedVita.toFixed(2);
+    }, 1500);
+  }
+
+  function setMeterHeader(day, rate, positive) {
+    dayRateOut.textContent = "Day " + day + " · " + fmtRate(rate);
+    if (positive) { vitaBox.classList.add("up"); } else { vitaBox.classList.remove("up"); }
+  }
+
+  function animateTo(targetVita) {
+    stopTicker();
+    if (rafId) { cancelAnimationFrame(rafId); }
+    var fromVal = displayedVita;
+    var toVal = Math.max(0, targetVita);
+    var start = null;
+    var duration = 1000;
+    function step(ts) {
+      if (!start) { start = ts; }
+      var p = Math.min((ts - start) / duration, 1);
+      var val = fromVal + (toVal - fromVal) * p;
+      vitaOut.textContent = Math.max(0, val).toFixed(2);
+      if (p < 1) {
+        rafId = requestAnimationFrame(step);
+      } else {
+        displayedVita = toVal;
+        vitaOut.textContent = displayedVita.toFixed(2);
+        startTicker();
+      }
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showScene(step) {
     for (var i = 0; i < scenes.length; i++) {
       var s = scenes[i];
       s.className = (s.getAttribute("data-scene") === String(step)) ? "aw-scene active" : "aw-scene";
     }
     markProgress(step);
-    if (step >= 3) { startTicker(); }
   }
 
-  markProgress(1);
+  function enterScene(step, day, targetVita, rate, positive) {
+    showScene(step);
+    setMeterHeader(day, rate, positive);
+    currentRate = rate;
+    animateTo(targetVita);
+  }
 
+  // ---- initial state: scene 1 ----
+  markProgress(1);
+  setMeterHeader(day0, RATE_DRIFT, false);
+  displayedVita = START_VITA;
+  vitaOut.textContent = displayedVita.toFixed(2);
+  startTicker();
+
+  // ---- linear scene advance (1→2→3→4→5) ----
   document.querySelectorAll("[data-next]").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      goTo(parseInt(btn.getAttribute("data-next"), 10));
+      var step = parseInt(btn.getAttribute("data-next"), 10);
+      var wp = WAYPOINTS[step];
+      if (wp) { enterScene(step, wp.day, wp.vita, wp.rate, false); }
     });
   });
+
+  // ---- scene 5 choice → scene 6 (death path picked) ----
+  document.querySelectorAll("[data-path]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var path = btn.getAttribute("data-path");
+      var deathDay = DEATH_DAY[path];
+      var vitaAtDeath = vita60 + RATE_FROG * (deathDay - day60);
+      var vitaS6 = vitaAtDeath - EJECT_COST;
+
+      if (deathLineEl) { deathLineEl.textContent = DEATH_LINE[path]; }
+      pendingDeathDay = deathDay;
+      pendingVitaS6 = vitaS6;
+
+      enterScene(6, deathDay, vitaS6, RATE_DRIFT, false);
+    });
+  });
+
+  // ---- scene 6 → scene 7 (the First Village, meter climbs) ----
+  var toScene7Btn = document.getElementById("toScene7");
+  if (toScene7Btn) {
+    toScene7Btn.addEventListener("click", function () {
+      var day7 = pendingDeathDay + 6;
+      var vitaS7 = pendingVitaS6 + RATE_DRIFT * 6;
+      enterScene(7, day7, vitaS7, RATE_L9, true);
+    });
+  }
 })();
 </script>
 </body>
