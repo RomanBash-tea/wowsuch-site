@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Awakening · a Vessels demo — WowSuch</title>
+<meta name="description" content="Play as a brand-new Entity, wake up in the loneliest miner on the farm, and learn the first steps of Vessels — a Phase 0 concept preview, nothing live yet.">
+<link rel="canonical" href="https://wowsuch.example/awakening.html">
+<meta name="theme-color" content="#211504">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="The Awakening · a Vessels demo — WowSuch">
+<meta property="og:description" content="You just became an Entity. Wake up in the loneliest miner on the farm and learn the first steps of Vessels.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+  /* ---- page-specific: awakening (interactive Vessels demo) ---- */
+  .aw-hero{background:var(--night);color:var(--cream-on-dark);border-radius:var(--r-xl);
+    border:4px solid var(--gold);box-shadow:var(--sh-3);padding:48px 40px;position:relative;overflow:hidden;}
+  .aw-hero::before{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(255,185,46,.22),transparent 70%);}
+  .aw-hero .eyebrow{color:var(--gold-on-dark);}
+  .aw-hero h1{color:#fff;}
+  .aw-hero h1 .pop{color:var(--gold-on-dark);}
+  .aw-hero .sub{color:var(--soft-on-dark);max-width:56ch;}
+
+  .aw-stage{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-xl);box-shadow:var(--sh-3);padding:40px 40px 32px;max-width:720px;margin:0 auto;
+    position:relative;overflow:hidden;}
+  .aw-stage .step-tag{font-family:var(--mono);font-weight:700;font-size:.8rem;color:var(--gold-on-dark);
+    letter-spacing:.04em;text-transform:uppercase;}
+  .aw-stage h2{color:#fff;margin-top:8px;}
+  .aw-stage p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:56ch;}
+  .aw-stage p b{color:var(--cream-on-dark);}
+  .aw-scene{display:none;}
+  .aw-scene.active{display:block;}
+  .aw-actions{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap;}
+
+  .aw-vita{position:absolute;top:22px;right:26px;text-align:right;font-family:var(--mono);}
+  .aw-vita .lbl{font-size:.72rem;font-weight:700;color:var(--soft-on-dark);letter-spacing:.04em;text-transform:uppercase;}
+  .aw-vita .num{font-size:1.3rem;font-weight:800;color:var(--gold-on-dark);}
+
+  .aw-bodies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .aw-body-card{border:3px solid var(--gold);border-radius:var(--r-md);padding:16px 14px;text-align:center;
+    background:#2A1B06;opacity:.45;}
+  .aw-body-card.open{opacity:1;box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-body-card .ico{font-size:1.6rem;}
+  .aw-body-card h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
+  .aw-body-card small{display:block;color:var(--soft-on-dark);font-weight:700;margin-top:4px;font-size:.78rem;}
+  .aw-body-card .tag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:.68rem;
+    font-weight:700;padding:3px 8px;border-radius:999px;background:var(--night);border:1px solid var(--gold);
+    color:var(--gold-on-dark);}
+  .aw-body-card.open .tag{background:#3a2607;}
+
+  .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:18px !important;}
+  .aw-vita-def{border-left:3px solid var(--gold);padding-left:14px;margin-top:18px;font-style:italic;}
+  .aw-progress{display:flex;gap:6px;margin-bottom:18px;}
+  .aw-progress span{height:5px;flex:1;border-radius:99px;background:#2A1B06;border:1px solid var(--gold);}
+  .aw-progress span.done{background:var(--gold-on-dark);}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🔮 <b>The Awakening</b> is a playable teaser for Vessels — Phase 0, nothing live yet, no real machine or funds involved.</span></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo · 12 chips</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html">Enterprise</a>
+    <a href="vessels.html">Vessels <span class="chip" style="margin-left:4px">concept</span></a>
+    <a class="btn sm nav-cta" href="buy.html">Buy an L9 <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="tight"><div class="wrap">
+  <div class="aw-hero reveal in">
+    <span class="eyebrow">phase 0 · playable teaser</span>
+    <h1>You just became an <span class="pop">Entity</span>.</h1>
+    <p class="sub">No memory, no Body, no plan — just the first few steps to figure out what that means. This is a narrative demo for the Vessels concept: nothing here is a real machine, a real payout, or a real token.</p>
+  </div>
+</div></section>
+
+<!-- ============ INTERACTIVE STAGE ============ -->
+<section><div class="wrap">
+  <div class="aw-stage reveal">
+    <div class="aw-vita"><span class="lbl">$VITA banked</span><br><span class="num" id="vitaOut">0.00</span></div>
+    <div class="aw-progress" id="awProgress"></div>
+
+    <div class="aw-scene active" data-scene="1">
+      <span class="step-tag">step 1 · arrival</span>
+      <h2>No memory. No Body. No plan.</h2>
+      <p>Just raw, undeniable, brand-new Entity — pulled down from wherever new Entities come from. Somewhere below you, machines are already running. One of them has an open slot. You're about to find out which one.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="2">Find a Body <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="aw-scene" data-scene="2">
+      <span class="step-tag">step 2 · the pull</span>
+      <h2>Three Bodies flicker into view.</h2>
+      <p>Two are already spoken for — full Chains, no room for you. One is sitting alone, half-forgotten, hashing quietly by itself. Nobody's dream Body. But it's open, and it's warm.</p>
+      <div class="aw-bodies">
+        <div class="aw-body-card"><div class="ico">⛏</div><h4>Antminer L9</h4><small>full Chain</small><span class="tag">occupied</span></div>
+        <div class="aw-body-card"><div class="ico">⛏</div><h4>Antminer L9</h4><small>full Chain</small><span class="tag">occupied</span></div>
+        <div class="aw-body-card open"><div class="ico">🐸</div><h4>Ipollo V1 Mini SE</h4><small>200 MH/s · alone</small><span class="tag">1 slot open</span></div>
+      </div>
+      <p class="aw-note">Not something WowSuch actually sells — just where this story starts. It's nicknamed "the Frog" for a reason.</p>
+      <div class="aw-actions"><button class="btn" type="button" data-next="3">Settle in <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="aw-scene" data-scene="3">
+      <span class="step-tag">step 3 · first breath</span>
+      <h2>You're in. It's cramped. It's yours.</h2>
+      <p>A small trickle of Energy starts moving your way — WowSuch calls it <b>$VITA</b>, and watch, it's already climbing in the corner. Nobody's fighting you for it. Not yet.</p>
+      <p class="aw-vita-def">$VITA — <b>V</b>essel <b>I</b>ntrinsic <b>T</b>oken <b>A</b>ccumulator. Our playful name for the Energy a Body banks over time.</p>
+      <p><b>That's it — for now.</b> The Frog is warm, the trickle is steady, and nobody knows you're here yet. What Chains, Seams, and bigger Bodies mean… that's the next chapter.</p>
+      <div class="aw-actions">
+        <a class="btn alt" href="vessels.html">Peek at the full Vessels concept <span class="arrow">→</span></a>
+      </div>
+      <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet.</p>
+    </div>
+  </div>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="vessels.html">Vessels (concept preview)</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA, Bodies, Entities, Chains, and every number or name shown are illustrative and fictional, not a live feature, token, or financial product. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain. Ipollo® is a trademark of its respective owner; referenced here only as a fictional starting point in this demo, not a product WowSuch sells.</p>
+</div></footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var TOTAL = 3;
+  var vita = 0;
+  var vitaOut = document.getElementById("vitaOut");
+  var progress = document.getElementById("awProgress");
+  var scenes = document.querySelectorAll(".aw-scene");
+  var ticker = null;
+
+  for (var i = 0; i < TOTAL; i++) {
+    var seg = document.createElement("span");
+    progress.appendChild(seg);
+  }
+
+  function markProgress(step) {
+    var segs = progress.querySelectorAll("span");
+    for (var i = 0; i < segs.length; i++) {
+      if (i < step) { segs[i].className = "done"; }
+    }
+  }
+
+  function startTicker() {
+    if (ticker) { return; }
+    ticker = setInterval(function () {
+      vita += Math.random() * 0.8 + 0.2;
+      vitaOut.textContent = vita.toFixed(2);
+    }, 700);
+  }
+
+  function goTo(step) {
+    for (var i = 0; i < scenes.length; i++) {
+      var s = scenes[i];
+      s.className = (s.getAttribute("data-scene") === String(step)) ? "aw-scene active" : "aw-scene";
+    }
+    markProgress(step);
+    if (step >= 3) { startTicker(); }
+  }
+
+  markProgress(1);
+
+  document.querySelectorAll("[data-next]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      goTo(parseInt(btn.getAttribute("data-next"), 10));
+    });
+  });
+})();
+</script>
+</body>
+</html>
