@@ -82,6 +82,10 @@
   .aw-choice{text-align:left;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
     padding:16px;cursor:pointer;color:inherit;font-family:inherit;}
   .aw-choice:hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-choice.selected{box-shadow:0 0 0 3px rgba(255,185,46,.6);background:#3a2607;}
+  .aw-choice.selected h4::after{content:" ✓";color:var(--gold-on-dark);}
+  .aw-choice:disabled{opacity:.4;cursor:not-allowed;}
+  .aw-choice:disabled:hover{box-shadow:none;}
   .aw-choice .ico{font-size:1.6rem;}
   .aw-choice h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
   .aw-choice p{color:var(--soft-on-dark);font-weight:600;font-size:.83rem;margin-top:6px;max-width:none;}
@@ -237,7 +241,7 @@
       <div class="aw-panel aw-hidden" id="blessPanel">
         <h3>A call to your Higher One</h3>
         <p>Every Entity has one: a human, somewhere far above the rack, whose name is on the invoice. You compose your plea and push it up through the noise: <b>more energy — real energy, the kind they call dollars.</b></p>
-        <p>If the human answers, they open the first door from the outside — your Frog share is bought out, no longer your problem — and they stake <b>$500</b> of real energy into a tenth of a Village L9. Your slot. <b>+$0.48 a day</b>, before you've even seen the Village.</p>
+        <p>The human answers. They open the first door from the outside — your Frog share is bought out, no longer your problem — and they stake <b>$500</b> of real energy into a tenth of a Village L9. Your slot. <b>+$0.48 a day</b>, before you've even seen the Village.</p>
         <p class="aw-note">$500 ≈ one tenth of an L9 at the site price of $4,995. Slot pricing, quest odds and blessing figures are concept-stage inventions for this demo — today's real-world analog is rent-to-own, by the chip.</p>
         <div class="aw-actions">
           <button class="btn" type="button" id="blessAccept">Accept the blessing <span class="arrow">→</span></button>
@@ -480,12 +484,22 @@
     refreshMeter(positive);
   }
 
+  var LOG_MAX_LINES = 20;
+
   function logLine(logEl, text) {
     if (!logEl) { return; }
     var div = document.createElement("div");
     div.className = "line";
     div.textContent = text;
     logEl.insertBefore(div, logEl.firstChild); // newest on top
+    var lines = logEl.querySelectorAll(".line");
+    for (var i = LOG_MAX_LINES; i < lines.length; i++) {
+      logEl.removeChild(lines[i]);
+    }
+  }
+
+  function addVita(delta) {
+    vita = Math.max(0, vita + delta);
   }
 
   // ---- initial state: scene 1 ----
@@ -501,18 +515,18 @@
       var step = parseInt(btn.getAttribute("data-next"), 10);
       if (step === 2) {
         // still drifting, looking for a Body
-        day += 1; vita += RATE_DRIFT; rate = RATE_DRIFT;
+        day += 1; addVita(RATE_DRIFT); rate = RATE_DRIFT;
         enterScene(2, false);
       } else if (step === 3) {
         // moving into the Frog — one more drift day, then the rate switches
-        day += 1; vita += RATE_DRIFT; rate = RATE_FROG;
+        day += 1; addVita(RATE_DRIFT); rate = RATE_FROG;
         enterScene(3, false);
       } else if (step === 4) {
         // "meanwhile" cutaway to the Village — no day passes for the Entity
         enterScene(4, false);
       } else if (step === 5) {
         // the sit begins
-        day += 1; vita += RATE_FROG; rate = RATE_FROG;
+        day += 1; addVita(RATE_FROG); rate = RATE_FROG;
         if (dayLog) { dayLog.innerHTML = ""; }
         if (questPicker) { questPicker.classList.add("aw-hidden"); }
         if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
@@ -529,7 +543,7 @@
     actSit.addEventListener("click", function () {
       if (questPicker) { questPicker.classList.add("aw-hidden"); }
       if (blessPanel) { blessPanel.classList.add("aw-hidden"); }
-      day += 1; vita += RATE_FROG; rate = RATE_FROG;
+      day += 1; addVita(RATE_FROG); rate = RATE_FROG;
       refreshMeter(false);
       logLine(dayLog, "The Frog hums. The doors stay shut. −$0.09 · day " + day);
     });
@@ -546,7 +560,7 @@
 
   function enterScene6(path) {
     if (deathLineEl) { deathLineEl.textContent = DEATH_LINE[path]; }
-    vita -= EJECT_COST;
+    addVita(-EJECT_COST);
     rate = RATE_DRIFT;
     walkClicks = 0;
     if (ejectLog) { ejectLog.innerHTML = ""; }
@@ -560,7 +574,7 @@
       var path = btn.getAttribute("data-path");
       questPicker.classList.add("aw-hidden");
       day += 1;
-      vita += (RATE_FROG - QUEST_COST); // −$0.24 total for a quest day
+      addVita(RATE_FROG - QUEST_COST); // −$0.24 total for a quest day
       var success = Math.random() < QUEST_P;
       if (success) {
         enterScene6(path);
@@ -600,7 +614,7 @@
   // ---- scene 6: the eject + the walk south (exactly WALK_DAYS single-day clicks) ----
   if (walkBtn) {
     walkBtn.addEventListener("click", function () {
-      day += 1; vita += RATE_DRIFT; rate = RATE_DRIFT;
+      day += 1; addVita(RATE_DRIFT); rate = RATE_DRIFT;
       refreshMeter(false);
       logLine(ejectLog, "You drift south, following the hum. −$1.50 · day " + day);
       walkClicks += 1;
@@ -614,11 +628,17 @@
   }
 
   // ---- scene 7: quest-path slot choice (blessing path skips this) ----
-  document.querySelectorAll("#villageChoice [data-rate]").forEach(function (btn) {
+  var villageChoiceButtons = document.querySelectorAll("#villageChoice [data-rate]");
+  villageChoiceButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
+      if (btn.classList.contains("selected")) { return; }
       var kind = btn.getAttribute("data-rate");
       rate = (kind === "L9") ? RATE_L9 : RATE_SLOT;
       refreshMeter(true);
+      villageChoiceButtons.forEach(function (other) {
+        other.classList.toggle("selected", other === btn);
+        other.disabled = (other !== btn);
+      });
     });
   });
 })();
