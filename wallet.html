@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WowSuch Wallet · Free Self-Custody for DOGE + LTC</title>
+<meta name="description" content="Open a free WowSuch MPC wallet in under a minute and hold DOGE, LTC, BTC, ETH and USDC in one place. Self-custody — only you hold the keys, always.">
+<link rel="canonical" href="https://wowsuch.example/wallet.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="WowSuch Wallet · Free self-custody wallet">
+<meta property="og:description" content="The same WowSuch MPC wallet that pays LTC + DOGE miners daily — free to open, five coins in one place, only you hold the keys.">
+<meta property="og:url" content="https://wowsuch.example/wallet.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WowSuch Wallet · Free self-custody wallet">
+<meta name="twitter:description" content="Hold DOGE, LTC, BTC, ETH and USDC in one free, self-custody wallet. Activate in under a minute.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Product","name":"WowSuch Wallet","description":"A free self-custody MPC wallet for DOGE, LTC, BTC, ETH and USDC — hold every coin you mine in one place, only you hold the keys.","brand":{"@type":"Brand","name":"WowSuch"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://wowsuch.example/wallet.html"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is this the same wallet my mining payouts use?","acceptedAnswer":{"@type":"Answer","text":"Yes — it's the exact WowSuch MPC self-custody wallet that already pays LTC + DOGE miners daily. Opening one here doesn't require buying or renting any hardware."}},
+{"@type":"Question","name":"What does it cost?","acceptedAnswer":{"@type":"Answer","text":"Nothing. Opening and holding a WowSuch wallet is free — no card, no minimum balance, and no fee to activate."}},
+{"@type":"Question","name":"Which coins can I hold?","acceptedAnswer":{"@type":"Answer","text":"DOGE, LTC, BTC, ETH and USDC, all in one wallet."}},
+{"@type":"Question","name":"Who holds the keys?","acceptedAnswer":{"@type":"Answer","text":"You do. WowSuch MPC uses multi-party key-sharing so only you can authorize a withdrawal — we never hold your coins."}},
+{"@type":"Question","name":"How long until I can use it?","acceptedAnswer":{"@type":"Answer","text":"Activation takes under a minute. Your dashboard shows your wallet right away, and we also email your deposit addresses within one business day."}}
+]}
+</script>
+<style>
+  /* ---- page-specific: wallet ---- */
+  .wcoin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;
+    border-bottom:1px solid var(--ink-faint);font-weight:700;gap:12px;}
+  .wcoin-row:last-child{border-bottom:0;}
+  .wcoin-badge{font-family:var(--display);font-weight:800;font-size:.72rem;letter-spacing:.03em;
+    border:2px solid var(--ink);border-radius:999px;padding:4px 10px;background:var(--paper);color:var(--ink);
+    flex:none;}
+  .wcoin-badge.doge{background:var(--doge);}
+  .wcoin-badge.ltc{background:var(--ltc);color:#fff;}
+  .wcoin-row .bal{font-family:var(--mono);font-weight:700;text-align:right;}
+  .wallet-mock{max-width:400px;}
+  .wallet-mock .wm-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}
+  .wallet-mock .wm-name{font-family:var(--display);font-weight:800;font-size:1.05rem;}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
+  .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
+  .cta-final .eyebrow{color:var(--ink);}
+</style>
+</head>
+<body class="has-mobile-cta">
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🔑 <b>Free WowSuch MPC wallet</b> — hold DOGE, LTC, BTC, ETH &amp; USDC in one place · activate in under a minute</span><a class="tb-btn" href="#activate">Create my wallet →</a></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html" aria-current="page">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html">Enterprise</a>
+    <a class="btn sm nav-cta" href="#activate">Create my wallet <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <span class="eyebrow reveal">much wallet, very yours</span>
+    <h1 class="reveal" style="transition-delay:.05s">One wallet for every coin you mine.<br><span class="pop">Your keys, always.</span></h1>
+    <p class="sub reveal" style="transition-delay:.12s">Open a free WowSuch MPC wallet in under a minute — the same self-custody wallet that already pays LTC + DOGE miners daily. Hold <b>DOGE, LTC, BTC, ETH and USDC</b> in one place, and withdraw any time.</p>
+    <div class="hero-ctas reveal" style="transition-delay:.18s">
+      <a class="btn lg" href="#activate">Create my free wallet <span class="arrow">→</span></a>
+      <a class="btn alt" href="#coins">See what's inside</a>
+    </div>
+    <p class="btn-sub reveal" style="transition-delay:.2s;color:var(--ink-soft);font-weight:700">No card, no minimum, no mining purchase required.</p>
+    <div class="hero-badges reveal" style="transition-delay:.24s">
+      <span class="pill"><span class="dot"></span> free, always</span>
+      <span class="pill">🔑 MPC self-custody</span>
+      <span class="pill">🪙 5 coins, one wallet</span>
+    </div>
+    <div class="hero-proof reveal" style="transition-delay:.3s">
+      <span>Wallet infrastructure by TEA · $1B+ processed to date</span>
+    </div>
+  </div>
+  <div class="hero-stage reveal" style="transition-delay:.1s">
+    <div class="card feature wallet-mock">
+      <div class="wm-head">
+        <span class="wm-name">Your WowSuch Wallet</span>
+        <span class="illus">illustrative · not live</span>
+      </div>
+      <div class="wcoin-row"><span class="wcoin-badge doge">DOGE</span><span class="bal">Ð 1,250.00</span></div>
+      <div class="wcoin-row"><span class="wcoin-badge ltc">LTC</span><span class="bal">Ł 3.4200</span></div>
+      <div class="wcoin-row"><span class="wcoin-badge">BTC</span><span class="bal">0.0410</span></div>
+      <div class="wcoin-row"><span class="wcoin-badge">ETH</span><span class="bal">0.8500</span></div>
+      <div class="wcoin-row"><span class="wcoin-badge">USDC</span><span class="bal">$512.00</span></div>
+    </div>
+  </div>
+</div></section>
+
+<div class="marquee" aria-hidden="true"><div class="track"><span>
+  <span>🔑 self-custody</span><span>★</span><span>free to open</span><span>★</span><span>5 coins, one wallet</span><span>★</span><span>your keys</span><span>★</span><span>MPC-secured</span><span>★</span><span>so simple</span><span>★</span><span>wow</span><span>★</span>
+  <span>🔑 self-custody</span><span>★</span><span>free to open</span><span>★</span><span>5 coins, one wallet</span><span>★</span><span>your keys</span><span>★</span><span>MPC-secured</span><span>★</span><span>so simple</span><span>★</span><span>wow</span><span>★</span>
+</span></div></div>
+
+<!-- ============ VALUE ============ -->
+<section id="value"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much wallet, very yours</span>
+    <h2>Built for people who mine — and everyone else</h2>
+    <p>It's the same WowSuch MPC wallet that already pays out LTC + DOGE miners daily. Free to open whether or not you mine with us.</p>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card reveal">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 L40 12 V24 Q40 38 24 44 Q8 38 8 24 V12 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="24" cy="22" r="4.5" fill="#2B1D05"/><rect x="22" y="24" width="4" height="8" fill="#2B1D05"/></svg>
+      <h3>Self-custody, always</h3>
+      <p>MPC key-sharing means only you can unlock your wallet. WowSuch never holds your coins — not even for a second.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.06s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="24" r="11" fill="#C2A633" stroke="#2B1D05" stroke-width="2.6"/><text x="18" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#2B1D05">Ð</text><circle cx="32" cy="24" r="11" fill="#345D9D" stroke="#2B1D05" stroke-width="2.6"/><text x="32" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#fff">Ł</text></svg>
+      <h3>Five coins, one place</h3>
+      <p>DOGE, LTC, BTC, ETH and USDC all live in the same wallet — no juggling exchange accounts or a seed phrase per coin.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.12s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M30 8 a10 10 0 1 0 8 16 l-8 8 -6 -6 8 -8 a10 10 0 0 0 -2 -10z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M12 30 L20 38 L14 44 L8 38 Z" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/></svg>
+      <h3>Free to open, no strings</h3>
+      <p>No card, no minimum, no mining purchase required. Activate in under a minute and fund it whenever you like.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ NUMBERS ============ -->
+<section class="tight" id="numbers"><div class="wrap">
+  <div class="stats-band reveal">
+    <div class="stats-grid">
+      <div class="stat"><div class="num"><span class="count" data-target="5">0</span></div><div class="lab">coins in one wallet</div></div>
+      <div class="stat"><div class="num">$0</div><div class="lab">to open, ever</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="9800">0</span>+</div><div class="lab">L9s sold &amp; hosted</div></div>
+      <div class="stat"><div class="num">0</div><div class="lab">keys we ever hold</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="99" data-dec="0">0</span>.9%</div><div class="lab">wallet infra uptime</div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ WHAT'S INSIDE ============ -->
+<section id="coins" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much coins, very simple</span>
+    <h2>What's inside your wallet</h2>
+    <p>One account, five coins, zero custodial risk.</p>
+  </div>
+  <div class="specsheet reveal">
+    <div class="spec-row"><span class="k">Coins supported</span><span class="v">DOGE · LTC · BTC · ETH · USDC</span></div>
+    <div class="spec-row"><span class="k">Custody model</span><span class="v">MPC self-custody — only you hold the keys</span></div>
+    <div class="spec-row"><span class="k">Cost to open</span><span class="v">$0</span></div>
+    <div class="spec-row"><span class="k">Activation time</span><span class="v">under a minute</span></div>
+    <div class="spec-row"><span class="k">Withdrawals</span><span class="v">any time, to any wallet</span></div>
+    <div class="spec-row"><span class="k">Who else uses it</span><span class="v">every WowSuch mining payout lands here</span></div>
+  </div>
+</div></section>
+
+<!-- ============ ACTIVATE ============ -->
+<section id="activate"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much wallet, very yours</span>
+    <h2>Create your free wallet</h2>
+    <p>Enter your name and email — we'll spin up your WowSuch MPC wallet. No card, no cost, ever.</p>
+  </div>
+  <form class="lead reveal" id="waForm" style="max-width:480px;margin:0 auto">
+    <div class="ftwo">
+      <div><label for="waFirst">First name</label><input id="waFirst" required placeholder="Alex" autocomplete="given-name"></div>
+      <div><label for="waLast">Last name</label><input id="waLast" required placeholder="Doge" autocomplete="family-name"></div>
+    </div>
+    <label for="waEmail">Email</label>
+    <input id="waEmail" type="email" required placeholder="you@example.com" autocomplete="email">
+    <label class="consent"><input type="checkbox" id="waConsent" required> I agree to the <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</label>
+    <div class="form-status" id="waStatus" role="alert"></div>
+    <button class="btn block" type="submit" id="waSubmit">Create my free wallet <span class="arrow">→</span></button>
+  </form>
+</div></section>
+
+<!-- ============ HOW ACTIVATION WORKS ============ -->
+<section id="how" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much simple, very fast</span>
+    <h2>Activate in three steps</h2>
+    <p>No hardware required — just a name and an email.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal"><div class="n">1</div><h3>Tell us who you are</h3><p>Your name and email — that's it. No card, no deposit, no KYC to open the wallet.</p></div>
+    <div class="step reveal" style="transition-delay:.08s"><div class="n">2</div><h3>We provision your MPC wallet</h3><p>WowSuch MPC creates your account and assigns your addresses for DOGE, LTC, BTC, ETH and USDC.</p></div>
+    <div class="step reveal" style="transition-delay:.16s"><div class="n">3</div><h3>Your dashboard is ready</h3><p>Your wallet and deposit addresses show up in your dashboard immediately — we also email your details within one business day, so keep an eye on your inbox.</p></div>
+  </div>
+</div></section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much questions, very answers</span>
+    <h2>Wallet FAQ</h2>
+  </div>
+  <div class="faq">
+    <div class="q"><button type="button">Is this the same wallet my mining payouts use? <span class="plus">+</span></button>
+      <div class="ans"><p>Yes — it's the exact WowSuch MPC self-custody wallet that already pays LTC + DOGE miners daily. Opening one here doesn't require buying or renting any hardware.</p></div></div>
+    <div class="q"><button type="button">What does it cost? <span class="plus">+</span></button>
+      <div class="ans"><p>Nothing. Opening and holding a WowSuch wallet is free — no card, no minimum balance, and no fee to activate.</p></div></div>
+    <div class="q"><button type="button">Which coins can I hold? <span class="plus">+</span></button>
+      <div class="ans"><p>DOGE, LTC, BTC, ETH and USDC, all in one wallet.</p></div></div>
+    <div class="q"><button type="button">Who holds the keys? <span class="plus">+</span></button>
+      <div class="ans"><p>You do. WowSuch MPC uses multi-party key-sharing so only you can authorize a withdrawal — we never hold your coins.</p></div></div>
+    <div class="q"><button type="button">How long until I can use it? <span class="plus">+</span></button>
+      <div class="ans"><p>Activation takes under a minute. Your dashboard shows your wallet right away, and we also email your deposit addresses within one business day.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ============ XSELL ============ -->
+<section id="xsell" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">already have a wallet — need a miner?</span>
+    <h2>Put it to work with an Antminer L9</h2>
+  </div>
+  <div class="xsell reveal">
+    <a class="xsell-card" href="buy.html"><div class="xs-ico">⛏</div><h3>Buy a full rig</h3><p>Own an L9 outright — $4,995, hashing in 1 business day, paid daily to the wallet above.</p><span class="xs-go">Buy an L9 →</span></a>
+    <a class="xsell-card" href="rent-to-own.html"><div class="xs-ico">🪙</div><h3>Rent to own</h3><p>By the chip, from 12 chips (~$13.89/mo) over 18 months at 0%, repairs included.</p><span class="xs-go">Rent to own →</span></a>
+    <a class="xsell-card" href="enterprise.html"><div class="xs-ico">🏭</div><h3>Enterprise &amp; colocation</h3><p>50+ machines or your own fleet — hosting, colocation, on-site repair and management.</p><span class="xs-go">Go enterprise →</span></a>
+  </div>
+</div></section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="cta-final" id="contact"><div class="wrap">
+  <div class="contact-grid">
+    <div class="reveal">
+      <span class="eyebrow">questions? much help</span>
+      <h2>Need a hand with your wallet?<br>We reply fast.</h2>
+      <p style="font-weight:700;font-size:1.12rem;max-width:44ch;margin-top:14px">Already activated? <a href="dashboard.html" style="text-decoration:underline">Open your dashboard</a>. Otherwise send a note — a human replies within one business day.</p>
+      <div class="hero-badges" style="margin-top:24px">
+        <span class="pill"><span class="dot"></span> free to open</span>
+        <span class="pill">🔑 your keys · MPC</span>
+        <span class="pill">5 coins, one wallet</span>
+      </div>
+    </div>
+    <form class="lead reveal" id="leadForm" style="transition-delay:.08s">
+      <div class="ftwo">
+        <div><label for="nm">Your name</label><input id="nm" required placeholder="Alex Doge" autocomplete="name"></div>
+        <div><label for="em">Email</label><input id="em" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+      </div>
+      <div class="ftwo">
+        <div><label for="opt">Buy or rent to own?</label>
+          <select id="opt"><option>Buy outright ($4,995)</option><option>Rent to own (by the chip)</option><option>Lease my rigs to you</option><option>Just exploring, wow</option></select></div>
+        <div><label for="howmany">How many L9s?</label>
+          <select id="howmany"><option>1 rig</option><option>2 to 9 rigs</option><option>10 to 49 rigs</option><option>50+ rigs (on-site eligible)</option><option>300+ rigs</option></select></div>
+      </div>
+      <label for="cty">Country</label>
+      <select id="cty"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>UAE</option><option>Australia</option><option>Other</option></select>
+      <label for="msg">Anything else?</label>
+      <textarea id="msg" placeholder="I'd like to know more about the wallet before I activate one."></textarea>
+      <label class="consent"><input type="checkbox" required> I agree to be contacted and to the <a href="privacy.html">Privacy&nbsp;Policy</a>.</label>
+      <button class="btn block" type="submit">Request a quote <span class="arrow">→</span></button>
+    </form>
+  </div>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="wallet.html#faq">Wallet FAQ</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="admin.html" rel="nofollow">Admin</a>
+    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Your WowSuch wallet is self-custodied via MPC — you alone control access, and WowSuch cannot recover funds sent to an address you enter incorrectly. Coin balances and values shown are estimates at current network and market conditions. Mining and holding crypto may have tax consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<!-- ============ MOBILE STICKY CTA ============ -->
+<div class="mobile-cta"><div class="mc-price">Free to activate<small>DOGE · LTC · BTC · ETH · USDC</small></div><a class="btn sm" href="#activate">Create my wallet <span class="arrow">→</span></a></div>
+
+<!-- ============ CHAT ============ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about the wallet, coins, keys…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.WOW_KB = [
+  { k: ["fee", "cost", "free", "price", "how much", "$"], a: "Opening and holding a WowSuch wallet is free — no card, no minimum, no fee to activate. It's the same MPC wallet mining payouts already use." },
+  { k: ["coin", "coins", "doge", "ltc", "btc", "eth", "usdc", "which"], a: "Your WowSuch wallet holds DOGE, LTC, BTC, ETH and USDC, all in one place." },
+  { k: ["key", "keys", "custody", "secure", "security", "mpc", "safe"], a: "WowSuch MPC uses multi-party key-sharing — only you can authorize a withdrawal. We never hold your coins." },
+  { k: ["activate", "how long", "sign up", "create", "open a wallet", "minute"], a: "Activation takes under a minute — just a name and email. Your dashboard shows your wallet immediately." },
+  { k: ["deposit", "address", "receive", "fund", "top up"], a: "Once activated, your unique deposit address for each coin appears in your dashboard, and we also email your details within one business day." }
+];</script>
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var W = window.WOW;
+  if (!W) return;
+  function byId(id) { return document.getElementById(id); }
+  function val(id) { var el = byId(id); return el ? (el.value || "").trim() : ""; }
+
+  /* ---------- demo helpers (stub only — replaced by real TEA response in production) ---------- */
+  function randStr(len) {
+    var chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz", s = "";
+    for (var i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+    return s;
+  }
+  function makeAccountId() {
+    var chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", s = "";
+    for (var i = 0; i < 6; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+    return "WS-" + s;
+  }
+
+  /* TODO: replace with real TEA tenant-account API call (POST /tea/v1/accounts — createRetailAccount) */
+  function activateWithTEA(user) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        resolve({
+          accountId: makeAccountId(),
+          name: user.name,
+          email: user.email,
+          created: new Date().toISOString(),
+          coins: [
+            { code: "DOGE", bal: 0, address: "D" + randStr(33) },
+            { code: "LTC", bal: 0, address: "L" + randStr(32) },
+            { code: "BTC", bal: 0, address: "bc1q" + randStr(30) },
+            { code: "ETH", bal: 0, address: "0x" + randStr(40) },
+            { code: "USDC", bal: 0, address: "0x" + randStr(40) }
+          ]
+        });
+      }, 650);
+    });
+  }
+
+  var form = byId("waForm");
+  if (!form) return;
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var first = val("waFirst"), last = val("waLast"), email = val("waEmail");
+    var status = byId("waStatus");
+    function fail(msg) { if (status) { status.className = "form-status err"; status.textContent = msg; } }
+    if (!first || !last) { fail("Add your first and last name."); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { fail("Add a valid email — your wallet details go there."); return; }
+    var consent = byId("waConsent");
+    if (consent && !consent.checked) { fail("Please accept the Terms to continue."); return; }
+    if (status) { status.className = "form-status"; status.textContent = "Creating your wallet…"; }
+    var submitBtn = byId("waSubmit");
+    if (submitBtn) submitBtn.setAttribute("disabled", "disabled");
+    activateWithTEA({ name: first + " " + last, email: email }).then(function (account) {
+      try { localStorage.setItem("wowsuch_wallet", JSON.stringify(account)); } catch (e) { /* private mode */ }
+      W.saveLead({ source: "wallet", name: account.name, email: account.email, account: account.accountId });
+      if (submitBtn) submitBtn.removeAttribute("disabled");
+      if (status) status.textContent = "";
+      W.showToast("Wallet created — redirecting to your dashboard. Wow.");
+      setTimeout(function () { location.href = "dashboard.html?src=wallet"; }, 900);
+    });
+  });
+})();
+</script>
+</body>
+</html>

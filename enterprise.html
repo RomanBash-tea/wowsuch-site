@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise mining hosting & colocation for fleets · WowSuch</title>
+<meta name="description" content="Institutional US hosting and colocation for DOGE + LTC mining fleets. Bring your own rigs or buy at scale, on a site powering 6,000+ Dogecoin miners for a public company. $0.079/kWh all-in.">
+<link rel="canonical" href="https://wowsuch.example/enterprise.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="WowSuch · Enterprise mining hosting & colocation">
+<meta property="og:description" content="Institutional US hosting and colocation for DOGE + LTC fleets — bring your own rigs or buy at scale on the same pool + MPC stack that powers 6,000+ miners for a public company.">
+<meta property="og:url" content="https://wowsuch.example/enterprise.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WowSuch · Enterprise hosting & colocation">
+<meta name="twitter:description" content="Institutional US hosting and colocation for serious DOGE + LTC mining fleets. $0.079/kWh all-in, on-site repair, custom quotes.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"WowSuch Enterprise Hosting & Colocation","serviceType":"Cryptocurrency mining colocation and hosting","provider":{"@type":"Organization","name":"WowSuch","url":"https://wowsuch.example/"},"areaServed":"US","description":"Institutional United States hosting and colocation for Litecoin + Dogecoin mining fleets of 50+ machines, on a site that powers 6,000+ Dogecoin miners for a public company. Flat $0.079/kWh all-in, 24/7 monitoring, on-site repair, remote and on-site fleet management, and the WowSuch Pool + MPC custody stack.","offers":{"@type":"Offer","priceCurrency":"USD","description":"Custom quotes by fleet size; flat $0.079/kWh all-in hosting on a 1-year term."}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Can I bring my own machines?","acceptedAnswer":{"@type":"Answer","text":"Yes. Colocation is designed for fleets you already own. Ship in your L9s or other Scrypt rigs and we host them at the same flat $0.079/kWh all-in rate, on the same WowSuch Pool and MPC custody stack. You keep the hardware and the keys; we keep the machines running."}},
+{"@type":"Question","name":"What is the minimum fleet size for enterprise?","acceptedAnswer":{"@type":"Answer","text":"Enterprise engagements start at 50 machines, which also unlocks on-site visits to inspect your fleet in person. Smaller orders are served by our standard buy and rent-to-own paths. Everyone, at any size, can inspect by video recording."}},
+{"@type":"Question","name":"Who operates the facility?","acceptedAnswer":{"@type":"Answer","text":"Your machines run inside an institutional-grade United States facility that already powers 6,000+ Dogecoin miners for a publicly listed company. The same provider runs the pool and MPC custody for that operation, so your fleet sits on proven rails with technicians on site and 24/7 monitoring."}},
+{"@type":"Question","name":"What is included in the hosting rate?","acceptedAnswer":{"@type":"Answer","text":"Hosting is a flat $0.079/kWh all-in on a 1-year term — power, cooling, racking, 24/7 monitoring, and on-site repair labor. The security deposit and setup fee are waived when WowSuch Pool withholds and forwards your hosting from your daily LTC + DOGE payouts."}},
+{"@type":"Question","name":"How are repairs handled at scale?","acceptedAnswer":{"@type":"Answer","text":"Technicians fix machines on the floor with original parts, typically in under 14 business days — no shipping a miner across the country for a fan swap. Every repair carries a fresh 90-day warranty, and you track ticket status in your dashboard."}},
+{"@type":"Question","name":"Can a fleet be structured for a future sale?","acceptedAnswer":{"@type":"Answer","text":"For large fleets we can help structure machines as a clean, transferable Delaware entity. Hosting, pool, and custody carry over, so a buyer steps into a turnkey, cash-flowing operation as either an equity or an asset sale. Entity structuring and any sale are subject to your own legal, tax, and securities advisors."}}
+]}
+</script>
+<style>
+  /* ---- page-specific: enterprise ---- */
+  .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
+  .cta-final .eyebrow{color:var(--ink);}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
+  /* enterprise stats band */
+  .ent-band{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .eb-stat{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-md);padding:22px 18px;text-align:center;box-shadow:var(--sh-2);}
+  .eb-num{display:block;font-family:var(--mono);font-weight:700;font-size:1.9rem;color:var(--gold-on-dark);line-height:1;}
+  .eb-lab{display:block;font-weight:700;font-size:.82rem;margin-top:8px;color:var(--soft-on-dark);}
+  /* facility illustrations */
+  .ent-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .ent-photo{margin:0;background:var(--paper);border:3px solid var(--ink);border-radius:var(--r-md);
+    overflow:hidden;box-shadow:var(--sh-2);}
+  .ent-photo svg{display:block;width:100%;height:auto;}
+  .ent-photo figcaption{font-weight:700;font-size:.82rem;color:var(--ink-soft);padding:9px 14px;}
+  /* services grid */
+  .ent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .ent-card{background:var(--paper);border:3px solid var(--ink);border-radius:var(--r-lg);
+    box-shadow:var(--sh-2);padding:24px 26px;}
+  .ent-ico{width:48px;height:48px;margin-bottom:10px;}
+  .ent-card h3{font-size:1.2rem;margin-bottom:6px;}
+  .ent-card p{color:var(--ink-soft);font-weight:600;font-size:.95rem;}
+  /* structuring band */
+  .ent-struct{display:grid;grid-template-columns:1.3fr .7fr;gap:30px;align-items:center;
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r-lg);padding:32px 34px;box-shadow:var(--sh-3);}
+  .ent-struct h3{font-size:1.7rem;margin:6px 0 10px;}
+  .ent-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+  .ent-list li{font-weight:700;background:var(--cream);border:2.5px solid var(--ink);border-radius:var(--r-sm);
+    padding:11px 14px;box-shadow:var(--sh-1);font-size:.92rem;}
+  .ent-list li b{color:var(--amber);}
+  @media(max-width:900px){.ent-band{grid-template-columns:1fr 1fr;}.ent-photos,.ent-grid{grid-template-columns:1fr;}.ent-struct{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🏭 <b>Enterprise hosting & colocation</b> for DOGE + LTC fleets — on a site powering 6,000+ DOGE miners for a public company</span><a class="tb-btn" href="#contact">Request a quote →</a></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html" aria-current="page">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html" aria-current="page">Enterprise</a>
+    <a class="btn sm nav-cta" href="#contact">Request a quote <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <span class="eyebrow reveal">institutional hosting & colocation</span>
+    <h1 class="reveal" style="transition-delay:.05s">Institutional hosting for<br><span class="pop">serious fleets.</span></h1>
+    <p class="sub reveal" style="transition-delay:.12s">Bring your own rigs, or buy at scale. Your machines run inside an institutional-grade US facility that already powers <b>6,000+ Dogecoin miners for a public company</b> — on the same WowSuch Pool and MPC custody stack.</p>
+    <div class="hero-ctas reveal" style="transition-delay:.18s">
+      <a class="btn lg" href="#contact">Request a quote <span class="arrow">→</span></a>
+      <a class="btn alt" href="buy.html">See buy options</a>
+    </div>
+    <div class="hero-badges reveal" style="transition-delay:.24s">
+      <span class="pill"><span class="dot"></span> 6,000+ DOGE miners on site</span>
+      <span class="pill">🇺🇸 US-hosted · $0.079/kWh all-in</span>
+      <span class="pill">🔧 24/7 monitored · on-site repair</span>
+    </div>
+    <div class="hero-proof reveal" style="transition-delay:.3s">
+      <span>Fleet operators trust WowSuch · 9,800+ L9s sold &amp; hosted</span>
+    </div>
+  </div>
+  <div class="hero-stage reveal" style="transition-delay:.1s">
+    <div class="rig-card">
+      <span class="tag">enterprise</span>
+      <svg viewBox="0 0 340 200" role="img" aria-label="Rows of mining machines in a hosting facility">
+        <rect x="20" y="20" width="300" height="160" rx="14" fill="#FFFCF3" stroke="#2B1D05" stroke-width="4"/>
+        <rect x="20" y="20" width="300" height="32" rx="14" fill="#FFB92E" stroke="#2B1D05" stroke-width="4"/>
+        <text x="170" y="42" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="15" fill="#2B1D05" letter-spacing="1.5">WOWSUCH FACILITY</text>
+        <g stroke="#2B1D05" stroke-width="2.6">
+          <rect x="40" y="66" width="44" height="96" rx="5" fill="#FDF3DC"/>
+          <rect x="100" y="66" width="44" height="96" rx="5" fill="#FDF3DC"/>
+          <rect x="160" y="66" width="44" height="96" rx="5" fill="#FDF3DC"/>
+          <rect x="220" y="66" width="44" height="96" rx="5" fill="#FDF3DC"/>
+          <rect x="280" y="66" width="22" height="96" rx="5" fill="#FDF3DC"/>
+        </g>
+        <g fill="#1E8A4C">
+          <rect x="48" y="74" width="28" height="6" rx="2"/><rect x="48" y="86" width="28" height="6" rx="2"/><rect x="48" y="98" width="28" height="6" rx="2"/>
+          <rect x="108" y="74" width="28" height="6" rx="2"/><rect x="108" y="86" width="28" height="6" rx="2"/><rect x="108" y="98" width="28" height="6" rx="2"/>
+          <rect x="168" y="74" width="28" height="6" rx="2"/><rect x="168" y="86" width="28" height="6" rx="2"/><rect x="168" y="98" width="28" height="6" rx="2"/>
+          <rect x="228" y="74" width="28" height="6" rx="2"/><rect x="228" y="86" width="28" height="6" rx="2"/><rect x="228" y="98" width="28" height="6" rx="2"/>
+        </g>
+        <g fill="#C77A08">
+          <rect x="48" y="110" width="28" height="6" rx="2"/><rect x="108" y="122" width="28" height="6" rx="2"/><rect x="168" y="134" width="28" height="6" rx="2"/><rect x="228" y="110" width="28" height="6" rx="2"/>
+        </g>
+        <circle cx="302" cy="36" r="4.5" fill="#1E8A4C"/>
+      </svg>
+      <div class="cap">
+        <div class="nm">Your fleet, hosted<small>50+ machines · LTC + DOGE · MPC self-custody</small></div>
+        <div class="pr">$0.079<small>/kWh</small></div>
+      </div>
+    </div>
+    <svg class="coin-orbit float" width="74" height="74" viewBox="0 0 64 64" aria-hidden="true" style="top:-24px;left:-26px;">
+      <circle cx="32" cy="32" r="29" fill="#C2A633" stroke="#2B1D05" stroke-width="3"/>
+      <circle cx="32" cy="32" r="22" fill="none" stroke="#2B1D05" stroke-width="1.6" opacity=".4"/>
+      <text x="32" y="43" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="30" fill="#2B1D05">Ð</text>
+    </svg>
+    <svg class="coin-orbit float slow" width="58" height="58" viewBox="0 0 64 64" aria-hidden="true" style="bottom:32px;right:-22px;">
+      <circle cx="32" cy="32" r="29" fill="#345D9D" stroke="#2B1D05" stroke-width="3"/>
+      <circle cx="32" cy="32" r="22" fill="none" stroke="#fff" stroke-width="1.6" opacity=".4"/>
+      <text x="32" y="43" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="28" fill="#fff">Ł</text>
+    </svg>
+  </div>
+</div></section>
+
+<!-- ============ ENTERPRISE STATS BAND ============ -->
+<section class="tight" id="proof"><div class="wrap">
+  <div class="stats-band reveal" style="padding:34px 26px">
+    <div class="ent-band">
+      <div class="eb-stat"><span class="eb-num">6,000+</span><span class="eb-lab">DOGE miners hosted on site for a public company</span></div>
+      <div class="eb-stat"><span class="eb-num">$0.079</span><span class="eb-lab">all-in hosting per kWh — the rate we run on</span></div>
+      <div class="eb-stat"><span class="eb-num">24/7</span><span class="eb-lab">monitored, with technicians on the floor</span></div>
+      <div class="eb-stat"><span class="eb-num">&lt;14</span><span class="eb-lab">business days typical repair turnaround</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ FACILITY ILLUSTRATIONS ============ -->
+<section id="facility"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">inside the facility</span>
+    <h2>An institutional-grade US facility</h2>
+    <p>WowSuch is not a garage operation. Your fleet runs on redundant power, around-the-clock monitoring, and an on-site repair bench — the same site that already hosts thousands of Dogecoin miners for a publicly listed company.</p>
+  </div>
+  <div class="ent-photos reveal">
+    <figure class="ent-photo">
+      <svg viewBox="0 0 220 130" role="img" aria-label="Illustration of a mining hosting hall with rows of machines">
+        <rect width="220" height="130" fill="#1d1407"/><rect x="0" y="96" width="220" height="34" fill="#0f0a04"/>
+        <g>
+          <rect x="14" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="18" y="40" width="18" height="5" rx="1" fill="#C77A08"/><rect x="18" y="49" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="18" y="58" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="18" y="67" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="18" y="76" width="18" height="5" rx="1" fill="#C77A08"/><rect x="18" y="85" width="18" height="5" rx="1" fill="#1E8A4C"/>
+        </g>
+        <g>
+          <rect x="48" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="52" y="40" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="52" y="49" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="52" y="58" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="52" y="67" width="18" height="5" rx="1" fill="#C77A08"/><rect x="52" y="76" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="52" y="85" width="18" height="5" rx="1" fill="#1E8A4C"/>
+        </g>
+        <g>
+          <rect x="82" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="86" y="40" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="86" y="49" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="86" y="58" width="18" height="5" rx="1" fill="#C77A08"/><rect x="86" y="67" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="86" y="76" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="86" y="85" width="18" height="5" rx="1" fill="#1E8A4C"/>
+        </g>
+        <g>
+          <rect x="116" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="120" y="40" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="120" y="49" width="18" height="5" rx="1" fill="#C77A08"/><rect x="120" y="58" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="120" y="67" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="120" y="76" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="120" y="85" width="18" height="5" rx="1" fill="#C77A08"/>
+        </g>
+        <g>
+          <rect x="150" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="154" y="40" width="18" height="5" rx="1" fill="#C77A08"/><rect x="154" y="49" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="154" y="58" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="154" y="67" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="154" y="76" width="18" height="5" rx="1" fill="#C77A08"/><rect x="154" y="85" width="18" height="5" rx="1" fill="#1E8A4C"/>
+        </g>
+        <g>
+          <rect x="184" y="34" width="26" height="64" rx="3" fill="#2B1D05" stroke="#FFB92E" stroke-width="1.5"/>
+          <rect x="188" y="40" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="188" y="49" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="188" y="58" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="188" y="67" width="18" height="5" rx="1" fill="#C77A08"/><rect x="188" y="76" width="18" height="5" rx="1" fill="#1E8A4C"/><rect x="188" y="85" width="18" height="5" rx="1" fill="#1E8A4C"/>
+        </g>
+        <circle cx="186" cy="22" r="6" fill="#FFB92E"/>
+      </svg>
+      <figcaption>Hosting hall · illustrative</figcaption>
+    </figure>
+    <figure class="ent-photo">
+      <svg viewBox="0 0 220 130" role="img" aria-label="Illustration of an on-site repair bench with parts and tools">
+        <rect width="220" height="130" fill="#FBE9C2"/><rect x="0" y="104" width="220" height="26" fill="#E9D7A8"/>
+        <rect x="24" y="60" width="80" height="44" rx="6" fill="#fff" stroke="#2B1D05" stroke-width="3"/>
+        <circle cx="50" cy="82" r="12" fill="none" stroke="#C77A08" stroke-width="4"/>
+        <circle cx="80" cy="82" r="12" fill="none" stroke="#C77A08" stroke-width="4"/>
+        <rect x="120" y="44" width="74" height="60" rx="6" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+        <path d="M150 60 l10 10 -10 10" fill="none" stroke="#2B1D05" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="168" cy="92" r="4" fill="#2B1D05"/>
+      </svg>
+      <figcaption>On-site repair bench · illustrative</figcaption>
+    </figure>
+    <figure class="ent-photo">
+      <svg viewBox="0 0 220 130" role="img" aria-label="Illustration of a remote monitoring control room with dashboards">
+        <rect width="220" height="130" fill="#241a0c"/>
+        <rect x="16" y="20" width="84" height="52" rx="5" fill="#0f0a04" stroke="#345D9D" stroke-width="2"/>
+        <rect x="120" y="20" width="84" height="52" rx="5" fill="#0f0a04" stroke="#C2A633" stroke-width="2"/>
+        <polyline points="22,60 38,46 54,54 70,34 94,40" fill="none" stroke="#1E8A4C" stroke-width="3"/>
+        <polyline points="126,58 142,52 158,40 174,48 198,30" fill="none" stroke="#FFB92E" stroke-width="3"/>
+        <rect x="60" y="80" width="100" height="8" rx="4" fill="#2B1D05"/>
+        <rect x="86" y="88" width="48" height="22" rx="3" fill="#2B1D05"/>
+      </svg>
+      <figcaption>Remote NOC monitoring · illustrative</figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">the full stack, run for you</span>
+    <h2>Everything a fleet needs, run for you</h2>
+    <p>One provider for hosting, colocation, repairs, and management — on the same pool and custody stack that runs the public company on site.</p>
+  </div>
+  <div class="ent-grid reveal">
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 40 V18 L18 10 V18 L30 10 V18 L42 10 V40 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><rect x="12" y="28" width="6" height="7" fill="#2B1D05"/><rect x="22" y="28" width="6" height="7" fill="#2B1D05"/><rect x="32" y="28" width="6" height="7" fill="#2B1D05"/></svg>
+      <h3>Institutional hosting</h3>
+      <p>Your machines live in the same tier-grade US facility that hosts 6,000+ Dogecoin miners for a public mining company. Flat $0.079/kWh all-in, redundant power, 24/7 monitoring.</p>
+    </div>
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="26" rx="4" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M8 22 H40" stroke="#2B1D05" stroke-width="2.4"/><path d="M16 8 L24 14 L32 8" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="31" r="2.4" fill="#2B1D05"/></svg>
+      <h3>Colocation — bring your own machines</h3>
+      <p>Already own L9s or other Scrypt rigs? Ship them in and we colocate at the same all-in rate, on the same pool and custody stack. You keep the hardware; we keep them humming.</p>
+    </div>
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M30 8 a10 10 0 1 0 8 16 l-8 8 -6 -6 8 -8 a10 10 0 0 0 -2 -10z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M12 30 L20 38 L14 44 L8 38 Z" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/></svg>
+      <h3>On-site repair depot</h3>
+      <p>Experienced technicians on the floor, original parts, typical turnaround under 14 business days — no shipping a miner across the country for a fan swap. Every repair gets a fresh 90-day warranty.</p>
+    </div>
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="24" rx="3" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><rect x="18" y="34" width="12" height="5" fill="#2B1D05"/><rect x="13" y="39" width="22" height="3" rx="1.5" fill="#2B1D05"/><path d="M12 16 H36 M12 22 H30" stroke="#2B1D05" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <h3>Remote &amp; on-site fleet management</h3>
+      <p>Full remote management of firmware, tuning, curtailment, and alerts, plus hands-on site work for racking, deracking, and repairs. You see it all in your dashboard.</p>
+    </div>
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="9" fill="none" stroke="#2B1D05" stroke-width="3"/><g stroke="#2B1D05" stroke-width="3"><line x1="24" y1="6" x2="24" y2="13"/><line x1="24" y1="35" x2="24" y2="42"/><line x1="6" y1="24" x2="13" y2="24"/><line x1="35" y1="24" x2="42" y2="24"/></g><circle cx="24" cy="24" r="3" fill="#C77A08"/></svg>
+      <h3>Monitoring &amp; API</h3>
+      <p>Live dashboards for hashrate, uptime, temperatures, and payouts across your whole fleet — with API access so you can pull data straight into your own reporting.</p>
+    </div>
+    <div class="ent-card">
+      <svg class="ent-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M12 6 H30 L38 14 V42 H12 Z" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M30 6 V14 H38" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M18 24 L22 28 L30 20" fill="none" stroke="#2B1D05" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 34 H32" stroke="#2B1D05" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <h3>Compliance reporting</h3>
+      <p>Hosting math, daily payout records, and fee accounting documented per machine — the clean paper trail a finance team or auditor needs for a fleet of any size.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ HOW ENGAGEMENT WORKS ============ -->
+<section id="how"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">how it works</span>
+    <h2>How an engagement works</h2>
+    <p>From first call to live dashboards, the path is the same whether you bring your own rigs or buy at scale.</p>
+  </div>
+  <div class="flow reveal">
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 L42 16 V42 H6 V16 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="24" r="6" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/></svg>
+      <b>Site assessment</b><small>fleet size, power, timeline</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M12 6 H30 L38 14 V42 H12 Z" fill="#FFFCF3" stroke="#2B1D05" stroke-width="3" stroke-linejoin="round"/><path d="M30 6 V14 H38" fill="none" stroke="#2B1D05" stroke-width="3" stroke-linejoin="round"/><path d="M17 24 H31 M17 31 H27" stroke="#2B1D05" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <b>Contract &amp; quote</b><small>custom rate, term, SLAs</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="10" width="32" height="28" rx="4" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><path d="M8 20 H40 M8 28 H40" stroke="#2B1D05" stroke-width="2.4"/><circle cx="14" cy="15" r="1.8" fill="#2B1D05"/><circle cx="14" cy="24" r="1.8" fill="#1E8A4C"/><circle cx="14" cy="33" r="1.8" fill="#1E8A4C"/></svg>
+      <b>Rack &amp; burn-in</b><small>install, test, validate</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="24" rx="3" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><polyline points="12,28 18,20 24,24 32,14 38,18" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="34" width="12" height="4" fill="#2B1D05"/></svg>
+      <b>Live dashboards</b><small>daily LTC + DOGE payouts</small>
+    </div>
+  </div>
+  <p class="note-banner reveal">⚙ <b>How payouts work:</b> WowSuch Pool merge-mines <b>LTC + DOGE</b> and pays your fleet daily to a <b>WowSuch MPC self-custody wallet</b>. The 3% pool fee and your hosting ($0.079/kWh all-in) are withheld automatically before payout. <b>No security deposit and no setup fee</b> when the pool forwards your hosting; prefer to pay hosting yourself, and a 2-month deposit plus a one-time setup fee apply instead.</p>
+</div></section>
+
+<!-- ============ PRICING APPROACH ============ -->
+<section id="pricing" class="band-cool"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">pricing & quotes</span>
+    <h2>Custom quotes, transparent rates</h2>
+    <p>Enterprise pricing is built around your fleet — not a one-size sticker. The hosting rate is the same $0.079/kWh all-in we run on; volume terms and managed scope are quoted to your size.</p>
+  </div>
+  <div class="trust-grid reveal">
+    <div class="trust-card">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="5" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><text x="24" y="31" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="18" fill="#2B1D05">$</text></svg>
+      <h3>Flat $0.079/kWh all-in</h3>
+      <p>The same all-in hosting rate across the fleet — power, cooling, monitoring, and on-site repair labor included on a 1-year term. No surprise line items.</p>
+    </div>
+    <div class="trust-card">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 38 V14 L18 8 V14 L28 8 V14 L40 8 V38 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><rect x="13" y="26" width="5" height="7" fill="#2B1D05"/><rect x="22" y="26" width="5" height="7" fill="#2B1D05"/><rect x="31" y="26" width="5" height="7" fill="#2B1D05"/></svg>
+      <h3>Volume tiers, your size</h3>
+      <p>Tiered for 50–299, 300–999, and 1,000+ rigs. Larger fleets unlock dedicated rack space, deeper management scope, and on-site visit eligibility.</p>
+    </div>
+    <div class="trust-card">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 L41 11 V23 Q41 37 24 43 Q7 37 7 23 V11 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M16 23 L22 29 L33 18" fill="none" stroke="#2B1D05" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>What's included</h3>
+      <p>Hosting, colocation, on-site repair, remote and on-site management, monitoring with API, and the WowSuch Pool + MPC stack — under one contract, one dashboard.</p>
+    </div>
+  </div>
+  <p class="hero-proof reveal" style="justify-content:center;margin-top:30px">
+    <span>Deposit &amp; setup fee waived when WowSuch Pool forwards your hosting from daily LTC + DOGE.</span>
+  </p>
+</div></section>
+
+<!-- ============ DIFFERENTIATORS ============ -->
+<section id="compare"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">how we compare</span>
+    <h2>WowSuch vs. a typical colo</h2>
+    <p>What you get hosting with the team that already runs a public company's fleet — versus a generic colocation contract.</p>
+  </div>
+  <div class="compare reveal"><div class="compare-scroll">
+    <table>
+      <thead><tr>
+        <th scope="col">What matters</th>
+        <th scope="col" class="you">WowSuch enterprise</th>
+        <th scope="col">Typical colo</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Proven at scale</td><td class="you"><span class="yes">✔ Powers 6,000+ DOGE miners for a public company</span></td><td>Varies — references unclear</td></tr>
+        <tr><td>Hosting rate</td><td class="you">$0.079/kWh all-in, documented</td><td>Power + add-ons, often opaque</td></tr>
+        <tr><td>Repairs</td><td class="you"><span class="yes">✔ On-site depot, &lt;14 biz days, 90-day warranty</span></td><td><span class="no">✘ Ship-out or "remote hands" fees</span></td></tr>
+        <tr><td>Pool &amp; payouts</td><td class="you">WowSuch Pool — merge-mines LTC + DOGE, paid daily</td><td>You bring/operate your own pool</td></tr>
+        <tr><td>Custody of rewards</td><td class="you"><span class="yes">✔ WowSuch MPC, your keys</span></td><td>Not provided</td></tr>
+        <tr><td>Bring your own rigs</td><td class="you"><span class="yes">✔ Colocation at the same all-in rate</span></td><td><span class="yes">✔ Usually</span></td></tr>
+        <tr><td>Fleet structuring</td><td class="you">Delaware entity guidance, built for an exit</td><td>Not offered</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+</div></section>
+
+<!-- ============ FLEET STRUCTURING ============ -->
+<section id="structure" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">for large fleets</span>
+    <h2>Structure your fleet for an exit</h2>
+    <p>Optional, for institutional buyers planning ahead. Build the fleet as a clean asset you can scale or sell later.</p>
+  </div>
+  <div class="ent-struct reveal">
+    <div>
+      <span class="eyebrow">equity or asset sale</span>
+      <h3>Held as a clean, transferable entity</h3>
+      <p style="color:var(--ink-soft);font-weight:600;margin-top:10px">Buying a large fleet? We can help structure your machines as a <b>Delaware entity</b>, so the fleet is held as a clean, transferable company. Later you can sell it to a <b>public company</b> or a <b>private equity firm</b> as either an <b>equity (company) sale</b> or an <b>asset sale</b>. Hosting, pool, and custody carry over, so a buyer steps into a turnkey, cash-flowing operation.</p>
+      <div class="hero-ctas" style="margin-top:18px">
+        <a class="btn" href="#contact">Talk to the enterprise team <span class="arrow">→</span></a>
+        <a class="btn alt" href="buy.html">See buy options</a>
+      </div>
+    </div>
+    <ul class="ent-list">
+      <li><b>Delaware entity</b> formation guidance for your fleet</li>
+      <li>Hosting, pool &amp; custody that <b>transfer</b> with a sale</li>
+      <li>Equity (company) sale or asset sale — your choice</li>
+      <li>Built for sale to a <b>public company or PE</b> buyer</li>
+      <li>Colocation for machines you already own</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ============ TESTIMONIAL ============ -->
+<section id="love"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">operator testimonials</span>
+    <h2>What fleet operators say</h2>
+  </div>
+  <div class="quotes">
+    <figure class="quote reveal" style="margin:0;grid-column:1 / -1;max-width:760px;margin-inline:auto">
+      <span class="mk" aria-hidden="true">”</span>
+      <div class="stars" aria-hidden="true">★★★★★</div>
+      <p>We moved 400 machines into WowSuch's facility after diligence on the public-company fleet already hosted there. The all-in rate is exactly what was quoted, repairs close on the floor in days instead of weeks, and our finance team pulls payout records straight from the API. It runs like infrastructure, not a side project.</p>
+      <figcaption class="who">
+        <svg class="av" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#345D9D"/><text x="20" y="26" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="14" fill="#fff">RC</text></svg>
+        <div><b>Renata C.</b><small>Operations lead · 400-machine fleet</small></div>
+      </figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<!-- ============ CROSS-SELL ============ -->
+<section id="other" class="band-cool"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">other ways to mine</span>
+    <h2>Other ways to mine with us</h2>
+  </div>
+  <div class="xsell reveal">
+    <a class="xsell-card" href="whitelabel.html">
+      <div class="xs-ico" aria-hidden="true">🖥️</div>
+      <h3>Pool + wallet software</h3>
+      <p>License the WowSuch stack — run your own LTC + DOGE pool and issue MPC wallets under your brand.</p>
+      <span class="xs-go">See software →</span>
+    </a>
+    <a class="xsell-card" href="lease.html">
+      <div class="xs-ico" aria-hidden="true">💵</div>
+      <h3>Lease &amp; earn USDC</h3>
+      <p>Already own miners? We host and run them; you collect daily USDC, completely hands-off.</p>
+      <span class="xs-go">Lease &amp; earn →</span>
+    </a>
+    <a class="xsell-card" href="buy.html">
+      <div class="xs-ico" aria-hidden="true">⛏️</div>
+      <h3>Buy a full rig</h3>
+      <p>Own an L9 outright at $4,995, US-hosted and hashing within 1 business day. Buy one or a fleet.</p>
+      <span class="xs-go">Buy a rig →</span>
+    </a>
+  </div>
+</div></section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">frequently asked</span><h2>Enterprise FAQ</h2></div>
+  <div class="faq reveal">
+    <div class="q"><button type="button">Can I bring my own machines? <span class="plus">+</span></button>
+      <div class="ans"><p>Yes — colocation is built for fleets you already own. Ship in your L9s or other Scrypt rigs and we host them at the same flat <b>$0.079/kWh all-in</b> rate, on the same WowSuch Pool and MPC custody stack. You keep the hardware and the keys; we keep the machines running.</p></div></div>
+    <div class="q"><button type="button">What's the minimum fleet size for enterprise? <span class="plus">+</span></button>
+      <div class="ans"><p>Enterprise engagements start at <b>50 machines</b>, which also makes you eligible for in-person on-site visits to inspect your fleet. Smaller orders are served by our standard <a href="buy.html" style="text-decoration:underline;color:var(--amber)">buy</a> and <a href="rent-to-own.html" style="text-decoration:underline;color:var(--amber)">rent-to-own</a> paths. At any size, you can inspect by video recording.</p></div></div>
+    <div class="q"><button type="button">Who operates the facility? <span class="plus">+</span></button>
+      <div class="ans"><p>Your machines run inside an institutional-grade United States facility that already powers <b>6,000+ Dogecoin miners for a publicly listed company</b>. The same provider runs the pool and MPC custody for that operation, so your fleet sits on proven rails — technicians on site, 24/7 monitoring.</p></div></div>
+    <div class="q"><button type="button">What's included in the hosting rate? <span class="plus">+</span></button>
+      <div class="ans"><p>Hosting is a flat <b>$0.079/kWh all-in</b> on a 1-year term — power, cooling, racking, 24/7 monitoring, and on-site repair labor. The security deposit and setup fee are waived when WowSuch Pool withholds and forwards your hosting from your daily LTC + DOGE payouts.</p></div></div>
+    <div class="q"><button type="button">How are repairs handled at scale? <span class="plus">+</span></button>
+      <div class="ans"><p>Technicians fix machines on the floor with original parts, typically in under 14 business days — no shipping a miner across the country for a fan swap. Every repair carries a fresh 90-day warranty, and you track ticket status in your dashboard.</p></div></div>
+    <div class="q"><button type="button">Can a fleet be structured for a future sale? <span class="plus">+</span></button>
+      <div class="ans"><p>For large fleets we can help structure machines as a clean, transferable <b>Delaware entity</b>. Hosting, pool, and custody carry over, so a buyer steps into a turnkey, cash-flowing operation as either an equity or an asset sale. Entity structuring and any sale to a public company or private equity firm are subject to your own legal, tax, accounting, and securities advisors and to applicable law.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ============ FINAL CTA / CONTACT ============ -->
+<section class="cta-final" id="contact"><div class="wrap">
+  <div class="contact-grid">
+    <div class="reveal">
+      <span class="eyebrow">ready to scale?</span>
+      <h2>Request your enterprise quote.</h2>
+      <p style="font-weight:700;font-size:1.12rem;max-width:46ch;margin-top:14px">Tell us your fleet size and goals — colocation, a managed fleet, or a hybrid — and our enterprise team replies by email within one business day with a tailored rate and scope.</p>
+      <div class="hero-badges" style="margin-top:24px">
+        <span class="pill"><span class="dot"></span> 6,000+ DOGE miners on site</span>
+        <span class="pill">🔑 your keys · MPC</span>
+        <span class="pill">$0.079/kWh all-in</span>
+      </div>
+      <p style="font-weight:700;color:var(--ink);margin-top:18px;font-size:.95rem">On-site visits available to owners of 50+ machines. Everyone else can inspect by video recording.</p>
+    </div>
+    <form class="lead reveal" id="leadForm" style="transition-delay:.08s">
+      <div class="ftwo">
+        <div><label for="nm">Your name</label><input id="nm" required placeholder="Alex Doge" autocomplete="name"></div>
+        <div><label for="em">Work email</label><input id="em" type="email" required placeholder="you@company.com" autocomplete="email"></div>
+      </div>
+      <div class="ftwo">
+        <div><label for="opt">What do you need?</label>
+          <select id="opt">
+            <option>Colocation — bring my rigs</option>
+            <option>Buy a managed fleet</option>
+            <option>Hybrid</option>
+          </select></div>
+        <div><label for="howmany">How many rigs?</label>
+          <select id="howmany">
+            <option>50–299</option>
+            <option>300–999</option>
+            <option>1,000+ rigs</option>
+          </select></div>
+      </div>
+      <label for="cty">Country</label>
+      <select id="cty"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>UAE</option><option>Australia</option><option>Other</option></select>
+      <label for="msg">Anything else?</label>
+      <textarea id="msg" placeholder="We have 400 L9s to colocate in the US, paid daily in LTC + DOGE, with API access for our finance team."></textarea>
+      <label class="consent"><input type="checkbox" required> I agree to be contacted and to the <a href="privacy.html">Privacy&nbsp;Policy</a>.</label>
+      <button class="btn block" type="submit">Request a quote <span class="arrow">→</span></button>
+    </form>
+  </div>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="index.html#faq">FAQ</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="admin.html" rel="nofollow">Admin</a>
+    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 6,000+ DOGE miners on site</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Hosting is $0.079/kWh all-in on a 1-year term; the security deposit and setup fee are waived only when WowSuch Pool forwards your hosting. Facility scale and the public-company hosting reference reflect our hosting partner; facility illustrations are representative. Entity structuring and any sale to a public company or private equity firm are subject to your own legal, tax, accounting, and securities advisors and to applicable law; nothing here is legal, tax, investment, or securities advice. Figures shown are estimates at current network conditions. Mining may have tax consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<!-- ============ CHAT ============ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about colocation, hosting, repairs…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  /* page-specific chat answers — merged ahead of core.js base KB */
+  window.WOW_KB = [
+    { k: ["colocation", "colo", "bring my own", "bring your own", "ship in", "my machines", "my rigs"], a: "Colocation is built for fleets you already own. Ship in your L9s or other Scrypt rigs and we host them at the same flat $0.079/kWh all-in rate, on the same WowSuch Pool and MPC custody stack. You keep the hardware and the keys." },
+    { k: ["minimum", "min fleet", "how many", "50", "50+", "fleet size", "smallest"], a: "Enterprise engagements start at 50 machines — which also makes you eligible for in-person on-site visits. Smaller orders are served by the standard buy and rent-to-own paths; everyone can inspect by video recording." },
+    { k: ["facility", "where", "who runs", "operator", "public company", "6000", "6,000"], a: "Your fleet runs in an institutional-grade US facility that already powers 6,000+ Dogecoin miners for a publicly listed company — same pool and MPC custody stack, technicians on site, 24/7 monitoring." },
+    { k: ["structure", "entity", "delaware", "exit", "sell fleet", "private equity", "acquire"], a: "For large fleets we can help structure machines as a clean, transferable Delaware entity. Hosting, pool, and custody carry over, so a buyer steps into a turnkey operation as an equity or asset sale. This is subject to your own legal, tax, and securities advisors." },
+    { k: ["quote", "pricing", "tiers", "volume", "rate"], a: "Enterprise pricing is custom by fleet size, built on the same $0.079/kWh all-in hosting rate we run on. Volume tiers cover 50-299, 300-999, and 1,000+ rigs. Use the quote form and our enterprise team replies by email within one business day." }
+  ];
+</script>
+<script src="assets/js/core.js"></script>
+</body>
+</html>

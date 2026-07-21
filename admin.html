@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leads console · WowSuch</title>
+<meta name="description" content="WowSuch internal leads console — review contact, quote, and checkout submissions captured on this device.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#211504">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+  /* ---- page-specific: internal leads console ---- */
+  body{background:var(--cream-2);}
+  .intbar{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;
+    background:var(--night);color:var(--cream-on-dark);font-weight:700;font-size:.86rem;
+    padding:9px 20px;border-bottom:3px solid var(--gold);}
+  .intbar .who{font-family:var(--mono);letter-spacing:-.2px;}
+  .intbar .who b{color:var(--gold-on-dark);}
+  .intbar a{color:#fff;text-decoration:underline;font-weight:800;}
+  .console{max-width:1160px;margin:0 auto;padding:26px 20px 40px;}
+  .console-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+  .console-head h2{font-family:var(--display);font-size:1.6rem;margin:0;}
+  .console-head .sub{color:var(--ink-soft);font-weight:600;font-size:.92rem;margin:4px 0 0;}
+  .tools{display:flex;gap:9px;flex-wrap:wrap;}
+  /* gate */
+  .gate{min-height:74vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .gate .card{max-width:380px;width:100%;text-align:center;}
+  .gate .mark{width:64px;height:64px;margin:0 auto 6px;display:block;}
+  .gate label{display:block;font-family:var(--display);font-weight:700;text-align:left;margin:18px 0 6px;font-size:.95rem;}
+  .gate input{width:100%;font-family:var(--mono);font-weight:600;font-size:1rem;border:3px solid var(--ink);
+    border-radius:var(--r-sm);padding:12px 14px;background:#fff;color:var(--ink);}
+  .gate .err{color:var(--red);font-weight:800;min-height:1.3em;margin:10px 0 4px;font-size:.9rem;}
+  .gate .hint{color:var(--ink-soft);font-weight:600;font-size:.82rem;margin-top:14px;}
+  /* stats */
+  .stat-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 18px;}
+  .tile{background:var(--night);border:3px solid var(--gold);border-radius:var(--r-md);padding:14px 16px;}
+  .tile .n{font-family:var(--mono);font-weight:700;font-size:1.7rem;line-height:1.05;color:var(--gold-on-dark);}
+  .tile .n.sm{font-size:1.02rem;}
+  .tile .l{font-weight:700;font-size:.78rem;color:var(--soft-on-dark);margin-top:5px;text-transform:uppercase;letter-spacing:.04em;}
+  /* table */
+  .tablewrap{overflow:auto;border:3px solid var(--ink);border-radius:var(--r-lg);background:var(--paper);box-shadow:var(--sh-2);}
+  table.leads{border-collapse:collapse;width:100%;min-width:920px;}
+  table.leads th,table.leads td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--ink-faint);font-size:.86rem;vertical-align:top;}
+  table.leads th{font-family:var(--display);font-weight:700;background:var(--gold);position:sticky;top:0;font-size:.8rem;z-index:1;}
+  table.leads tr:nth-child(even) td{background:rgba(255,185,46,.07);}
+  table.leads td.mono{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft);white-space:nowrap;}
+  table.leads td.val{font-family:var(--mono);font-size:.82rem;color:var(--ink);}
+  .src{display:inline-block;font-family:var(--display);font-weight:700;font-size:.72rem;padding:2px 9px;border-radius:999px;color:#fff;}
+  .src.contact{background:var(--ltc);} .src.checkout{background:var(--green);} .src.other{background:var(--doge);}
+  .empty{padding:42px;text-align:center;color:var(--ink-soft);font-weight:600;}
+  .note{color:var(--ink-soft);font-weight:600;font-size:.84rem;margin-top:16px;line-height:1.55;max-width:760px;}
+  .note code{font-family:var(--mono);background:rgba(33,21,4,.07);padding:1px 6px;border-radius:6px;font-size:.9em;}
+  .intfoot{text-align:center;color:var(--ink-soft);font-weight:600;font-size:.8rem;padding:22px 20px;}
+  .btn.tool{padding:9px 16px;font-size:.9rem;box-shadow:var(--sh-1);}
+</style>
+</head>
+<body>
+
+<div class="intbar">
+  <span class="who"><b>WowSuch</b> · internal — leads console</span>
+  <a href="index.html">back to site →</a>
+</div>
+
+<div class="console">
+  <!-- GATE -->
+  <div id="gate" class="gate">
+    <div class="card static">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+        <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+        <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+        <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+        <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <h1>Leads console</h1>
+      <p class="sub" style="color:var(--ink-soft);font-weight:600;margin:6px 0 0">Enter the access passcode to view captured leads.</p>
+      <form id="gateForm">
+        <label for="pass">Passcode</label>
+        <input id="pass" type="password" placeholder="••••" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        <div class="err" id="gateErr" role="alert" aria-live="polite"></div>
+        <button class="btn block" type="submit" id="enter">Unlock <span class="arrow" aria-hidden="true">→</span></button>
+      </form>
+      <p class="hint">Internal access — ask ops for the passcode.</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash" hidden>
+    <div class="console-head">
+      <div>
+        <h2>Leads console</h2>
+        <p class="sub">Contact, quote &amp; checkout submissions captured on this device.</p>
+      </div>
+      <div class="tools">
+        <button class="btn alt tool" type="button" id="refresh">↻ Refresh</button>
+        <button class="btn tool" type="button" id="csv">⬇ Export CSV</button>
+        <button class="btn alt tool" type="button" id="clear" style="color:var(--red)">🗑 Clear all</button>
+        <button class="btn alt tool" type="button" id="lock">Lock</button>
+      </div>
+    </div>
+
+    <div class="stat-tiles" id="stats"></div>
+
+    <div class="tablewrap">
+      <table class="leads" id="tbl">
+        <thead><tr>
+          <th>Time</th><th>Source</th><th>Name</th><th>Email</th>
+          <th>Plan / interest</th><th>Qty</th><th>Value / country</th>
+          <th>Order #</th><th>Message / detail</th><th>Page</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <p class="note">
+      Leads are stored in this browser under <code>localStorage["wowsuch_leads"]</code> by the site's contact, quote, and checkout forms.
+      Because browsers scope storage per origin, this console shows submissions made from the same origin
+      (for example, all files served from one host). In production these records are written to a secure backend.
+    </p>
+  </div>
+</div>
+
+<footer class="intfoot">WowSuch internal · leads console · not for distribution</footer>
+
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var KEY = "wowsuch_leads", PASS = "wow";
+  var W = window.WOW || {};
+  function esc(v) {
+    return W.esc ? W.esc(v) : String(v == null ? "" : v).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function byId(id) { return document.getElementById(id); }
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch (e) { return []; }
+  }
+  function fmtTime(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? esc(iso) : d.toLocaleString();
+  }
+
+  var gate = byId("gate"), dash = byId("dash"), pass = byId("pass"), gateErr = byId("gateErr");
+
+  function render() {
+    var leads = load().slice().sort(function (a, b) {
+      return String(b.ts || "").localeCompare(String(a.ts || ""));
+    });
+    var rows = byId("rows");
+    if (!leads.length) {
+      rows.innerHTML = '<tr><td colspan="10" class="empty">No leads captured yet. Submit the contact, quote, or checkout form on the site (from the same origin) and refresh.</td></tr>';
+    } else {
+      rows.innerHTML = leads.map(function (o) {
+        var src = String(o.source || "other").toLowerCase();
+        if (src !== "contact" && src !== "checkout") src = "other";
+        var plan = o.plan || o.interest || "—";
+        var val = o.total ? ("total " + o.total + (o.dueNow ? (" · due " + o.dueNow) : "")) : (o.country || "—");
+        var detail = o.message || (o.pay ? ("paid by " + o.pay) : "") || "—";
+        var ord = o.order || o.no || "—";
+        return "<tr>" +
+          '<td class="mono">' + fmtTime(o.ts) + "</td>" +
+          '<td><span class="src ' + src + '">' + esc(o.source || "other") + "</span></td>" +
+          "<td>" + esc(o.name || "—") + "</td>" +
+          '<td class="mono">' + esc(o.email || "—") + "</td>" +
+          "<td>" + esc(plan) + "</td>" +
+          '<td class="val">' + esc(o.qty || "—") + "</td>" +
+          '<td class="val">' + esc(val) + "</td>" +
+          '<td class="val">' + esc(ord) + "</td>" +
+          "<td>" + esc(detail) + "</td>" +
+          '<td class="mono">' + esc(o.page || "—") + "</td>" +
+          "</tr>";
+      }).join("");
+    }
+    var byContact = leads.filter(function (o) { return (o.source || "") === "contact"; }).length;
+    var byCheckout = leads.filter(function (o) { return (o.source || "") === "checkout"; }).length;
+    var recent = (leads[0] && leads[0].ts) ? fmtTime(leads[0].ts) : "—";
+    byId("stats").innerHTML =
+      tile(leads.length, "total leads") +
+      tile(byContact, "contact / quote") +
+      tile(byCheckout, "checkout") +
+      tile(recent, "most recent", true);
+  }
+  function tile(n, l, small) {
+    return '<div class="tile"><div class="n' + (small ? " sm" : "") + '">' + esc(n) + '</div><div class="l">' + esc(l) + "</div></div>";
+  }
+
+  function exportCsv() {
+    var leads = load();
+    if (!leads.length) { alert("No leads to export yet."); return; }
+    var cols = {};
+    leads.forEach(function (o) { Object.keys(o).forEach(function (k) { cols[k] = 1; }); });
+    var keys = Object.keys(cols);
+    var lines = [keys.join(",")];
+    leads.forEach(function (o) {
+      lines.push(keys.map(function (k) {
+        var v = o[k] == null ? "" : String(o[k]);
+        if (/[",\n]/.test(v)) v = '"' + v.replace(/"/g, '""') + '"';
+        return v;
+      }).join(","));
+    });
+    var blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "wowsuch-leads-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function unlock() {
+    var v = (pass.value || "").trim();
+    if (v === PASS) {
+      gate.hidden = true; gate.style.display = "none";
+      dash.hidden = false;
+      gateErr.textContent = "";
+      render();
+    } else {
+      gateErr.textContent = "Wrong passcode. Try again.";
+    }
+  }
+  function lock() {
+    dash.hidden = true;
+    gate.hidden = false; gate.style.display = "flex";
+    pass.value = "";
+    gateErr.textContent = "";
+    pass.focus();
+  }
+
+  byId("gateForm").addEventListener("submit", function (e) { e.preventDefault(); unlock(); });
+  byId("refresh").addEventListener("click", render);
+  byId("csv").addEventListener("click", exportCsv);
+  byId("lock").addEventListener("click", lock);
+  byId("clear").addEventListener("click", function () {
+    if (confirm("Delete ALL captured leads from this browser? This cannot be undone.")) {
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      render();
+    }
+  });
+})();
+</script>
+</body>
+</html>

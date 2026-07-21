@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your WowSuch Dashboard</title>
+<meta name="description" content="Your WowSuch account in one place: wallet balances, deposit addresses, and your mining payouts and orders, all self-custodied via WowSuch MPC.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://wowsuch.example/dashboard.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="Your WowSuch Dashboard">
+<meta property="og:description" content="Wallet balances, deposit addresses, and mining payouts — your WowSuch account in one place.">
+<meta property="og:url" content="https://wowsuch.example/dashboard.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Your WowSuch Dashboard">
+<meta name="twitter:description" content="Wallet balances, deposit addresses, and mining payouts — your WowSuch account in one place.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"WowSuch Dashboard","description":"Your WowSuch wallet balances, deposit addresses, and mining payouts in one place.","isPartOf":{"@type":"WebSite","name":"WowSuch","url":"https://wowsuch.example/"}}
+</script>
+<style>
+  /* ---- page-specific: dashboard ---- */
+  .dash-head{border-bottom:3px solid var(--ink);background:var(--paper);}
+  .dash-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;flex-wrap:wrap;}
+  .dash-head .acct{font-family:var(--mono);font-weight:700;font-size:.82rem;color:var(--ink-soft);}
+  .dash-main{padding:44px 0 80px;}
+  .dgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:start;margin-top:30px;}
+  @media(max-width:900px){.dgrid{grid-template-columns:1fr;}}
+  .wcoin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;
+    border-bottom:1px solid var(--ink-faint);font-weight:700;gap:12px;}
+  .wcoin-row:last-child{border-bottom:0;}
+  .wcoin-row .c{display:flex;align-items:center;gap:10px;}
+  .wcoin-badge{font-family:var(--display);font-weight:800;font-size:.72rem;letter-spacing:.03em;
+    border:2px solid var(--ink);border-radius:999px;padding:4px 10px;background:var(--paper);color:var(--ink);flex:none;}
+  .wcoin-badge.doge{background:var(--doge);}
+  .wcoin-badge.ltc{background:var(--ltc);color:#fff;}
+  .wcoin-row .bal-wrap{text-align:right;}
+  .wcoin-row .bal{font-family:var(--mono);font-weight:700;}
+  .wcoin-row .usd{display:block;font-family:var(--mono);font-weight:600;font-size:.76rem;color:var(--ink-soft);}
+  .addr-box{background:var(--cream-2);border:2.5px solid var(--ink);border-radius:var(--r-sm);padding:16px;margin-top:18px;}
+  .addr-box .lbl{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);margin-bottom:8px;}
+  .addr-box .a{font-family:var(--mono);font-weight:700;font-size:.92rem;word-break:break-all;}
+  .empty-state{color:var(--ink-soft);font-weight:600;padding:6px 0 14px;}
+  .card h2{font-size:1.2rem;margin:0 0 14px;}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="dash-head"><div class="wrap">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <span class="acct" id="acctChip">—</span>
+</div></div>
+
+<main id="top" class="dash-main"><div class="wrap">
+  <span class="eyebrow reveal">much dashboard, very yours</span>
+  <h1 class="reveal">Your dashboard</h1>
+  <p class="reveal" id="welcomeLine" style="font-weight:700;color:var(--ink-soft);max-width:60ch;margin-top:6px">Your wallet and mining activity, in one place.</p>
+
+  <div class="dgrid">
+    <div class="card feature reveal">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+        <h2>Your wallet</h2>
+        <span class="status soon" id="acctStatus">⏳ not yet activated</span>
+      </div>
+      <p style="margin-bottom:16px">Account <b id="acctId" style="font-family:var(--mono)">—</b></p>
+      <div id="coinList"></div>
+      <div class="addr-box" id="addrBox">
+        <div class="lbl">Deposit address · DOGE</div>
+        <div id="addrState"></div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="transition-delay:.08s">
+      <h2>Payouts &amp; orders</h2>
+      <div id="ordersWrap"></div>
+    </div>
+  </div>
+</div></main>
+
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="wallet.html">Create a wallet</a>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="wallet.html#faq">Wallet FAQ</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="admin.html" rel="nofollow">Admin</a>
+    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Your WowSuch wallet is self-custodied via MPC — you alone control access, and WowSuch cannot recover funds sent to an address you enter incorrectly. Coin balances and values shown are estimates at current network and market conditions. Mining and holding crypto may have tax consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about your wallet, orders…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>window.WOW_KB = [
+  { k: ["deposit", "address", "receive", "fund", "top up"], a: "Your deposit address appears in the dashboard once your wallet finishes provisioning. We also email your details within one business day of activating." },
+  { k: ["order", "payout", "payouts", "when", "hashing"], a: "Payouts appear on this dashboard once your machine is hashing — daily LTC + DOGE, automatically, straight to your wallet." },
+  { k: ["activate", "no wallet", "create a wallet"], a: "Head to the wallet page to activate — it takes under a minute and your dashboard updates immediately." }
+];</script>
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var W = window.WOW;
+  if (!W) return;
+  function byId(id) { return document.getElementById(id); }
+  function esc(v) { return W.esc(v); }
+
+  function loadWallet() {
+    try { return JSON.parse(localStorage.getItem("wowsuch_wallet") || "null"); } catch (e) { return null; }
+  }
+  function loadOrders() {
+    try {
+      var all = JSON.parse(localStorage.getItem("wowsuch_leads") || "[]");
+      return all.filter(function (x) { return x && x.source === "checkout"; });
+    } catch (e) { return []; }
+  }
+
+  var WA = loadWallet();
+  var orders = loadOrders();
+
+  /* ---- header / welcome ---- */
+  var acctChip = byId("acctChip");
+  if (acctChip) acctChip.textContent = WA ? ("Account " + (WA.accountId || "—")) : "Wallet not yet activated";
+
+  var welcome = byId("welcomeLine");
+  if (WA && WA.name && welcome) {
+    welcome.textContent = "Welcome back, " + WA.name.split(" ")[0] + ". Your wallet and mining activity, in one place.";
+  }
+
+  /* ---- wallet card: status + account id ---- */
+  var acctId = byId("acctId"), acctStatus = byId("acctStatus");
+  if (acctId) acctId.textContent = WA ? (WA.accountId || "—") : "—";
+  if (acctStatus) {
+    if (WA) { acctStatus.className = "status live"; acctStatus.innerHTML = '<span class="d"></span> active'; }
+    else { acctStatus.className = "status soon"; acctStatus.textContent = "⏳ not yet activated"; }
+  }
+
+  /* ---- coin balances ---- */
+  var coinList = byId("coinList");
+  var prices = (W.prices || {});
+  function usdFor(code, bal) {
+    if (code === "DOGE") return W.money(bal * (prices.doge || 0));
+    if (code === "LTC") return W.money(bal * (prices.ltc || 0));
+    if (code === "USDC") return W.money(bal);
+    return null;
+  }
+  function decimalsFor(code) { return code === "DOGE" ? 2 : code === "USDC" ? 2 : 4; }
+  function renderCoins() {
+    if (!coinList) return;
+    if (WA && WA.coins && WA.coins.length) {
+      coinList.innerHTML = WA.coins.map(function (c) {
+        var badgeCls = c.code === "DOGE" ? "doge" : c.code === "LTC" ? "ltc" : "";
+        var bal = Number(c.bal) || 0;
+        var balTxt = c.code === "USDC" ? W.money(bal) : bal.toLocaleString(undefined, { minimumFractionDigits: decimalsFor(c.code), maximumFractionDigits: decimalsFor(c.code) });
+        var usd = usdFor(c.code, bal);
+        return '<div class="wcoin-row"><span class="c"><span class="wcoin-badge ' + badgeCls + '">' + esc(c.code) + '</span></span>' +
+          '<span class="bal-wrap"><span class="bal">' + esc(balTxt) + '</span>' + (usd ? '<span class="usd">' + esc(usd) + '</span>' : '') + '</span></div>';
+      }).join("");
+    } else {
+      coinList.innerHTML = '<p class="empty-state">Activate your free wallet to see live balances here.</p>' +
+        '<a class="btn sm" href="wallet.html#activate">Create my wallet <span class="arrow">→</span></a>';
+    }
+  }
+  renderCoins();
+  document.addEventListener("wow:prices", function (e) { prices = e.detail || prices; renderCoins(); });
+
+  /* ---- deposit address ---- */
+  var addrState = byId("addrState");
+  if (addrState) {
+    if (WA && WA.coins && WA.coins[0] && WA.coins[0].address) {
+      var addr = WA.coins[0].address;
+      addrState.innerHTML = '<div class="a" id="depAddr">' + esc(addr) + '</div>' +
+        '<button class="btn sm alt" id="copyAddr" type="button" style="margin-top:10px">Copy address</button>' +
+        '<p style="font-weight:600;font-size:.82rem;color:var(--ink-soft);margin-top:8px">This is your unique WowSuch MPC deposit address for DOGE, assigned when your wallet was created. Send DOGE here from any wallet or exchange.</p>';
+      var copyBtn = byId("copyAddr");
+      if (copyBtn) copyBtn.addEventListener("click", function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(addr).then(function () { W.showToast("Address copied. Wow."); });
+      });
+    } else {
+      addrState.innerHTML = '<p style="font-weight:700">Your wallet is being provisioned — your unique deposit address will be emailed to you within one business day.</p>' +
+        '<a class="btn sm" href="wallet.html#activate" style="margin-top:10px;display:inline-flex">Activate my free wallet <span class="arrow">→</span></a>';
+    }
+  }
+
+  /* ---- payouts & orders ---- */
+  var ordersWrap = byId("ordersWrap");
+  if (ordersWrap) {
+    if (orders.length) {
+      var rows = orders.map(function (o) {
+        return '<tr><td>' + esc(o.plan || "—") + '</td><td>' + esc(o.qty || "—") + '</td><td>' + esc(o.order || "—") + '</td><td>' + esc(o.dueNow || o.total || "—") + '</td></tr>';
+      }).join("");
+      ordersWrap.innerHTML = '<table class="data-table"><thead><tr><th>Plan</th><th>Qty</th><th>Order #</th><th>Due</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<p style="font-weight:600;font-size:.85rem;color:var(--ink-soft);margin-top:14px">Payouts appear here once your machine is hashing — daily LTC + DOGE, automatically, to the wallet above.</p>';
+    } else {
+      ordersWrap.innerHTML = '<p class="empty-state">You don’t have an active mining order yet — payouts and order history will show up here once you do.</p>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn sm" href="buy.html">Buy an L9 →</a><a class="btn sm alt" href="rent-to-own.html">Rent to own →</a></div>';
+    }
+  }
+})();
+</script>
+</body>
+</html>

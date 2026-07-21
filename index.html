@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WowSuch · Dogecoin Mining Made Simple — Buy, Rent or Host an Antminer L9</title>
+<meta name="description" content="Buy or rent a US-hosted Antminer L9 that merge-mines Litecoin + Dogecoin and pays you daily to a self-custody wallet. From $13.89/mo or $4,995 outright. Live in 1 business day.">
+<link rel="canonical" href="https://wowsuch.example/index.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="WowSuch · Dogecoin mining made simple">
+<meta property="og:description" content="Own the Doge machine, get paid daily. US-hosted Antminer L9s, merge-mining LTC + DOGE, paid to a wallet only you control.">
+<meta property="og:url" content="https://wowsuch.example/index.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WowSuch · Dogecoin mining made simple">
+<meta name="twitter:description" content="US-hosted Antminer L9s, merge-mining LTC + DOGE, paid daily to your own keys.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"WowSuch","url":"https://wowsuch.example/","description":"US-hosted Dogecoin and Litecoin mining: buy or rent-to-own Antminer L9s, enterprise colocation, whitelabel pool software, and equipment leasing.","slogan":"Wow, such mining. So simple."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What do I get paid in?","acceptedAnswer":{"@type":"Answer","text":"You are paid daily in LTC and DOGE — the coins you actually mine — to your own WowSuch MPC self-custody wallet. The 3% pool fee and hosting are withheld automatically before payout."}},
+{"@type":"Question","name":"Where are the machines?","acceptedAnswer":{"@type":"Answer","text":"Every L9 is hosted in our United States facility, 24/7 monitored, with the repair team on the same floor. Your machine is hashing within one business day of payment."}},
+{"@type":"Question","name":"What does merged mining mean?","acceptedAnswer":{"@type":"Answer","text":"Litecoin and Dogecoin share the Scrypt algorithm, so one Antminer L9 mines both networks at the same time on the same electricity, earning rewards from both chains at once."}},
+{"@type":"Question","name":"Can I start small?","acceptedAnswer":{"@type":"Answer","text":"Yes. Rent to own by the chip: a single L9 is 288 chips, and you can start from 12 chips at about $13.89 per month, paying them off over 18 months at 0% while they mine."}}
+]}
+</script>
+<style>
+  /* ---- page-specific: home ---- */
+  .hero-meme{position:absolute;font-family:var(--meme);font-weight:700;color:var(--amber);
+    pointer-events:none;user-select:none;white-space:nowrap;z-index:2;font-size:1.05rem;
+    text-shadow:1px 1px 0 rgba(255,255,255,.7);}
+  .l9-art{background:linear-gradient(160deg,#FFF6DE,#FCE9BC);border:3px solid var(--ink);
+    border-radius:var(--r-md);padding:18px;}
+  .coin-d{--r:-6deg;top:-26px;left:-30px;}
+  .coin-l{--r:5deg;bottom:36px;right:-26px;animation-delay:1.2s;}
+  @media(max-width:640px){.coin-d{left:4px;top:-30px;width:56px;height:56px;}.coin-l{right:4px;bottom:-14px;}}
+  .compare-note{font-weight:600;font-size:.85rem;color:var(--ink-soft);margin-top:14px;text-align:center;}
+  .ent-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+  .ent-list li{font-weight:700;background:var(--paper);border:2.5px solid var(--ink);
+    border-radius:var(--r-sm);padding:11px 14px;box-shadow:var(--sh-1);font-size:.95rem;}
+  .ent-list li b{color:var(--amber);}
+  .wl-band{display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:center;
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r-lg);
+    padding:34px 36px;box-shadow:var(--sh-3);}
+  @media(max-width:900px){.wl-band{grid-template-columns:1fr;}}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
+  .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
+  .cta-final .eyebrow{color:var(--ink);}
+</style>
+</head>
+<body class="has-mobile-cta">
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>⛏ <b>Antminer L9s in stock</b> — own one for $4,995 or rent from $13.89/mo (12 chips) · hashing within 1 business day</span><a class="tb-btn" href="buy.html">Buy now →</a></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html">Enterprise</a>
+    <a class="btn sm nav-cta" href="buy.html">Buy an L9 <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <span class="eyebrow reveal">wow, such mining · so simple</span>
+    <h1 class="reveal" style="transition-delay:.05s">Own the Doge machine.<br><span class="pop">Get paid every day.</span></h1>
+    <p class="sub reveal" style="transition-delay:.12s">Buy or rent a Bitmain Antminer L9 hosted in our US facility. One machine <b>merge-mines Litecoin + Dogecoin</b> on the same watts and pays out daily to a wallet <b>only you control</b>.</p>
+    <div class="hero-ctas reveal" style="transition-delay:.18s">
+      <a class="btn lg" href="buy.html">Buy an L9 · $4,995 <span class="arrow">→</span></a>
+      <a class="btn alt" href="rent-to-own.html">Rent from $13.89/mo · 12 chips</a>
+    </div>
+    <p class="btn-sub reveal" style="transition-delay:.2s;color:var(--ink-soft);font-weight:700">$100 deposit reserves your machine — balance in 30 days.</p>
+    <div class="hero-badges reveal" style="transition-delay:.24s">
+      <span class="pill"><span class="dot"></span> in stock · live in 1 biz day</span>
+      <span class="pill">🔑 your keys · MPC self-custody</span>
+      <span class="pill">🇺🇸 US-hosted · $0.079/kWh all-in</span>
+    </div>
+    <div class="hero-proof reveal" style="transition-delay:.3s">
+      <span>Trusted by <b>2,100+ miners</b> · 9,800+ L9s sold &amp; hosted</span>
+    </div>
+  </div>
+  <div class="hero-stage reveal" style="transition-delay:.1s">
+    <div class="rig-card">
+      <span class="tag">wow! in stock</span>
+      <div class="l9-art">
+        <svg viewBox="0 0 340 200" role="img" aria-label="Bitmain Antminer L9 mining machine">
+          <rect x="30" y="22" width="280" height="156" rx="14" fill="#FFFCF3" stroke="#2B1D05" stroke-width="4"/>
+          <rect x="30" y="22" width="280" height="34" rx="14" fill="#FFB92E" stroke="#2B1D05" stroke-width="4"/>
+          <text x="170" y="46" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="17" fill="#2B1D05" letter-spacing="2">ANTMINER L9</text>
+          <circle cx="105" cy="118" r="40" fill="#FDF3DC" stroke="#2B1D05" stroke-width="4"/>
+          <g class="fan" stroke="#2B1D05" stroke-width="3.6" stroke-linecap="round">
+            <path d="M105 84 L105 118"/><path d="M105 118 L134 135"/><path d="M105 118 L76 135"/>
+            <path d="M105 118 L134 101"/><path d="M105 118 L76 101"/><path d="M105 118 L105 152"/>
+          </g>
+          <circle cx="105" cy="118" r="9" fill="#FFB92E" stroke="#2B1D05" stroke-width="3.4"/>
+          <circle cx="235" cy="118" r="40" fill="#FDF3DC" stroke="#2B1D05" stroke-width="4"/>
+          <g class="fan fan-b" stroke="#2B1D05" stroke-width="3.6" stroke-linecap="round">
+            <path d="M235 84 L235 118"/><path d="M235 118 L264 135"/><path d="M235 118 L206 135"/>
+            <path d="M235 118 L264 101"/><path d="M235 118 L206 101"/><path d="M235 118 L235 152"/>
+          </g>
+          <circle cx="235" cy="118" r="9" fill="#FFB92E" stroke="#2B1D05" stroke-width="3.4"/>
+          <circle cx="296" cy="39" r="4.5" fill="#1E8A4C"/>
+        </svg>
+      </div>
+      <div class="cap">
+        <div class="nm">Bitmain Antminer L9<small>16 GH/s · Scrypt · merge-mines LTC + DOGE</small></div>
+        <div class="pr">$4,995</div>
+      </div>
+    </div>
+    <svg class="coin-orbit coin-d float" width="74" height="74" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="29" fill="#C2A633" stroke="#2B1D05" stroke-width="3"/>
+      <circle cx="32" cy="32" r="22" fill="none" stroke="#2B1D05" stroke-width="1.6" opacity=".4"/>
+      <text x="32" y="43" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="30" fill="#2B1D05">Ð</text>
+    </svg>
+    <svg class="coin-orbit coin-l float slow" width="58" height="58" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="29" fill="#345D9D" stroke="#2B1D05" stroke-width="3"/>
+      <circle cx="32" cy="32" r="22" fill="none" stroke="#fff" stroke-width="1.6" opacity=".4"/>
+      <text x="32" y="43" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="28" fill="#fff">Ł</text>
+    </svg>
+  </div>
+</div></section>
+
+<div class="marquee" aria-hidden="true"><div class="track"><span>
+  <span>⛏ much hash</span><span>★</span><span>very uptime</span><span>★</span><span>paid daily</span><span>★</span><span>your keys</span><span>★</span><span>16 GH/s</span><span>★</span><span>merge mine LTC + DOGE</span><span>★</span><span>so simple</span><span>★</span><span>wow</span><span>★</span>
+  <span>⛏ much hash</span><span>★</span><span>very uptime</span><span>★</span><span>paid daily</span><span>★</span><span>your keys</span><span>★</span><span>16 GH/s</span><span>★</span><span>merge mine LTC + DOGE</span><span>★</span><span>so simple</span><span>★</span><span>wow</span><span>★</span>
+</span></div></div>
+
+<!-- ============ SOLUTIONS ============ -->
+<section id="solutions"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much choice, very focus</span>
+    <h2>Four ways to mine &amp; earn</h2>
+    <p>One machine — the Bitmain Antminer L9, merge-mining Litecoin + Dogecoin. Pick the path that fits your budget and we'll handle the rest.</p>
+  </div>
+  <div class="sol-grid">
+    <a class="sol-card reveal" href="rent-to-own.html">
+      <svg class="s-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#C2A633" stroke="#2B1D05" stroke-width="3"/><text x="24" y="32" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="22" fill="#2B1D05">Ð</text></svg>
+      <h3>Rent to Own &amp; Mine it</h3>
+      <span class="s-from">from $13.89/mo · 12 chips</span>
+      <p>Rent by the chip — an L9 is 288 chips, start from just 12. Pay them off over <b>18 months at 0%</b> while they mine, repairs included. The friendliest first step into mining.</p>
+      <span class="s-go">Rent to own →</span>
+    </a>
+    <a class="sol-card reveal" href="buy.html" style="transition-delay:.06s">
+      <svg class="s-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="12" width="34" height="26" rx="5" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="17" cy="25" r="6" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><circle cx="31" cy="25" r="6" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/></svg>
+      <h3>Buy a Full Rig &amp; Mine it</h3>
+      <span class="s-from">$4,995 · $100 reserves it</span>
+      <p>Own an L9 outright, hosted in the USA and <b>hashing in 1 business day</b>. Daily LTC + DOGE payouts to your own keys. Buy one, or a fleet of up to 500.</p>
+      <span class="s-go">Buy a rig →</span>
+    </a>
+    <a class="sol-card reveal" href="lease.html" style="transition-delay:.12s">
+      <svg class="s-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="14" width="32" height="22" rx="5" fill="#1E8A4C" stroke="#2B1D05" stroke-width="3"/><text x="24" y="30" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="15" fill="#fff">$</text><circle cx="13" cy="19" r="1.8" fill="#fff" opacity=".7"/><circle cx="35" cy="31" r="1.8" fill="#fff" opacity=".7"/></svg>
+      <h3>Lease your Rig to us &amp; Earn</h3>
+      <span class="s-from">paid daily in USDC</span>
+      <p>Already own miners? Lease them to us — we host, run, monitor, and repair; <b>you collect daily USDC</b>. Completely hands-off yield from hardware you already have.</p>
+      <span class="s-go">Lease &amp; earn →</span>
+    </a>
+    <a class="sol-card reveal" href="enterprise.html" style="transition-delay:.18s">
+      <svg class="s-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 38 V20 L18 14 V20 L28 14 V20 L40 14 V38 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3" stroke-linejoin="round"/><rect x="13" y="27" width="5" height="6" fill="#2B1D05"/><rect x="22" y="27" width="5" height="6" fill="#2B1D05"/><rect x="31" y="27" width="5" height="6" fill="#2B1D05"/></svg>
+      <h3>Bring your Own Rigs</h3>
+      <span class="s-from">enterprise colocation · 50+</span>
+      <p>Ship us the rigs you already own. Institutional US hosting on a site that powers <b>6,000+ DOGE miners for a public company</b> — same pool + MPC stack.</p>
+      <span class="s-go">Go enterprise →</span>
+    </a>
+  </div>
+</div></section>
+
+<!-- ============ NUMBERS ============ -->
+<section class="tight" id="numbers"><div class="wrap">
+  <div class="stats-band reveal">
+    <div class="stats-grid">
+      <div class="stat"><div class="num"><span class="count" data-target="1000">0</span></div><div class="lab">L9s in stock now</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="9800">0</span>+</div><div class="lab">L9s sold &amp; hosted</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="99" data-dec="0">0</span>.2%</div><div class="lab">fleet uptime, 12-mo avg</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="16">0</span> GH/s</div><div class="lab">per machine</div></div>
+      <div class="stat"><div class="num"><span class="count" data-target="1">0</span> biz day</div><div class="lab">from payment to hashing</div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">one app, much power</span>
+    <h2>From machine to your wallet, automatically</h2>
+    <p><b>WowSuch Pool</b> finds the blocks and merge-mines LTC + DOGE. <b>WowSuch MPC</b> keeps your rewards in a self-custody wallet only you can unlock. Hosting and fees are withheld automatically — you just watch the Doge roll in.</p>
+  </div>
+  <div class="flow reveal">
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><path d="M12 18 L16 9 L22 17 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2"/><path d="M36 18 L32 9 L26 17 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2"/><circle cx="19" cy="25" r="2" fill="#2B1D05"/><circle cx="29" cy="25" r="2" fill="#2B1D05"/><ellipse cx="24" cy="30" rx="3" ry="2" fill="#2B1D05"/></svg>
+      <b>You</b><small>buy or rent an L9</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="16" width="32" height="20" rx="5" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="18" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><circle cx="32" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/></svg>
+      <b>WowSuch Pool</b><small>merge-mines LTC + DOGE</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="24" cy="24" r="9" fill="none" stroke="#2B1D05" stroke-width="3"/><g stroke="#2B1D05" stroke-width="3"><line x1="24" y1="6" x2="24" y2="13"/><line x1="24" y1="35" x2="24" y2="42"/><line x1="6" y1="24" x2="13" y2="24"/><line x1="35" y1="24" x2="42" y2="24"/></g><circle cx="24" cy="24" r="3" fill="#C77A08"/></svg>
+      <b>Auto-withhold</b><small>hosting $0.079 + 3% pool fee</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 L40 12 V24 Q40 38 24 44 Q8 38 8 24 V12 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="24" cy="22" r="4.5" fill="#2B1D05"/><rect x="22" y="24" width="4" height="8" fill="#2B1D05"/></svg>
+      <b>WowSuch MPC</b><small>your self-custody wallet</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="24" r="11" fill="#C2A633" stroke="#2B1D05" stroke-width="2.6"/><text x="18" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#2B1D05">Ð</text><circle cx="32" cy="24" r="11" fill="#345D9D" stroke="#2B1D05" stroke-width="2.6"/><text x="32" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#fff">Ł</text></svg>
+      <b>Paid daily</b><small>LTC + DOGE, your keys</small>
+    </div>
+  </div>
+  <p class="note-banner reveal">⚙ <b>How payouts work:</b> you're paid in <b>LTC + DOGE</b> — the coins you actually mine — every single day. WowSuch Pool withholds the 3% pool fee and your hosting ($0.079/kWh all-in) automatically. <b>No security deposit and no setup fee</b> when the pool forwards your hosting for you; prefer to pay hosting yourself, and a 2-month deposit plus a one-time setup fee apply instead.</p>
+</div></section>
+
+<!-- ============ TRUST ============ -->
+<section id="why"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much trust, zero stress</span>
+    <h2>Built so you never babysit a miner</h2>
+    <p>We sell exactly one machine and run it better than anyone. Here's what that focus buys you.</p>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card reveal">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M30 8 a10 10 0 1 0 8 16 l-8 8 -6 -6 8 -8 a10 10 0 0 0 -2 -10z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M12 30 L20 38 L14 44 L8 38 Z" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/></svg>
+      <h3>6 months of free repairs</h3>
+      <p>90-day warranty plus 90 more days of free repairs — original parts, on-site techs, turnaround typically under 14 business days, and a fresh 90-day warranty on every repair.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.06s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 L41 11 V23 Q41 37 24 43 Q7 37 7 23 V11 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M16 23 L22 29 L33 18" fill="none" stroke="#2B1D05" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>Never mine at a loss</h3>
+      <p>If mining revenue ever drops below the $0.079 hosting cost, we curtail or self-mine until it's profitable again. You're never stuck paying to lose money.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.12s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="20" cy="20" r="11" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><circle cx="20" cy="20" r="4" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><path d="M28 28 L40 40 M34 34 L40 28" stroke="#2B1D05" stroke-width="3.4" stroke-linecap="round"/></svg>
+      <h3>Your keys, not ours</h3>
+      <p>Daily payouts land in a WowSuch MPC self-custody wallet. We never hold your coins — withdraw to any wallet, swap on DeFi, or cash out to USD after KYC.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.18s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 40 V18 L18 10 V18 L30 10 V18 L42 10 V40 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><rect x="12" y="28" width="6" height="7" fill="#2B1D05"/><rect x="22" y="28" width="6" height="7" fill="#2B1D05"/><rect x="32" y="28" width="6" height="7" fill="#2B1D05"/></svg>
+      <h3>One US facility, on-site team</h3>
+      <p>Purpose-tuned for the L9, 24/7 monitored, repair techs on the same floor your machines run on. Inspect by video any time; visit in person at 50+ machines.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.24s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M24 12 V24 L32 30" fill="none" stroke="#2B1D05" stroke-width="3.4" stroke-linecap="round"/></svg>
+      <h3>Paid every 24 hours</h3>
+      <p>No monthly batches, no minimum balances held hostage. Your LTC + DOGE land in your wallet every day, with fees already settled.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.3s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="13" width="26" height="22" rx="4" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M33 21 H42 M38 16 L43 21 L38 26" stroke="#2B1D05" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><text x="20" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#2B1D05">$</text></svg>
+      <h3>Easy exit, your call</h3>
+      <p>Done mining? Give 90 days notice and we'll broker the sale of your hardware at fair market value — or derack and ship it to you. No lock-in, no drama.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ COMPARISON ============ -->
+<section id="compare" class="band-cool"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">very comparison, much clarity</span>
+    <h2>WowSuch vs. doing it the hard way</h2>
+    <p>The honest math on owning a hosted L9 versus mining at home or renting opaque cloud hashrate.</p>
+  </div>
+  <div class="compare reveal"><div class="compare-scroll">
+    <table>
+      <thead><tr>
+        <th scope="col">What matters</th>
+        <th scope="col" class="you">WowSuch hosted L9</th>
+        <th scope="col">Mining at home</th>
+        <th scope="col">Cloud hashrate sites</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>You own the hardware</td><td class="you"><span class="yes">✔ Yes — your serial number</span></td><td><span class="yes">✔ Yes</span></td><td><span class="no">✘ No, just a contract</span></td></tr>
+        <tr><td>Electricity rate</td><td class="you">$0.079/kWh all-in</td><td>$0.15–0.30/kWh retail</td><td>Opaque, baked into fees</td></tr>
+        <tr><td>Noise &amp; heat in your house</td><td class="you"><span class="yes">✔ None — it's in our facility</span></td><td><span class="no">✘ ~75 dB, 3.4 kW of heat</span></td><td><span class="yes">✔ None</span></td></tr>
+        <tr><td>Repairs</td><td class="you">On-site techs, 6 mo free</td><td>You ship to a depot, weeks</td><td>Not your problem — or your hardware</td></tr>
+        <tr><td>Payout coins</td><td class="you">LTC + DOGE, daily</td><td>LTC + DOGE</td><td>Often platform credits</td></tr>
+        <tr><td>Custody of rewards</td><td class="you"><span class="yes">✔ Your MPC wallet, your keys</span></td><td><span class="yes">✔ Your wallet</span></td><td><span class="no">✘ Their balance sheet</span></td></tr>
+        <tr><td>Exit path</td><td class="you">Brokered resale or ship-out</td><td>Sell it yourself</td><td>Contract expires worthless</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <p class="compare-note reveal">Home figures assume typical US residential power and self-managed repairs. Cloud-mining terms vary by provider — read theirs closely. Wow.</p>
+</div></section>
+
+<!-- ============ WHITELABEL ============ -->
+<section id="powered"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">powered by WowSuch</span>
+    <h2>Run this whole platform under your brand</h2>
+    <p>WowSuch is more than a storefront — the pool and wallet stack underneath is licensable.</p>
+  </div>
+  <div class="wl-band reveal">
+    <div>
+      <span class="eyebrow">whitelabel software</span>
+      <h3 style="font-size:1.7rem">Your brand, your pool, your keys</h3>
+      <p style="color:var(--ink-soft);font-weight:600;margin-top:10px">License the same software that runs WowSuch: <b>launch your own Litecoin + Dogecoin mining pool</b> and issue <b>non-custodial MPC wallets</b> under your own brand. We deploy in your cloud and maintain it; you keep control, custody, and compliance.</p>
+      <div class="hero-ctas" style="margin-top:18px">
+        <a class="btn" href="whitelabel.html">Explore the software <span class="arrow">→</span></a>
+        <a class="btn alt" href="whitelabel.html#contact">Request a license quote</a>
+      </div>
+    </div>
+    <ul class="ent-list">
+      <li><b>Launch your own pool</b> — merge-mining LTC + DOGE</li>
+      <li><b>Issue MPC wallets</b> — never custody client funds</li>
+      <li>Auto pool routing + failover across major pools</li>
+      <li>Swap mined coins to USDC via your exchange API</li>
+      <li>Hosting math, finance reports, gas optimization</li>
+      <li>Deployed in your cloud · 24/7/365 support</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section id="love" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">very community, much love</span>
+    <h2>Miners who made the jump</h2>
+  </div>
+  <div class="quotes">
+    <figure class="quote reveal" style="margin:0">
+      <span class="mk" aria-hidden="true">”</span>
+      <div class="stars" aria-hidden="true">★★★★★</div>
+      <p>Bought 3 L9s in March. They were hashing the next morning, and LTC + DOGE hit my own MPC wallet every day since — 14 months and counting. I've literally never touched a cable.</p>
+      <figcaption class="who">
+        <svg class="av" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#FFB92E"/><text x="20" y="26" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="15" fill="#2B1D05">MT</text></svg>
+        <div><b>Marcus T.</b><small>3× L9 · hosted since 2025</small></div>
+      </figcaption>
+    </figure>
+    <figure class="quote reveal" style="margin:0;transition-delay:.08s">
+      <span class="mk" aria-hidden="true">”</span>
+      <div class="stars" aria-hidden="true">★★★★★</div>
+      <p>I shopped every ASIC seller and got decision paralysis. WowSuch sells one machine and knows it cold — my hashboard repair ticket closed in 6 days, free, under the included coverage.</p>
+      <figcaption class="who">
+        <svg class="av" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#9ED0F5"/><text x="20" y="26" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="15" fill="#2B1D05">PN</text></svg>
+        <div><b>Priya N.</b><small>12× L9 · fleet owner</small></div>
+      </figcaption>
+    </figure>
+    <figure class="quote reveal" style="margin:0;transition-delay:.16s">
+      <span class="mk" aria-hidden="true">”</span>
+      <div class="stars" aria-hidden="true">★★★★★</div>
+      <p>Leased my 8 S-series-era rigs that were sitting idle in a storage unit. WowSuch deracked, shipped, and re-racked them; now they pay me about $19/day in USDC with zero work on my end. Best decision I made with dead hardware.</p>
+      <figcaption class="who">
+        <svg class="av" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="#BFE6A8"/><text x="20" y="26" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="15" fill="#2B1D05">OR</text></svg>
+        <div><b>Owen R.</b><small>leased 8 rigs · paid in USDC</small></div>
+      </figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">such questions, much answers</span><h2>FAQ</h2></div>
+  <div class="faq reveal">
+    <div class="q"><button type="button">What do I get paid in? <span class="plus">+</span></button>
+      <div class="ans"><p>Daily <b>LTC + DOGE</b> — the coins you actually mine — straight to your WowSuch MPC self-custody wallet. The 3% pool fee and your hosting are withheld automatically before payout, so what lands is yours.</p></div></div>
+    <div class="q"><button type="button">Where are the machines? Can I take mine home? <span class="plus">+</span></button>
+      <div class="ans"><p>Every L9 runs in our US facility and is hashing within one business day of payment. Inspect by video recording any time; serial-number proof comes with every full machine. Want it shipped later? 90 days notice, $25/machine derack fee plus shipping.</p></div></div>
+    <div class="q"><button type="button">What does "merged mining" mean? <span class="plus">+</span></button>
+      <div class="ans"><p>Litecoin and Dogecoin share the Scrypt algorithm, so one L9 secures both networks at once — same machine, same watts, two reward streams. Two coins, zero extra electricity.</p></div></div>
+    <div class="q"><button type="button">Can I start small? <span class="plus">+</span></button>
+      <div class="ans"><p>Yes — rent to own by the chip. An L9 is 288 chips; start from 12 chips at about $13.89/mo and pay them off over 18 months at 0% while they mine. Repairs included for the whole term.</p></div></div>
+    <div class="q"><button type="button">How much can I make? <span class="plus">+</span></button>
+      <div class="ans"><p>It depends on coin prices, network difficulty, and luck — anyone promising a fixed number is selling something. Use the <a href="buy.html#calc" style="text-decoration:underline;color:var(--amber)">profit calculator</a> to model it with live prices. And if revenue ever dips below hosting cost, we curtail so you never mine at a loss.</p></div></div>
+    <div class="q"><button type="button">What happens if my machine breaks? <span class="plus">+</span></button>
+      <div class="ans"><p>Our techs fix it on-site — typically under 14 business days, free for the first 6 months (and the entire term on rent-to-own). Every repair carries its own fresh 90-day warranty.</p></div></div>
+    <div class="q"><button type="button">How do I cash out? <span class="plus">+</span></button>
+      <div class="ans"><p>Four ways: withdraw LTC + DOGE to any wallet; cash out to USD after one-time KYC; swap cross-chain on DeFi via integrated Thorchain; or spend via gift cards and prepaid Visa (coming soon). Your coins, your call.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="cta-final" id="contact"><div class="wrap">
+  <div class="contact-grid">
+    <div class="reveal">
+      <span class="eyebrow">ready to doge?</span>
+      <h2>Start mining this week.<br>Much fast, very simple.</h2>
+      <p style="font-weight:700;font-size:1.12rem;max-width:44ch;margin-top:14px">Ready now? <a href="buy.html" style="text-decoration:underline">Buy an L9</a> or <a href="rent-to-own.html" style="text-decoration:underline">start from $13.89/mo</a>. Questions or ordering in bulk? Send a note — a human replies within one business day.</p>
+      <div class="hero-badges" style="margin-top:24px">
+        <span class="pill"><span class="dot"></span> 1,000 L9s in stock</span>
+        <span class="pill">🔑 your keys · MPC</span>
+        <span class="pill">paid daily in LTC + DOGE</span>
+      </div>
+    </div>
+    <form class="lead reveal" id="leadForm" style="transition-delay:.08s">
+      <div class="ftwo">
+        <div><label for="nm">Your name</label><input id="nm" required placeholder="Alex Doge" autocomplete="name"></div>
+        <div><label for="em">Email</label><input id="em" type="email" required placeholder="you@example.com" autocomplete="email"></div>
+      </div>
+      <div class="ftwo">
+        <div><label for="opt">Buy or rent to own?</label>
+          <select id="opt"><option>Buy outright ($4,995)</option><option>Rent to own (by the chip)</option><option>Lease my rigs to you</option><option>Just exploring, wow</option></select></div>
+        <div><label for="howmany">How many L9s?</label>
+          <select id="howmany"><option>1 rig</option><option>2 to 9 rigs</option><option>10 to 49 rigs</option><option>50+ rigs (on-site eligible)</option><option>300+ rigs</option></select></div>
+      </div>
+      <label for="cty">Country</label>
+      <select id="cty"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>UAE</option><option>Australia</option><option>Other</option></select>
+      <label for="msg">Anything else?</label>
+      <textarea id="msg" placeholder="I'd like 5 L9s hosted in the US, paid daily in LTC + DOGE."></textarea>
+      <label class="consent"><input type="checkbox" required> I agree to be contacted and to the <a href="privacy.html">Privacy&nbsp;Policy</a>.</label>
+      <button class="btn block" type="submit">Request a quote <span class="arrow">→</span></button>
+    </form>
+  </div>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="index.html#faq">FAQ</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="admin.html" rel="nofollow">Admin</a>
+    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody payouts</span>
+    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Rent-to-own is a fractional, by-the-chip plan (288 chips per L9, minimum 12 chips, ~$20.83 per chip over 18 months at 0%; payments are due regardless of mining results; repairs included for the term with up to 3 months of possible repair downtime). Buyback offers reflect live fair market value and are not guaranteed amounts. Hosting is $0.079/kWh all-in on a 1-year term; the security deposit and setup fee are waived only when WowSuch Pool forwards your hosting. Figures shown (including projected coin output) are estimates at current network conditions. Mining may have tax consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<!-- ============ MOBILE STICKY CTA ============ -->
+<div class="mobile-cta"><div class="mc-price">From $13.89/mo · 12 chips<small>or own one outright for $4,995</small></div><a class="btn sm" href="buy.html">Buy an L9 <span class="arrow">→</span></a></div>
+
+<!-- ============ CHAT ============ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about price, hosting, payouts…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/core.js"></script>
+</body>
+</html>

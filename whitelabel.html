@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WowSuch Whitelabel · Your Own LTC + DOGE Pool & MPC Wallets</title>
+<meta name="description" content="License the WowSuch software stack: launch a Litecoin + Dogecoin merge-mining pool and issue non-custodial MPC wallets under your brand. Deployed in your cloud, maintained 24/7/365.">
+<link rel="canonical" href="https://wowsuch.example/whitelabel.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="WowSuch Whitelabel · your brand, your pool, your keys">
+<meta property="og:description" content="License the stack that runs WowSuch: a branded LTC + DOGE mining pool plus non-custodial MPC wallets, deployed in your cloud and maintained for you.">
+<meta property="og:url" content="https://wowsuch.example/whitelabel.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WowSuch Whitelabel · pool + MPC software">
+<meta name="twitter:description" content="Run your own branded LTC + DOGE pool and non-custodial MPC wallets on the WowSuch stack.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WowSuch Whitelabel Stack","applicationCategory":"BusinessApplication","operatingSystem":"Cloud (deployed in your environment)","description":"License the WowSuch mining-pool and MPC custody software to launch your own branded Litecoin + Dogecoin merge-mining pool and issue non-custodial MPC wallets. Includes auto pool routing and failover, USDC swaps via your exchange API, hosting cost math, finance and tax reports, gas optimization, branded dashboard templates, and a dedicated MCP server. Deployed in your cloud and maintained 24/7/365.","offers":{"@type":"Offer","priceCurrency":"USD","price":"0","description":"Custom license — request a quote."},"brand":{"@type":"Brand","name":"WowSuch"},"featureList":["LTC + DOGE merge-mining pool","Non-custodial MPC wallets","Auto pool routing and failover","USDC swaps via exchange API","Hosting cost math and finance reports","Gas fee optimization","Branded dashboard templates","Dedicated MCP server for Claude"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Who custodies client funds?","acceptedAnswer":{"@type":"Answer","text":"You do not — and neither do we. The stack issues non-custodial MPC wallets, so client rewards live in wallets that only the client can unlock. There is no single point of failure and no operator custody of funds."}},
+{"@type":"Question","name":"Where does the software run?","acceptedAnswer":{"@type":"Answer","text":"In your cloud, under your brand. We deploy the platform into your environment and maintain it, with 24/7/365 support and your choice of full server care or upgrades-only. You keep control, custody, and compliance."}},
+{"@type":"Question","name":"Which pools and coins are supported?","acceptedAnswer":{"@type":"Answer","text":"The pool merge-mines Litecoin and Dogecoin on the Scrypt algorithm. Rigs connect with automatic routing and failover across major pools including ViaBTC, F2Pool, Antpool, and NiceHash, with transparent cost breakdowns and API integration."}},
+{"@type":"Question","name":"How do clients get paid and swap to USDC?","acceptedAnswer":{"@type":"Answer","text":"Daily payouts in the coins actually mined — LTC and DOGE — to each client's MPC wallet, with hosting and pool fee withheld automatically. Mined coins can be swapped to USDC through your own exchange API (Coinbase, Kraken)."}},
+{"@type":"Question","name":"What is the MCP server for?","acceptedAnswer":{"@type":"Answer","text":"Every deployment ships with a dedicated MCP (Model Context Protocol) server so your team can connect Claude, ChatGPT, or Cursor straight to the pool, fleet, and wallets. Ask in plain English, pull live data, generate dashboards, and schedule actions — write actions require your approval first."}}
+]}
+</script>
+<style>
+  /* ---- page-specific: whitelabel ---- */
+  .wl-hero-card{background:linear-gradient(160deg,#FFF6DE,#FCE9BC);border:4px solid var(--ink);
+    border-radius:var(--r-lg);box-shadow:var(--sh-3);padding:26px;transform:rotate(-1.5deg);transition:transform .3s;}
+  .wl-hero-card:hover{transform:rotate(0) scale(1.02);}
+  .wl-hero-card h3,.wl-hero-card .wl-hero-h{font-size:1.45rem;line-height:1.15;margin:12px 0 6px;}
+  .wl-stack-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+  .wl-stack-list li{font-weight:700;background:var(--paper);border:2.5px solid var(--ink);
+    border-radius:var(--r-sm);padding:11px 14px;box-shadow:var(--sh-1);font-size:.93rem;}
+  .wl-stack-list li b{color:var(--amber-ink);}
+  .incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;}
+  @media(max-width:820px){.incl-grid{grid-template-columns:1fr;}}
+  .incl{display:flex;gap:12px;background:var(--paper);border:2.5px solid var(--ink);
+    border-radius:var(--r-md);padding:15px 16px;box-shadow:var(--sh-1);}
+  .incl .ck{flex:0 0 auto;width:28px;height:28px;background:var(--paper);border:2.5px solid var(--ink);
+    border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;color:var(--amber-ink);}
+  .incl b{font-family:var(--display);font-size:1.04rem;}
+  .incl p{margin:2px 0 0;font-weight:600;color:var(--ink-soft);font-size:.9rem;}
+  .deploy-band{display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:center;
+    background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-xl);padding:34px 36px;box-shadow:var(--sh-3);}
+  .deploy-band h3{color:var(--cream-on-dark);font-size:1.7rem;}
+  .deploy-band p{color:var(--soft-on-dark);font-weight:600;margin-top:10px;}
+  .deploy-band .eyebrow{color:var(--gold-on-dark);}
+  .deploy-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+  .deploy-list li{font-weight:700;background:rgba(255,255,255,.06);border:2px solid var(--cream-on-dark);
+    border-radius:var(--r-sm);padding:10px 14px;color:var(--cream-on-dark);font-size:.92rem;}
+  @media(max-width:900px){.deploy-band{grid-template-columns:1fr;}}
+  .mcp-band{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center;
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r-lg);
+    padding:34px 36px;box-shadow:var(--sh-3);}
+  @media(max-width:900px){.mcp-band{grid-template-columns:1fr;}}
+  .mcp-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+  .mcp-list li{font-weight:700;background:var(--cream);border:2.5px solid var(--ink);
+    border-radius:var(--r-sm);padding:10px 14px;box-shadow:var(--sh-1);font-size:.9rem;}
+  .mcp-list li b{font-family:var(--display);color:var(--amber-ink);}
+  .audience-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media(max-width:860px){.audience-grid{grid-template-columns:1fr;}}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
+  .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
+  .cta-final .eyebrow{color:var(--ink);}
+  .logos-strip{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;margin-top:8px;}
+  .logo-chip{font-family:var(--mono);font-weight:600;font-size:.9rem;background:var(--paper);
+    border:2.5px solid var(--ink);border-radius:999px;padding:9px 16px;box-shadow:var(--sh-1);}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🖥 <b>Whitelabel software</b> — run your own LTC + DOGE mining pool and MPC wallets under your brand · we deploy and maintain it</span><a class="tb-btn" href="#contact">Request a quote →</a></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html" aria-current="page">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="enterprise.html">Enterprise</a>
+    <a class="btn sm nav-cta" href="#contact">Request a quote <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <span class="eyebrow reveal">your brand · your pool · your keys</span>
+    <h1 class="reveal" style="transition-delay:.05s">Your brand. Your pool.<br><span class="pop">Your keys.</span></h1>
+    <p class="sub reveal" style="transition-delay:.12s">License the software stack that runs WowSuch: launch your own <b>Litecoin + Dogecoin merge-mining pool</b> and issue <b>non-custodial MPC wallets</b> under your brand. We deploy it in your cloud and maintain it — you keep control, custody, and compliance.</p>
+    <div class="hero-ctas reveal" style="transition-delay:.18s">
+      <a class="btn lg" href="#contact">Request a license quote <span class="arrow">→</span></a>
+      <a class="btn alt" href="#how">See how it works</a>
+    </div>
+    <div class="hero-badges reveal" style="transition-delay:.24s">
+      <span class="pill"><span class="dot"></span> deployed in your cloud</span>
+      <span class="pill">🔑 non-custodial MPC</span>
+      <span class="pill">🛠 24/7/365 support</span>
+    </div>
+    <div class="hero-proof reveal" style="transition-delay:.3s">
+      <span>The same stack that powers <b>WowSuch</b> and a <b>6,000-miner</b> enterprise site</span>
+    </div>
+  </div>
+  <div class="hero-stage reveal" style="transition-delay:.1s">
+    <div class="wl-hero-card">
+      <svg viewBox="0 0 64 64" width="60" height="60" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+        <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+        <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+        <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      </svg>
+      <h2 class="wl-hero-h">One stack. Two products.</h2>
+      <p style="color:var(--ink-soft);font-weight:600;margin-bottom:14px">WowSuch Pool merge-mines LTC + DOGE. WowSuch MPC keeps every reward in a self-custody wallet. Both run under your name.</p>
+      <ul class="wl-stack-list">
+        <li><b>Pool software</b> · branded LTC + DOGE merge-mining</li>
+        <li><b>MPC wallets</b> · you never custody client funds</li>
+        <li>Auto routing + failover · USDC swaps via your API</li>
+      </ul>
+      <div class="live-px" id="livePx" aria-live="polite">⛓ Live prices loading…</div>
+    </div>
+  </div>
+</div></section>
+
+<div class="marquee" aria-hidden="true"><div class="track"><span>
+  <span>⛏ your pool</span><span>★</span><span>your brand</span><span>★</span><span>your keys</span><span>★</span><span>non-custodial MPC</span><span>★</span><span>merge mine LTC + DOGE</span><span>★</span><span>your cloud</span><span>★</span><span>24/7/365</span><span>★</span><span>wow</span><span>★</span>
+  <span>⛏ your pool</span><span>★</span><span>your brand</span><span>★</span><span>your keys</span><span>★</span><span>non-custodial MPC</span><span>★</span><span>merge mine LTC + DOGE</span><span>★</span><span>your cloud</span><span>★</span><span>24/7/365</span><span>★</span><span>wow</span><span>★</span>
+</span></div></div>
+
+<!-- ============ CREDIBILITY STRIP ============ -->
+<section class="tight" id="proof"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">battle-tested in production</span>
+    <h2>Already running real mines</h2>
+    <p>This is not vaporware. The whitelabel stack is the exact software that operates WowSuch end-to-end — and routes hashrate across the major pools.</p>
+  </div>
+  <div class="logos-strip reveal">
+    <span class="logo-chip">powers WowSuch.com</span>
+    <span class="logo-chip">6,000-miner enterprise site</span>
+    <span class="logo-chip">ViaBTC</span>
+    <span class="logo-chip">F2Pool</span>
+    <span class="logo-chip">Antpool</span>
+    <span class="logo-chip">NiceHash</span>
+  </div>
+</div></section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">one app, much power</span>
+    <h2>From miner to your clients' wallets — automatically</h2>
+    <p>Rigs hash into <b>your</b> branded pool. Hosting and the pool fee are withheld before payout, then daily rewards land in each client's <b>non-custodial MPC wallet</b>. You orchestrate the flow; you never custody the funds.</p>
+  </div>
+  <div class="flow reveal">
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 38 V20 L18 14 V20 L30 14 V20 L42 14 V38 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3" stroke-linejoin="round"/><rect x="12" y="27" width="5" height="7" fill="#2B1D05"/><rect x="22" y="27" width="5" height="7" fill="#2B1D05"/><rect x="32" y="27" width="5" height="7" fill="#2B1D05"/></svg>
+      <b>Miners</b><small>your clients' rigs</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="16" width="32" height="20" rx="5" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="18" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><circle cx="32" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/></svg>
+      <b>Your branded pool</b><small>merge-mines LTC + DOGE</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="9" fill="none" stroke="#2B1D05" stroke-width="3"/><g stroke="#2B1D05" stroke-width="3"><line x1="24" y1="6" x2="24" y2="13"/><line x1="24" y1="35" x2="24" y2="42"/><line x1="6" y1="24" x2="13" y2="24"/><line x1="35" y1="24" x2="42" y2="24"/></g><circle cx="24" cy="24" r="3" fill="#C77A08"/></svg>
+      <b>Auto-withhold</b><small>hosting + pool fee</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 L40 12 V24 Q40 38 24 44 Q8 38 8 24 V12 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/><circle cx="24" cy="22" r="4.5" fill="#2B1D05"/><rect x="22" y="24" width="4" height="8" fill="#2B1D05"/></svg>
+      <b>Clients' MPC wallets</b><small>non-custodial · their keys</small>
+    </div>
+    <div class="arw" aria-hidden="true">→</div>
+    <div class="node">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="24" r="11" fill="#C2A633" stroke="#2B1D05" stroke-width="2.6"/><text x="18" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#2B1D05">Ð</text><circle cx="32" cy="24" r="11" fill="#345D9D" stroke="#2B1D05" stroke-width="2.6"/><text x="32" y="29" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="13" fill="#fff">Ł</text></svg>
+      <b>Daily payouts</b><small>LTC + DOGE · USDC swaps</small>
+    </div>
+  </div>
+  <p class="note-banner reveal">⚙ <b>How payouts work:</b> the pool pays out daily in <b>LTC + DOGE</b> — the coins actually mined — to each client's MPC wallet, with hosting and the pool fee withheld first. Mined coins can be swapped to <b>USDC</b> through your own exchange API. You set the rules; the stack runs them.</p>
+</div></section>
+
+<!-- ============ FEATURE GRID ============ -->
+<section id="features"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">everything in the box</span>
+    <h2>The whole stack, under your name</h2>
+    <p>Every capability that runs WowSuch ships in your license — pool, custody, routing, swaps, finance, and the reports your operators and CFO already ask for.</p>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card reveal">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="16" width="32" height="20" rx="5" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><circle cx="18" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><circle cx="32" cy="26" r="5" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/></svg>
+      <h3>Your own LTC + DOGE pool</h3>
+      <p>Launch a branded Litecoin + Dogecoin merge-mining pool on the Scrypt algorithm — the same engine that finds blocks for WowSuch, now running under your name.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.06s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 L41 11 V23 Q41 37 24 43 Q7 37 7 23 V11 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><circle cx="24" cy="21" r="4.5" fill="#2B1D05"/><rect x="22" y="23" width="4" height="8" fill="#2B1D05"/></svg>
+      <h3>Non-custodial MPC wallets</h3>
+      <p>Issue MPC self-custody wallets with no single point of failure. You never hold client funds — and neither does the service provider. Regulation-friendly by design.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.12s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18" fill="none" stroke="#2B1D05" stroke-width="2.8"/><path d="M24 10 a14 14 0 0 1 12 7" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linecap="round"/><path d="M34 13 L38 17 L33 19 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 38 a14 14 0 0 1 -12 -7" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linecap="round"/><path d="M14 35 L10 31 L15 29 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/></svg>
+      <h3>Auto routing &amp; failover</h3>
+      <p>Rigs connect with reliable routing and automatic failover across ViaBTC, F2Pool, Antpool, and NiceHash — transparent cost breakdowns and clean API integration keep uptime high.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.18s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><text x="24" y="31" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="18" fill="#2B1D05">$</text></svg>
+      <h3>USDC swaps via your API</h3>
+      <p>Swap mined LTC + DOGE to USDC through your own exchange integration (Coinbase, Kraken). Payments stay fully under your control end to end.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.24s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="10" width="34" height="28" rx="4" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><line x1="14" y1="32" x2="14" y2="24" stroke="#2B1D05" stroke-width="3" stroke-linecap="round"/><line x1="21" y1="32" x2="21" y2="20" stroke="#2B1D05" stroke-width="3" stroke-linecap="round"/><line x1="28" y1="32" x2="28" y2="26" stroke="#2B1D05" stroke-width="3" stroke-linecap="round"/><line x1="35" y1="32" x2="35" y2="18" stroke="#2B1D05" stroke-width="3" stroke-linecap="round"/></svg>
+      <h3>Accurate hosting math</h3>
+      <p>Hosting fees computed from real-time hashrate, uptime, and power use, with clear breakdowns and finance reports. The numbers reconcile — and you control every payment.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.3s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M16 8 h12 l8 8 v24 H16 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><path d="M28 8 v8 h8" fill="none" stroke="#2B1D05" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 26 L24 30 L31 21" fill="none" stroke="#2B1D05" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>Gas fee optimization</h3>
+      <p>Ethereum gas optimized with smart timing and dynamic routing, plus automatic alerts on gas prices and balances. Lower overhead, fewer surprises.</p>
+    </div>
+    <div class="trust-card reveal">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="12" width="32" height="24" rx="4" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><rect x="13" y="26" width="4" height="6" fill="#2B1D05"/><rect x="21" y="22" width="4" height="10" fill="#2B1D05"/><rect x="29" y="18" width="4" height="14" fill="#2B1D05"/></svg>
+      <h3>Branded dashboards &amp; reports</h3>
+      <p>Performance KPIs and charts, tax reports built for IRS Notice 2014-21 / Schedule C / Form 1120, fleet inventory, on-chain wallet audits, multi-location rollups, and P&amp;L — all branded to you.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.06s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 L41 11 V23 Q41 37 24 43 Q7 37 7 23 V11 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><path d="M16 23 L22 29 L33 18" fill="none" stroke="#2B1D05" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>Compliance-friendly &amp; auditable</h3>
+      <p>Non-custodial and regulation-friendly. You control tax and jurisdiction rules, with transparent, auditable mining and transactions across every site.</p>
+    </div>
+    <div class="trust-card reveal" style="transition-delay:.12s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><circle cx="24" cy="24" r="6" fill="#FFFCF3" stroke="#2B1D05" stroke-width="2.4"/><path d="M24 5 V11 M24 37 V43 M5 24 H11 M37 24 H43" stroke="#2B1D05" stroke-width="3" stroke-linecap="round"/></svg>
+      <h3>Dedicated MCP server</h3>
+      <p>Connect Claude, ChatGPT, or Cursor straight to your pool, fleet, and wallets. Ask in plain English, pull live data, generate dashboards — write actions require your approval first.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ WHAT'S INCLUDED ============ -->
+<section id="included" class="band-cool"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">batteries included</span>
+    <h2>What's in the license</h2>
+    <p>Deployment, maintenance, support, dashboards, and the MCP server — set up by us, running under your brand.</p>
+  </div>
+  <div class="incl-grid reveal">
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>Deployment in your cloud</b><p>We install the full pool + MPC platform into your environment, configured and branded to you.</p></div></div>
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>Maintenance &amp; upgrades</b><p>Choose full server care or upgrades-only. A dedicated deployment team keeps the stack current.</p></div></div>
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>24/7/365 support &amp; SLAs</b><p>Mission-critical uptime with around-the-clock support and service-level commitments.</p></div></div>
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>Branded dashboard templates</b><p>Performance, tax, fleet inventory, wallet audit, multi-location, and P&amp;L dashboards — ready to ship.</p></div></div>
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>Custom reports from 34 endpoints</b><p>Hashrate, revenue, expenses, miner status, wallet balances, payouts, and difficulty — as web page, spreadsheet, or printable PDF.</p></div></div>
+    <div class="incl"><span class="ck" aria-hidden="true">✓</span><div><b>MCP server for Claude</b><p>A dedicated Model Context Protocol server so your IT, ops, and finance teams query the mine in plain English.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ============ DEPLOYMENT MODEL ============ -->
+<section id="deploy"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">your cloud, our maintenance</span>
+    <h2>You own it. We keep it running.</h2>
+    <p>The stack lives in your environment, under your compliance regime. We handle deployment and upkeep so your team ships value, not infrastructure.</p>
+  </div>
+  <div class="deploy-band reveal">
+    <div>
+      <span class="eyebrow">deployment model</span>
+      <h3>Deployed in your cloud, maintained by us</h3>
+      <p>We deploy the platform into your environment and run it with mission-critical uptime. You keep full control, full custody, and full compliance — your jurisdiction, your tax rules, your brand on every screen. Prefer to manage your own servers? Take upgrades-only. Want it hands-off? We'll run the whole thing 24/7/365.</p>
+    </div>
+    <ul class="deploy-list">
+      <li>🔒 Your cloud · your control &amp; custody</li>
+      <li>⚖️ Your compliance &amp; jurisdiction rules</li>
+      <li>🛠 Our deployment team &amp; maintenance</li>
+      <li>📈 Mission-critical uptime · 24/7/365</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ============ MCP SECTION ============ -->
+<section id="mcp" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">comes with MCP</span>
+    <h2>Talk to your mining stack from Claude</h2>
+    <p>Every deployment ships with a dedicated <b>MCP server</b> (Model Context Protocol), so your operators and finance team query live data in plain English — no waiting on a report.</p>
+  </div>
+  <div class="mcp-band reveal">
+    <div>
+      <span class="eyebrow">model context protocol</span>
+      <h3 style="font-size:1.6rem;margin:6px 0 10px">Your own MCP server, one connection</h3>
+      <p style="color:var(--ink-soft);font-weight:600">Connect <b>Claude, ChatGPT, or Cursor</b> straight to your pool, fleet, and wallets. Built for the people who run the operation — IT and remote ops — plus the CFO and CEO who need numbers now. Ask a question, pull live data, generate any dashboard, schedule actions. Write actions ask for your approval first, so nothing changes without you.</p>
+      <div class="hero-ctas" style="margin-top:16px"><a class="btn" href="#contact">Get MCP access <span class="arrow">→</span></a></div>
+    </div>
+    <ul class="mcp-list">
+      <li><b>IT / NOC:</b> "which units dropped below spec or went offline in 24h, and why?"</li>
+      <li><b>Remote ops:</b> "curtail the bottom 5% of performers at Site B" (pending approval)</li>
+      <li><b>CFO:</b> "month-to-date net by facility after hosting and the pool fee"</li>
+      <li><b>Finance:</b> "reconcile pool payouts against on-chain wallet balances"</li>
+      <li><b>CFO:</b> "export a Schedule C / Form 1120 tax report for last quarter"</li>
+      <li><b>CEO:</b> "a one-paragraph snapshot across every site, every morning"</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- ============ WHO IT'S FOR ============ -->
+<section id="who"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">very fit, much focus</span>
+    <h2>Who licenses the stack</h2>
+    <p>If you put a brand in front of miners, the pool and custody underneath can be yours.</p>
+  </div>
+  <div class="audience-grid">
+    <div class="card reveal">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 38 V20 L18 14 V20 L30 14 V20 L42 14 V38 Z" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8" stroke-linejoin="round"/><rect x="12" y="27" width="5" height="7" fill="#2B1D05"/><rect x="22" y="27" width="5" height="7" fill="#2B1D05"/><rect x="32" y="27" width="5" height="7" fill="#2B1D05"/></svg>
+      <h3>Hosting operators</h3>
+      <p>Already run a facility? Wrap your hosting in a branded pool and MPC wallets, withhold hosting from daily payouts automatically, and give clients dashboards and self-custody — without building any of it.</p>
+    </div>
+    <div class="card reveal" style="transition-delay:.08s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#FFB92E" stroke="#2B1D05" stroke-width="2.8"/><text x="24" y="31" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="17" fill="#2B1D05">$</text></svg>
+      <h3>Exchanges</h3>
+      <p>Add a mining product line without taking custody. Issue MPC wallets to users, route mined LTC + DOGE, and swap to USDC through the exchange API you already operate.</p>
+    </div>
+    <div class="card reveal" style="transition-delay:.16s">
+      <svg class="ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#C2A633" stroke="#2B1D05" stroke-width="2.8"/><text x="24" y="32" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="22" fill="#2B1D05">Ð</text></svg>
+      <h3>Brands entering mining</h3>
+      <p>Launch a credible Dogecoin + Litecoin mining offer under your name on day one. We deploy the proven stack in your cloud and maintain it; you own the customer and the keys stay theirs.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="band-alt"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">such questions, much answers</span><h2>FAQ</h2></div>
+  <div class="faq reveal">
+    <div class="q"><button type="button">Who custodies client funds? <span class="plus">+</span></button>
+      <div class="ans"><p>Nobody but the client. The stack issues <b>non-custodial MPC wallets</b>, so rewards sit in wallets only the client can unlock — there's no single point of failure and no operator custody. That's what keeps it regulation-friendly.</p></div></div>
+    <div class="q"><button type="button">Where does the software run? <span class="plus">+</span></button>
+      <div class="ans"><p>In <b>your cloud</b>, under your brand. We deploy the platform into your environment and maintain it with 24/7/365 support and your choice of full server care or upgrades-only. You keep control, custody, and compliance.</p></div></div>
+    <div class="q"><button type="button">Which pools and coins are supported? <span class="plus">+</span></button>
+      <div class="ans"><p>The pool merge-mines <b>Litecoin + Dogecoin</b> on the Scrypt algorithm. Rigs connect with automatic routing and failover across major pools — <b>ViaBTC, F2Pool, Antpool, and NiceHash</b> — with transparent cost breakdowns and API integration.</p></div></div>
+    <div class="q"><button type="button">How do clients get paid and swap to USDC? <span class="plus">+</span></button>
+      <div class="ans"><p>Daily payouts in the coins actually mined — <b>LTC + DOGE</b> — to each client's MPC wallet, with hosting and the pool fee withheld automatically. Mined coins can be swapped to <b>USDC</b> through your own exchange API (Coinbase, Kraken).</p></div></div>
+    <div class="q"><button type="button">What is the MCP server for? <span class="plus">+</span></button>
+      <div class="ans"><p>It's a dedicated <b>Model Context Protocol</b> server shipped with every deployment, so your team connects Claude, ChatGPT, or Cursor straight to the pool, fleet, and wallets. Ask in plain English, pull live data, generate dashboards, and schedule actions — write actions require your approval first.</p></div></div>
+    <div class="q"><button type="button">What's included in maintenance and SLAs? <span class="plus">+</span></button>
+      <div class="ans"><p>A dedicated deployment team, ongoing upgrades, mission-critical uptime, and 24/7/365 support with service-level commitments. You also get the full library of branded dashboard and report templates and custom reports from 34 mining API endpoints.</p></div></div>
+    <div class="q"><button type="button">How is a license priced? <span class="plus">+</span></button>
+      <div class="ans"><p>Licenses are scoped to your products and scale — pool software only, MPC wallets only, or the full stack — and to your expected number of miners. <a href="#contact" style="text-decoration:underline;color:var(--amber)">Request a quote</a> and we'll reply by email within one business day.</p></div></div>
+  </div>
+</div></section>
+
+<!-- ============ CROSS-SELL ============ -->
+<section id="xsell"><div class="wrap">
+  <div class="sec-head center reveal"><span class="eyebrow">much options, very flexible</span>
+    <h2>Other ways to mine with us</h2>
+    <p>Not licensing the software? You can still mine on WowSuch directly.</p>
+  </div>
+  <div class="xsell reveal">
+    <a class="xsell-card" href="enterprise.html"><div class="xs-ico">🏭</div><h3>Enterprise &amp; colocation</h3><p>Ship us 50+ rigs for institutional hosting on the same pool + MPC stack.</p><span class="xs-go">Go enterprise →</span></a>
+    <a class="xsell-card" href="lease.html"><div class="xs-ico">💵</div><h3>Lease &amp; earn USDC</h3><p>Already own miners? We run them, you get paid daily in USDC.</p><span class="xs-go">Lease &amp; earn →</span></a>
+    <a class="xsell-card" href="buy.html"><div class="xs-ico">⛏️</div><h3>Buy a full rig</h3><p>Own an Antminer L9 outright at $4,995, hosted in the USA.</p><span class="xs-go">Buy a rig →</span></a>
+  </div>
+</div></section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="cta-final" id="contact"><div class="wrap">
+  <div class="contact-grid">
+    <div class="reveal">
+      <span class="eyebrow">ready to launch?</span>
+      <h2>Request a license quote.<br>Much fast, very simple.</h2>
+      <p style="font-weight:700;font-size:1.12rem;max-width:46ch;margin-top:14px">Tell us what you want to run — pool software, MPC wallets, or the full stack — and roughly how many miners you expect. A human replies by email within one business day with scope and pricing.</p>
+      <div class="hero-badges" style="margin-top:24px">
+        <span class="pill"><span class="dot"></span> deployed in your cloud</span>
+        <span class="pill">🔑 non-custodial MPC</span>
+        <span class="pill">🛠 24/7/365 support</span>
+      </div>
+    </div>
+    <form class="lead reveal" id="leadForm" style="transition-delay:.08s">
+      <div class="ftwo">
+        <div><label for="nm">Your name</label><input id="nm" required placeholder="Alex Operator" autocomplete="name"></div>
+        <div><label for="em">Work email</label><input id="em" type="email" required placeholder="you@company.com" autocomplete="email"></div>
+      </div>
+      <div class="ftwo">
+        <div><label for="opt">What do you want to license?</label>
+          <select id="opt"><option>Pool software</option><option>MPC wallets</option><option>Full stack (pool + MPC)</option><option>Just exploring</option></select></div>
+        <div><label for="howmany">Expected miners</label>
+          <select id="howmany"><option>Under 1,000</option><option>1,000 to 10,000</option><option>10,000+</option></select></div>
+      </div>
+      <label for="cty">Country</label>
+      <select id="cty"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>UAE</option><option>Singapore</option><option>Australia</option><option>Other</option></select>
+      <label for="msg">Anything else?</label>
+      <textarea id="msg" placeholder="We host ~3,000 miners and want a branded pool + MPC wallets, deployed in our AWS, with USDC swaps via our exchange API."></textarea>
+      <label class="consent"><input type="checkbox" required> I agree to be contacted and to the <a href="privacy.html">Privacy&nbsp;Policy</a>.</label>
+      <button class="btn block" type="submit">Request a license quote <span class="arrow">→</span></button>
+    </form>
+  </div>
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="index.html#how">How payouts work</a>
+      <a href="whitelabel.html#faq">Whitelabel FAQ</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="whitelabel.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="admin.html" rel="nofollow">Admin</a>
+    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">☁ deployed in your cloud</span>
+    <span class="t">🔑 non-custodial MPC</span>
+    <span class="t">⛏ powers WowSuch + 6,000-miner site</span>
+    <span class="t">🛠 24/7/365 support</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. The whitelabel stack is licensed software: you operate the pool and wallets you launch with it, and you are responsible for the custody arrangements, tax handling, and regulatory compliance applicable to your business and jurisdiction. MPC wallets are non-custodial by design — clients control their own keys. Hosting math, payout figures, and reports reflect the inputs and network conditions you supply and are estimates, not guarantees. Mining and operating a pool may have tax and licensing consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<!-- ============ CHAT ============ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about licensing, MPC, deployment…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  /* page-specific chat knowledge — must be set before core.js loads */
+  window.WOW_KB = [
+    { k: ["license", "licence", "quote", "pricing", "price", "cost", "how much"], a: "Licenses are scoped to your products (pool software, MPC wallets, or the full stack) and your expected number of miners. Request a quote from the contact form and a human replies by email within one business day." },
+    { k: ["custody", "custodian", "funds", "mpc", "wallet", "keys", "non-custodial", "noncustodial"], a: "The stack issues non-custodial MPC wallets — clients hold their own keys, and neither you nor the provider custodies their funds. No single point of failure, regulation-friendly by design." },
+    { k: ["deploy", "cloud", "host the software", "where", "server", "environment", "maintain", "maintenance", "sla"], a: "We deploy the platform in your cloud and maintain it with 24/7/365 support — your choice of full server care or upgrades-only. You keep control, custody, and compliance." },
+    { k: ["pool", "route", "routing", "failover", "viabtc", "f2pool", "antpool", "nicehash"], a: "Your branded pool merge-mines LTC + DOGE on Scrypt, with automatic routing and failover across ViaBTC, F2Pool, Antpool, and NiceHash, plus transparent cost breakdowns and API integration." },
+    { k: ["usdc", "swap", "exchange", "coinbase", "kraken"], a: "Clients are paid daily in LTC + DOGE to their MPC wallets, and mined coins can be swapped to USDC through your own exchange API (Coinbase, Kraken)." },
+    { k: ["mcp", "claude", "chatgpt", "cursor", "model context"], a: "Every deployment ships a dedicated MCP server, so you connect Claude, ChatGPT, or Cursor to your pool, fleet, and wallets — ask in plain English, pull live data, generate dashboards. Write actions require your approval first." },
+    { k: ["dashboard", "report", "reports", "tax", "p&l", "fleet", "inventory", "audit"], a: "You get branded dashboard templates — performance, tax (IRS Notice 2014-21 / Schedule C / Form 1120), fleet inventory, on-chain wallet audit, multi-location, and P&L — plus custom reports from 34 mining API endpoints as web page, spreadsheet, or PDF." },
+    { k: ["who", "operator", "exchange", "brand", "fit", "for me"], a: "The stack fits hosting operators, exchanges adding a mining line without taking custody, and brands entering mining who want a credible LTC + DOGE offer under their own name." }
+  ];
+</script>
+<script src="assets/js/core.js"></script>
+<script>
+  /* page script — uses window.WOW; listens for wow:prices to update the hero ticker */
+  (function () {
+    "use strict";
+    var W = window.WOW;
+    if (!W) return;
+    var px = document.getElementById("livePx");
+    function render(d) {
+      if (!px) return;
+      px.innerHTML = "⛓ Pool reference: <b>DOGE $" + d.doge.toFixed(4) +
+        "</b> · <b>LTC $" + d.ltc.toFixed(2) + "</b>" +
+        "<small>" + (d.live ? "live market data" : "reference prices") + "</small>";
+    }
+    document.addEventListener("wow:prices", function (e) { render(e.detail); });
+    render(W.prices);
+  })();
+</script>
+</body>
+</html>
