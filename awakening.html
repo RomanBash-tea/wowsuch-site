@@ -222,8 +222,8 @@
 <section><div class="wrap">
   <div class="aw-stage reveal" id="stage">
     <div class="aw-vita" id="vitaBox">
-      <span class="lbl">Energy banked</span><br><span class="num" id="vitaOut">10000.00</span> <span class="unit">sparks</span>
-      <div class="rate" id="vitaRate">Day 0 · ▼ 1500.00 sparks/day</div>
+      <span class="lbl">Energy banked</span><br><span class="num" id="vitaOut">10.00</span> <span class="unit">$VITA</span>
+      <div class="rate" id="vitaRate">Day 0 · ▼ 1.50 $VITA/day</div>
       <button class="aw-wallet-link" type="button" id="btnOpenWallet" data-open-wallet>wallet →</button>
     </div>
     <div class="aw-content">
@@ -589,7 +589,6 @@
   var START_VITA  = 10.00;
   var VITA_GRANT_LINE = "You wake with 10 $VITA — a pocketful of Energy from nowhere in particular. It will not last. It is not supposed to.";
   var DRIFT_COST_USD_DAY = 1.50; // $/day bodiless (illustrative, never live)
-  var ENERGY_METER_SCALE = 1000; // topbar-only display scale so drain/gain is visible tick-to-tick; wallet $ underneath is untouched
   var FROG_HASH_MH = 200,  FROG_KWH_DAY = 2.784;   // Ipollo V1 Mini SE
   var L9_HASH_MH   = 16000, L9_KWH_DAY = 80.64;    // Antminer L9 per buy.html: 16 GH/s, ~3,360 W × 24h
   var POOL_FEE     = 0.03;
@@ -1024,13 +1023,13 @@
     var r = fmtRateNum(usd);
     return r.arrow + " $" + r.num;
   }
-  // ---- topbar-only Energy meter: same $ underneath, ×ENERGY_METER_SCALE view so drain/gain reads tick-to-tick ----
+  // ---- topbar Energy meter: plain $VITA total, same unit/scale as everywhere else on the page ----
   function fmtEnergyAmount(usd) {
-    return (usd * ENERGY_METER_SCALE).toFixed(2);
+    return usd.toFixed(2);
   }
-  function fmtEnergyRate(usd) {           // "▲ 90.00 sparks/day"
-    var r = fmtRateNum(usd * ENERGY_METER_SCALE);
-    return r.arrow + " " + r.num + " sparks/day";
+  function fmtEnergyRate(usd) {           // "▲ 0.09 $VITA/day"
+    var r = fmtRateNum(usd);
+    return r.arrow + " " + r.num + " $VITA/day";
   }
 
   function refreshDerived(pLtc, pDoge, dLtc, dDoge, height, live) {
