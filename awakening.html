@@ -137,7 +137,7 @@
 
   @media (max-width:640px){
     .aw-bodies,.aw-choices{grid-template-columns:1fr;}
-    .aw-vita{flex:1 1 100%;max-width:none;text-align:left;}
+    .aw-vita{flex:1 1 100%;max-width:none;text-align:left;order:-1;}
     .aw-content{flex:1 1 100%;}
   }
 
@@ -150,6 +150,7 @@
 
   .aw-choices.four{grid-template-columns:repeat(4,1fr);}
   @media (max-width:900px){.aw-choices.four{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){.aw-choices.four{grid-template-columns:1fr;}}
 
   .aw-badge-demo{display:inline-block;background:#D2452F;color:#fff;font-family:var(--mono);
     font-weight:800;font-size:.72rem;letter-spacing:.04em;padding:4px 10px;border-radius:999px;margin-bottom:10px;}
@@ -236,7 +237,7 @@
     <div class="aw-scene active" data-screen="signup">
       <span class="step-tag">something stirs</span>
       <h2>Something stirs.</h2>
-      <p>Before there is a body, there is a name. Leave your email — the first two letters become your Rune. That is how the Chain will know you.</p>
+      <p>Before there is a Body, there is a name. Leave your email — the first two letters become your Rune. That is how the Chain will know you.</p>
       <input class="aw-input" id="signupEmail" type="text" inputmode="email" autocomplete="off" placeholder="you@example.com">
       <p class="aw-note">Your Rune is cut from the first two letters. Nothing is sent anywhere — this demo account lives in this browser, and every dollar in it is demo money.</p>
       <p class="aw-vita-def aw-hidden" id="signupRuneOut"></p>
@@ -293,7 +294,7 @@
         <div class="row"><span>a tenth</span><span id="l9TenthOut">+0.48 $VITA /day</span></div>
         <div class="row"><span>a twentieth</span><span id="l9TwentiethOut">+0.24 $VITA /day</span></div>
       </div>
-      <p>Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — while you bleed nine cents a day just sitting here.</p>
+      <p id="l9TragedyP">Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — while you bleed nine cents a day just sitting here.</p>
       <p class="aw-note" id="l9RateNote">L9 figures use the same assumptions as our profit calculator (hosting at the site's real all-in kWh rate, live LTC + DOGE network data). Slot splits are straight fractions and concept-stage — today's real-world analog is rent-to-own, by the chip.</p>
       <p class="aw-note aw-hidden" id="watcherNoteOnb4">A note from the Watcher: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's.</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="frog">So how do I get out? <span class="arrow">→</span></button></div>
@@ -572,7 +573,7 @@
     <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
     <span class="t">💵 paid daily · LTC + DOGE</span>
   </div>
-  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout and resale mechanics are concept-stage and pending legal wording; slot pricing, quest odds and blessing figures are demo inventions, not offers. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
+  <p class="risk">⚠ The Awakening is a narrative demo for the unreleased Vessels concept — a preview of an idea we're testing internally with Igor. $VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout and resale mechanics are concept-stage and pending legal wording; slot pricing, quest odds and healing figures are demo inventions, not offers. Nothing here should be relied on when deciding to buy, rent, or lease an Antminer L9; see the Rent to Own, Buy, and Lease pages for our actual, current terms.</p>
   <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain. Ipollo® is a trademark of its respective owner; referenced here only as a fictional starting point in this demo, not a product WowSuch sells.</p>
 </div></footer>
 
@@ -682,6 +683,8 @@
   // ---- Frog paragraph, sign-aware (verbatim both ways; swapped by live net) ----
   var FROG_TRAGEDY_TEXT = "That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do. Your $VITA drains sixteen times slower than drifting. But it drains.";
   var FROG_MIRACLE_TEXT = "That's the Frog's little miracle: honest work, day and night, at the best flat rate in the industry — and today it earns a hair more than it eats. Small Bodies live on a knife's edge; yesterday's price is tomorrow's famine. Your $VITA barely moves. But you are still in a Frog.";
+  var L9_TRAGEDY_HTML = "Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — while you bleed a few cents a day just sitting here.";
+  var L9_MIRACLE_HTML = "Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — even on a day your Frog is barely holding its own.";
 
   // ---- storage feature-detect: must never crash if unavailable ----
   var stageEl = document.getElementById("stage");
@@ -737,6 +740,7 @@
   var frogCostOut = document.getElementById("frogCostOut");
   var frogNetOut = document.getElementById("frogNetOut");
   var frogTragedyP = document.getElementById("frogTragedyP");
+  var l9TragedyP = document.getElementById("l9TragedyP");
   var frogRateNote = document.getElementById("frogRateNote");
   var watcherNoteFrog = document.getElementById("watcherNoteFrog");
   var l9WholeOut = document.getElementById("l9WholeOut");
@@ -980,12 +984,13 @@
       } else if (save.phase === "drifting") {
         drainUSD(DRIFT_COST_USD_DAY * days);
       }
+      save.lastAccrualTs = now;
     }
-    save.lastAccrualTs = now;
   }
 
   function dayNumber() {
-    return Math.max(1, Math.floor((Date.now() - save.createdAt) / DAY_MS) + 1);
+    var created = typeof save.createdAt === "number" && isFinite(save.createdAt) ? save.createdAt : Date.now();
+    return Math.max(1, Math.floor((Date.now() - created) / DAY_MS) + 1);
   }
 
   // ---- live profitability (task 009 §6): LTC+DOGE merge-mining, scrypt ----
@@ -1013,11 +1018,12 @@
 
   // ---- sign-aware rate formatting: one formatter, arrow always carries the sign (010 §7) ----
   function fmtRateNum(usd) {
-    return { arrow: usd >= 0 ? "▲" : "▼", num: Math.abs(usd).toFixed(2) };
+    var arrow = usd > 0 ? "▲" : (usd < 0 ? "▼" : "•");
+    return { arrow: arrow, num: Math.abs(usd).toFixed(2) };
   }
-  function fmtRateSuffix(usd) {           // "▲ 4.80 $/day"
+  function fmtRateSuffix(usd) {           // "▲ 4.80 $VITA/day"
     var r = fmtRateNum(usd);
-    return r.arrow + " " + r.num + " $/day";
+    return r.arrow + " " + r.num + " $VITA/day";
   }
   function fmtRateDollarPrefix(usd) {     // "▲ $4.80"
     var r = fmtRateNum(usd);
@@ -1058,6 +1064,9 @@
     if (frogNetOut) { frogNetOut.textContent = fmtRateDollarPrefix(RATE_FROG) + " /day" + estSuffix; }
     if (frogTragedyP) {
       frogTragedyP.textContent = (RATE_FROG >= 0) ? FROG_MIRACLE_TEXT : FROG_TRAGEDY_TEXT;
+    }
+    if (l9TragedyP) {
+      l9TragedyP.innerHTML = (RATE_FROG >= 0) ? L9_MIRACLE_HTML : L9_TRAGEDY_HTML;
     }
     if (l9WholeOut) { l9WholeOut.textContent = fmtRateSuffix(RATE_L9) + estSuffix; }
     if (l9HalfOut) { l9HalfOut.textContent = fmtRateSuffix(RATE_L9 * 0.5); }
@@ -1731,7 +1740,7 @@
     vitaBox.classList.remove("aw-hidden");
     vitaOut.textContent = fmtEnergyAmount(walletTotalUsd());
     vitaRate.textContent = "Day " + dayNumber() + " · " + fmtEnergyRate(currentNetPerDayUsd());
-    vitaBox.classList.toggle("up", currentNetPerDayUsd() >= 0);
+    vitaBox.classList.toggle("up", currentNetPerDayUsd() > 0);
   }
 
   function render() {
