@@ -31,7 +31,9 @@
 
   .aw-stage{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
     border-radius:var(--r-xl);box-shadow:var(--sh-3);padding:40px 40px 32px;max-width:720px;margin:0 auto;
-    position:relative;overflow:hidden;}
+    position:relative;overflow:hidden;
+    display:flex;flex-wrap:wrap;column-gap:20px;row-gap:18px;align-items:flex-start;}
+  .aw-content{flex:1 1 320px;min-width:0;}
   .aw-stage .step-tag{font-family:var(--mono);font-weight:700;font-size:.8rem;color:var(--gold-on-dark);
     letter-spacing:.04em;text-transform:uppercase;}
   .aw-stage h2{color:#fff;margin-top:8px;}
@@ -41,10 +43,10 @@
   .aw-scene.active{display:block;}
   .aw-actions{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap;}
 
-  .aw-vita{position:absolute;top:22px;right:26px;text-align:right;font-family:var(--mono);}
+  .aw-vita{flex:none;max-width:220px;text-align:right;font-family:var(--mono);overflow-wrap:anywhere;}
   .aw-vita .lbl{font-size:.72rem;font-weight:700;color:var(--soft-on-dark);letter-spacing:.04em;text-transform:uppercase;}
   .aw-vita .num{font-size:1.3rem;font-weight:800;color:var(--gold-on-dark);}
-  .aw-vita .rate{margin-top:4px;font-size:.72rem;font-weight:700;color:var(--soft-on-dark);white-space:nowrap;}
+  .aw-vita .rate{margin-top:4px;font-size:.72rem;font-weight:700;color:var(--soft-on-dark);}
   .aw-vita.up .num{color:#FFD873;text-shadow:0 0 12px rgba(255,185,46,.55);}
   .aw-vita.up .rate{color:#FFD873;font-weight:800;}
 
@@ -107,7 +109,8 @@
 
   @media (max-width:640px){
     .aw-bodies,.aw-choices{grid-template-columns:1fr;}
-    .aw-vita{position:static;text-align:left;margin-bottom:18px;}
+    .aw-vita{flex:1 1 100%;max-width:none;text-align:left;}
+    .aw-content{flex:1 1 100%;}
   }
 
   /* ---- persistent demo account additions (task 008) ---- */
@@ -127,7 +130,7 @@
     font-size:.85rem;font-weight:700;color:var(--soft-on-dark);}
 
   .aw-overlay{display:none;}
-  .aw-stage.show-overlay > .aw-scene{display:none !important;}
+  .aw-stage.show-overlay .aw-scene{display:none !important;}
   .aw-stage.show-overlay .aw-home-extra{display:none !important;}
   .aw-stage.show-overlay .aw-overlay.active{display:block;}
 
@@ -194,6 +197,7 @@
       <span class="lbl">$VITA banked</span><br><span class="num" id="vitaOut">100.0000</span>
       <div class="rate" id="vitaRate">Day 0 · ▼ 1.50 $VITA/day</div>
     </div>
+    <div class="aw-content">
     <div class="aw-progress" id="awProgress"></div>
 
     <!-- storage-unavailable fallback (shown instead of everything else) -->
@@ -387,6 +391,7 @@
         <button class="btn alt" type="button" data-close-overlay>← Back</button>
       </div>
     </div>
+    </div>
   </div>
 </div></section>
 
@@ -521,8 +526,13 @@
 
   if (!storageAvailable()) {
     if (stageEl) {
-      Array.prototype.forEach.call(stageEl.children, function (el) {
-        if (el !== noStorageNote) { el.classList.add("aw-hidden"); }
+      var awContentWrap = stageEl.querySelector(".aw-content");
+      var toHide = Array.prototype.slice.call(stageEl.children);
+      if (awContentWrap) {
+        toHide = toHide.concat(Array.prototype.slice.call(awContentWrap.children));
+      }
+      toHide.forEach(function (el) {
+        if (el !== noStorageNote && el !== awContentWrap) { el.classList.add("aw-hidden"); }
       });
     }
     if (noStorageNote) { noStorageNote.classList.remove("aw-hidden"); }
