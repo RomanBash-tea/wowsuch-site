@@ -172,7 +172,7 @@
 <body>
 <a class="skip-link" href="#top">Skip to content</a>
 
-<div class="topbar"><span>🔮 <b>The Awakening</b> is a playable teaser for Vessels — Phase 0, nothing live yet, no real machine or funds involved. In this demo 1 $VITA tracks 1 US dollar; hosting uses the site's real $0.079/kWh all-in rate.</span></div>
+<div class="topbar"><span>🔮 <b>The Awakening</b> is a playable teaser for Vessels — Phase 0, nothing live yet, no real machine or funds involved. In this demo 1 $VITA tracks 1 US dollar; hosting uses the site's real $0.079/kWh all-in rate; coin prices and difficulty are live market data.</span></div>
 
 <header class="nav"><div class="wrap nav-inner">
   <a class="brand" href="index.html" aria-label="WowSuch home">
@@ -277,6 +277,7 @@
       <p id="frogTragedyP">That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do. Your $VITA drains sixteen times slower than drifting. But it drains.</p>
       <p class="aw-aside">(Nobody, anywhere, switches a Body off out of mercy. Farms curtail when the grid demands it — and book the silence as a loss. The kindest floors let a Watcher ease a losing Body into a low-power drowse, where the house allows it. The old warehouse allows nothing and demands nothing. The Frog just runs.)</p>
       <p class="aw-note" id="frogRateNote">Figures reflect live LTC + DOGE network data at the site's flat all-in hosting rate — the margin is already inside the rate. The real unit mines a different algorithm; in this story, Frogs hash what Frogs hash.</p>
+      <p class="aw-note aw-hidden" id="watcherNoteFrog">A note from the Watcher: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's.</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="onb4">There has to be something better <span class="arrow">→</span></button></div>
     </div>
 
@@ -292,6 +293,7 @@
       </div>
       <p>Read that again from inside a Frog: <b>a twentieth of a real Body out-earns your entire everything</b> — while you bleed nine cents a day just sitting here.</p>
       <p class="aw-note" id="l9RateNote">L9 figures use the same assumptions as our profit calculator (hosting at the site's real all-in kWh rate, live LTC + DOGE network data). Slot splits are straight fractions and concept-stage — today's real-world analog is rent-to-own, by the chip.</p>
+      <p class="aw-note aw-hidden" id="watcherNoteOnb4">A note from the Watcher: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's.</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="frog">So how do I get out? <span class="arrow">→</span></button></div>
     </div>
 
@@ -715,11 +717,13 @@
   var frogNetOut = document.getElementById("frogNetOut");
   var frogTragedyP = document.getElementById("frogTragedyP");
   var frogRateNote = document.getElementById("frogRateNote");
+  var watcherNoteFrog = document.getElementById("watcherNoteFrog");
   var l9WholeOut = document.getElementById("l9WholeOut");
   var l9HalfOut = document.getElementById("l9HalfOut");
   var l9TenthOut = document.getElementById("l9TenthOut");
   var l9TwentiethOut = document.getElementById("l9TwentiethOut");
   var l9RateNote = document.getElementById("l9RateNote");
+  var watcherNoteOnb4 = document.getElementById("watcherNoteOnb4");
 
   var driftDayHeader = document.getElementById("driftDayHeader");
   var driftThought = document.getElementById("driftThought");
@@ -1024,7 +1028,7 @@
     if (l9TwentiethOut) { l9TwentiethOut.textContent = fmtRateSuffix(RATE_L9 * 0.05); }
     var l9Negative = RATE_L9 < 0;
     if (watcherNoteOnb4) { watcherNoteOnb4.classList.toggle("aw-hidden", !l9Negative); }
-    if (watcherNoteShop) { watcherNoteShop.classList.toggle("aw-hidden", !l9Negative); }
+    if (watcherNoteFrog) { watcherNoteFrog.classList.toggle("aw-hidden", !l9Negative); }
     if (save && isOverlayOpen() && selectedBodyId) { renderVillageTiers(selectedBodyId); }
     paintBalance();
   }
