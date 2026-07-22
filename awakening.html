@@ -120,6 +120,19 @@
   .aw-panel{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
     padding:18px 20px;margin-top:22px;max-width:56ch;}
   .aw-panel h3{font-family:var(--display);color:#fff;font-size:1rem;margin:0 0 10px;}
+  .aw-panel .tag{display:inline-block;font-family:var(--mono);font-size:.68rem;font-weight:700;
+    padding:3px 8px;border-radius:999px;background:#3a2607;border:1px solid var(--gold);
+    color:var(--gold-on-dark);margin-bottom:10px;}
+  .aw-section-h{font-family:var(--display);color:#fff;font-size:1rem;margin-top:26px;}
+  .aw-chain-list{list-style:none;margin:14px 0 0;padding:0;}
+  .aw-chain-list li{font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--soft-on-dark);
+    padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.25);}
+  .aw-chain-list li:last-child{border-bottom:none;}
+  .aw-chain-list li.you{color:#fff;}
+  .aw-chain-list .pos{color:var(--gold-on-dark);margin-right:6px;}
+  .aw-chain-list .pct{float:right;}
+  .aw-chain-list .aw-occ-bar{margin-top:6px;}
+  .aw-body-card.yours{cursor:default;}
 
   @media (max-width:640px){
     .aw-bodies,.aw-choices{grid-template-columns:1fr;}
@@ -305,7 +318,7 @@
 
       <div class="aw-actions">
         <button class="btn alt" type="button" data-open-topup>🙏 Call to your Higher One</button>
-        <button class="btn alt" type="button" data-open-village>🏘 The Village</button>
+        <button class="btn alt" type="button" data-open-village>Look at the Village <span class="arrow">→</span></button>
       </div>
     </div>
 
@@ -324,16 +337,32 @@
     <!-- ============ HOME — THE VILLAGE (owner) ============ -->
     <div class="aw-scene" data-screen="home-village">
       <span class="step-tag">the village</span>
-      <h2 id="villageDayHeader">Day 1. Your Body: IG·AN·MA·XX.</h2>
-      <p class="aw-note" id="villageSubline">One real day is one real day. Nothing here can be skipped.</p>
+      <h2 id="villageDayHeader">Day 1. The Village.</h2>
+      <p class="aw-note">Your Body, your Chain, and the neighbors humming beside you. One real day is one real day.</p>
       <p class="aw-aside" id="villageThought"></p>
-      <div class="aw-math">
-        <div class="row"><span>your share</span><b id="shareOut">10%</b></div>
-        <div class="row net"><span>net</span><b id="villageRateOut">+0.48 $VITA /day</b></div>
+
+      <div class="aw-panel" id="yourBodyPanel">
+        <span class="tag">YOUR BODY</span>
+        <h3 id="yourBodyChainTitle">— unnamed —</h3>
+        <ol class="aw-chain-list" id="yourBodyChainList"></ol>
+        <p class="aw-note" id="yourBodySpecLine">Antminer L9 — 16 GH/s, drinks 80.64 kWh a day.</p>
+        <div class="aw-math">
+          <div class="row"><span>your share</span><b id="shareOut">10%</b></div>
+          <div class="row"><span>your cut</span><b id="yourCutOut">0.000000 LTC + 0.00 DOGE ≈ ▲ $0.00 /day</b></div>
+          <div class="row net"><span>free in this Body</span><b id="bodyFreeOut">0% free</b></div>
+        </div>
+        <div class="aw-occ-bar"><div class="aw-occ-fill" id="yourBodyOccFill" style="width:0%"></div></div>
+        <p class="aw-note">The Chain reads top to bottom: the higher the Rune, the earlier it moved in. Leaks, flows and the Watcher's cut are Phase-0 math — not simulated in this demo.</p>
+        <div class="aw-actions" id="deepenBlock">
+          <button class="btn" type="button" data-open-village>Deepen your share <span class="arrow">→</span></button>
+        </div>
+        <p class="aw-note aw-hidden" id="villageDeepenClosedHome">Your Body is fully claimed. Nothing to deepen — for now.</p>
       </div>
-      <div class="aw-actions" id="deepenBlock">
-        <button class="btn" type="button" data-open-village>Deepen your share <span class="arrow">→</span></button>
-      </div>
+
+      <h3 class="aw-section-h">The Village</h3>
+      <div class="aw-bodies" id="villageHomeBodies"></div>
+      <p class="aw-note aw-hidden" id="villageHomeNote">One Entity, one Body. Yours already hums.</p>
+
       <div class="aw-actions">
         <button class="btn alt" type="button" data-open-topup>🙏 Call to your Higher One</button>
       </div>
@@ -697,10 +726,17 @@
 
   var villageThought = document.getElementById("villageThought");
   var villageDayHeader = document.getElementById("villageDayHeader");
-  var villageSubline = document.getElementById("villageSubline");
+  var yourBodyChainTitle = document.getElementById("yourBodyChainTitle");
+  var yourBodyChainList = document.getElementById("yourBodyChainList");
+  var yourBodySpecLine = document.getElementById("yourBodySpecLine");
   var shareOut = document.getElementById("shareOut");
-  var villageRateOut = document.getElementById("villageRateOut");
+  var yourCutOut = document.getElementById("yourCutOut");
+  var bodyFreeOut = document.getElementById("bodyFreeOut");
+  var yourBodyOccFill = document.getElementById("yourBodyOccFill");
   var deepenBlock = document.getElementById("deepenBlock");
+  var villageDeepenClosedHome = document.getElementById("villageDeepenClosedHome");
+  var villageHomeBodies = document.getElementById("villageHomeBodies");
+  var villageHomeNote = document.getElementById("villageHomeNote");
 
   var btnReincarnate = document.getElementById("btnReincarnate");
   var btnEnterVillage = document.getElementById("btnEnterVillage");
@@ -754,11 +790,6 @@
     for (var i = 0; i < segs.length; i++) {
       segs[i].className = (i < step) ? "done" : "";
     }
-  }
-
-  function fmtRate(r) {
-    var arrow = r >= 0 ? "▲" : "▼";
-    return arrow + " " + Math.abs(r).toFixed(2) + " $VITA/day";
   }
 
   // whole numbers render without decimals (matches preset button style);
@@ -1151,6 +1182,52 @@
     renderVillageTiers(bodyId);
   }
 
+  // read-only Village grid shown on the home-village screen itself (010 §6);
+  // separate from renderVillageChooser() (the purchase-flow overlay) since this
+  // one tags the player's own Body and never opens the tier picker.
+  function renderHomeVillageGrid() {
+    if (!villageHomeBodies || !save) { return; }
+    villageHomeBodies.innerHTML = "";
+    VILLAGE_BODIES.forEach(function (body) {
+      var isYours = (body.id === save.bodyId) && save.phase === "village";
+      var occ = body.occ.slice();
+      var playerPct = 0;
+      if (isYours) {
+        playerPct = Math.round((save.share || 0) * 100);
+        occ = occ.concat([[save.rune, playerPct]]);
+      }
+      var occNames = occ.map(function (o) { return o[0]; });
+      var nameStr = occNames.length ? occNames.join("·") : "— unnamed —";
+      var trueFree = isYours ? Math.max(0, body.free - playerPct) : body.free;
+      var full = trueFree <= 0 && occNames.length > 1;
+      var soloClosed = trueFree <= 0 && occNames.length === 1;
+      var closed = (full || soloClosed) && !isYours;
+      var statusLine = isYours
+        ? "Yours. Already hums."
+        : closed
+          ? (soloClosed ? "A solo owner. The seams are shut." : "No room. This one sings without you.")
+          : (occNames.length === 0 ? "Newly racked. No Entities yet. Take a seam — or take it whole." : body.free + "% free.");
+      var chips = occNames.length
+        ? "<div class=\"aw-occ-chips\">" + occ.map(function (o) {
+            return "<span class=\"aw-occ-chip\">" + o[0] + " " + o[1] + "%</span>";
+          }).join("") + "</div>"
+        : "";
+      var card = document.createElement(isYours ? "div" : "button");
+      if (!isYours) { card.type = "button"; }
+      card.className = "aw-body-card" + (closed ? "" : " open") + (isYours ? " yours" : "");
+      if (!isYours) { card.disabled = closed; }
+      card.innerHTML = (isYours ? "<span class=\"tag\">YOURS</span>" : "") +
+        "<h4>Body #" + body.id + ": " + nameStr + "</h4>" +
+        "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + (100 - trueFree) + "%\"></div></div>" +
+        chips +
+        "<small class=\"status\">" + statusLine + "</small>";
+      if (!isYours && !closed) {
+        card.addEventListener("click", function () { villageHomeNote.classList.remove("aw-hidden"); });
+      }
+      villageHomeBodies.appendChild(card);
+    });
+  }
+
   function renderVillageChooser() {
     villageBodiesEl.innerHTML = "";
     VILLAGE_BODIES.forEach(function (body) {
@@ -1528,22 +1605,49 @@
       driftDayHeader.textContent = "Day " + d + ". Bodiless.";
       driftThought.textContent = entityThought(THOUGHTS_DRIFT, d);
     } else if (name === "home-village") {
+      villageDayHeader.textContent = "Day " + d + ". The Village.";
+      var myBody = VILLAGE_BODIES[(save.bodyId || 1) - 1];
       var solo = save.share >= 1;
-      if (solo) {
-        villageDayHeader.textContent = "Day " + d + ". Your Body: " + save.rune + ".";
-        villageSubline.textContent = "Solo. You may open seams one day — not in this demo.";
-        deepenBlock.classList.add("aw-hidden");
-      } else {
-        var myBody = VILLAGE_BODIES[(save.bodyId || 1) - 1];
-        var otherRunes = myBody.occ.map(function (o) { return o[0]; });
-        var chain = otherRunes.length ? otherRunes.join("·") + "·" + save.rune : save.rune;
-        villageDayHeader.textContent = "Day " + d + ". Your Body: " + chain + ".";
-        villageSubline.textContent = "One real day is one real day. Nothing here can be skipped.";
-        deepenBlock.classList.remove("aw-hidden");
+      var share = save.share || 0;
+      var playerPct = Math.round(share * 100);
+
+      var chainRunes = solo ? [save.rune] : myBody.occ.map(function (o) { return o[0]; }).concat([save.rune]);
+      yourBodyChainTitle.innerHTML = chainRunes.map(function (r) {
+        return r === save.rune ? "<b>" + r + "</b>" : r;
+      }).join("·");
+
+      var listItems = "";
+      var pos = 1;
+      if (!solo) {
+        myBody.occ.forEach(function (o) {
+          listItems += "<li><span class=\"pos\">" + pos + ".</span>" + o[0] +
+            "<span class=\"pct\">" + o[1] + "%</span>" +
+            "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + o[1] + "%\"></div></div></li>";
+          pos++;
+        });
       }
-      shareOut.textContent = Math.round(save.share * 100) + "%";
-      villageRateOut.textContent = fmtRate(save.rate);
+      listItems += "<li class=\"you\"><span class=\"pos\">" + pos + ".</span>" + save.rune + " (you)" +
+        "<span class=\"pct\">" + playerPct + "%</span>" +
+        "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + playerPct + "%\"></div></div></li>";
+      yourBodyChainList.innerHTML = listItems;
+
+      yourBodySpecLine.textContent = "Antminer L9 — 16 GH/s, drinks " + L9_KWH_DAY.toFixed(2) + " kWh a day.";
+
+      shareOut.textContent = playerPct + "%";
+      var cut = usdNetPerDay(L9_HASH_MH, share, L9_KWH_DAY * share);
+      yourCutOut.textContent = cut.ltc.toFixed(6) + " LTC + " + cut.doge.toFixed(2) +
+        " DOGE ≈ " + fmtRateDollarPrefix(cut.net) + " /day";
+
+      var trueFree = solo ? 0 : Math.max(0, myBody.free - playerPct);
+      bodyFreeOut.textContent = trueFree + "% free";
+      yourBodyOccFill.style.width = (100 - trueFree) + "%";
+
+      deepenBlock.classList.toggle("aw-hidden", solo);
+      villageDeepenClosedHome.classList.toggle("aw-hidden", !solo);
+
       villageThought.textContent = entityThought(THOUGHTS_VILLAGE, d);
+      villageHomeNote.classList.add("aw-hidden");
+      renderHomeVillageGrid();
     }
   }
 
