@@ -455,9 +455,18 @@
   var SAVE_KEY    = "wowsuch_awakening_save_v1";
   var DAY_MS      = 86400000;
   var START_VITA  = 100.00;
-  var RATE_DRIFT  = -1.50;  // $/day bodiless (illustrative)
-  var RATE_FROG   = -0.09;  // $/day net in the Frog = +0.13 mined (after 3% pool fee) − 0.22 hosting (2.784 kWh × $0.079 all-in)
-  var RATE_L9     = 4.80;   // $/day whole L9 — matches buy.html calculator assumptions
+  var RATE_DRIFT  = -1.50;  // $/day bodiless (illustrative, never live)
+  var RATE_FROG   = -0.09;  // $/day net in the Frog — live-updated; starts as static fallback
+  var RATE_L9     = 4.80;   // $/day whole L9 — live-updated; starts as static fallback
+  var FROG_GROSS  = 0.13;   // components paired with RATE_FROG (also live-updated)
+  var FROG_COST   = 0.22;
+  var FROG_HASH_MH = 200,  FROG_KWH_DAY = 2.784;   // Ipollo V1 Mini SE
+  var L9_HASH_MH   = 16000, L9_KWH_DAY = 80.64;    // Antminer L9 per buy.html: 16 GH/s, ~3,360 W × 24h
+  var POOL_FEE     = 0.03;
+  var HOSTING_RATE = 0.079; // $/kWh all-in, matches the topbar peg sentence
+  var ratesAreLive = false; // true once a live network fetch has actually succeeded
+  var RATES_CACHE_KEY = "wowsuch_awakening_rates_v1";
+  var RATES_TTL_MS = 6 * 3600000;
   var QUEST_COST  = 0.15;   // one-off VITA burned on a quest attempt
   var QUEST_P     = 0.15;   // daily quest success probability
   var EJECT_COST  = 3.00;   // one-time, on the Frog's death
@@ -509,6 +518,10 @@
     return "The Entity thinks: " + pool[day % pool.length];
   }
 
+  // ---- Frog paragraph, sign-aware (verbatim both ways; swapped by live net) ----
+  var FROG_TRAGEDY_TEXT = "That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do. Your $VITA drains sixteen times slower than drifting. But it drains.";
+  var FROG_MIRACLE_TEXT = "That's the Frog's little miracle: honest work, day and night, at the best flat rate in the industry — and today it earns a hair more than it eats. Small Bodies live on a knife's edge; yesterday's price is tomorrow's famine. Your $VITA barely moves. But you are still in a Frog.";
+
   // ---- storage feature-detect: must never crash if unavailable ----
   var stageEl = document.getElementById("stage");
   var noStorageNote = document.getElementById("noStorageNote");
@@ -557,6 +570,17 @@
   var frogQuestPicker = document.getElementById("frogQuestPicker");
 
   var frogThought = document.getElementById("frogThought");
+
+  var frogGrossOut = document.getElementById("frogGrossOut");
+  var frogCostOut = document.getElementById("frogCostOut");
+  var frogNetOut = document.getElementById("frogNetOut");
+  var frogTragedyP = document.getElementById("frogTragedyP");
+  var frogRateNote = document.getElementById("frogRateNote");
+  var l9WholeOut = document.getElementById("l9WholeOut");
+  var l9HalfOut = document.getElementById("l9HalfOut");
+  var l9TenthOut = document.getElementById("l9TenthOut");
+  var l9TwentiethOut = document.getElementById("l9TwentiethOut");
+  var l9RateNote = document.getElementById("l9RateNote");
 
   var driftDayHeader = document.getElementById("driftDayHeader");
   var driftThought = document.getElementById("driftThought");
@@ -676,6 +700,112 @@
     return Math.max(1, Math.floor((Date.now() - save.createdAt) / DAY_MS) + 1);
   }
 
+  // ---- live profitability (task 009 §6): LTC+DOGE merge-mining, scrypt ----
+  // revPerMHDay = (576 * 6.25 * P_LTC / H_LTC_MH) + (1440 * 10000 * P_DOGE / H_DOGE_MH)
+  // H_MH = difficulty * 2^32 / blocktime / 1e6
+  function computeRates(pLtc, pDoge, dLtc, dDoge) {
+    var hLtcMH = dLtc * 4294967296 / 150 / 1e6;
+    var hDogeMH = dDoge * 4294967296 / 60 / 1e6;
+    var revPerMHDay = (576 * 6.25 * pLtc / hLtcMH) + (1440 * 10000 * pDoge / hDogeMH);
+    var frogGross = round4(revPerMHDay * FROG_HASH_MH * (1 - POOL_FEE));
+    var frogCost = round4(FROG_KWH_DAY * HOSTING_RATE);
+    var l9Gross = revPerMHDay * L9_HASH_MH * (1 - POOL_FEE);
+    var l9Cost = L9_KWH_DAY * HOSTING_RATE;
+    return {
+      frogGross: frogGross, frogCost: frogCost, frogNet: round2(frogGross - frogCost),
+      l9Net: round2(l9Gross - l9Cost)
+    };
+  }
+
+  function applyRates(rates, live) {
+    FROG_GROSS = rates.frogGross;
+    FROG_COST = rates.frogCost;
+    RATE_FROG = rates.frogNet;
+    RATE_L9 = rates.l9Net;
+    ratesAreLive = !!live;
+    updateRateDisplays();
+    applyLiveRatesToSave();
+  }
+
+  function updateRateDisplays() {
+    var estSuffix = ratesAreLive ? "" : " (static estimate)";
+    if (frogGrossOut) { frogGrossOut.textContent = "+" + FROG_GROSS.toFixed(2) + " $VITA /day"; }
+    if (frogCostOut) { frogCostOut.textContent = "−" + FROG_COST.toFixed(2) + " $VITA /day"; }
+    if (frogNetOut) {
+      var fSign = RATE_FROG >= 0 ? "+" : "−";
+      frogNetOut.textContent = fSign + Math.abs(RATE_FROG).toFixed(2) + " $VITA /day" + estSuffix;
+    }
+    if (frogTragedyP) {
+      frogTragedyP.textContent = (RATE_FROG >= 0) ? FROG_MIRACLE_TEXT : FROG_TRAGEDY_TEXT;
+    }
+    if (l9WholeOut) { l9WholeOut.textContent = "+" + RATE_L9.toFixed(2) + " $VITA /day" + estSuffix; }
+    if (l9HalfOut) { l9HalfOut.textContent = "+" + (RATE_L9 * 0.5).toFixed(2) + " $VITA /day"; }
+    if (l9TenthOut) { l9TenthOut.textContent = "+" + (RATE_L9 * 0.1).toFixed(2) + " $VITA /day"; }
+    if (l9TwentiethOut) { l9TwentiethOut.textContent = "+" + (RATE_L9 * 0.05).toFixed(2) + " $VITA /day"; }
+    if (save && isOverlayOpen() && villageTiersEl) { renderVillageOverlay(); }
+  }
+
+  function applyLiveRatesToSave() {
+    if (!save) { return; }
+    accrue();
+    if (save.phase === "frog") {
+      save.rate = RATE_FROG;
+    } else if (save.phase === "village") {
+      save.rate = round2(save.share * RATE_L9);
+    }
+    persist();
+    render();
+  }
+
+  function loadRatesCache() {
+    try {
+      var raw = window.localStorage.getItem(RATES_CACHE_KEY);
+      if (!raw) { return null; }
+      var c = JSON.parse(raw);
+      if (!c || !c.rates || !c.ts) { return null; }
+      if (Date.now() - c.ts > RATES_TTL_MS) { return null; }
+      return c;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveRatesCache(rates) {
+    try {
+      window.localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ ts: Date.now(), rates: rates }));
+    } catch (e) { /* ignore */ }
+  }
+
+  function fetchLiveRates() {
+    var cached = loadRatesCache();
+    if (cached) {
+      applyRates(cached.rates, true);
+      return;
+    }
+    var priceUrl = "https://api.coingecko.com/api/v3/simple/price?ids=litecoin,dogecoin&vs_currencies=usd";
+    Promise.all([
+      fetch(priceUrl).then(function (r) { return r.json(); }),
+      fetch("https://api.blockchair.com/litecoin/stats").then(function (r) { return r.json(); }),
+      fetch("https://api.blockchair.com/dogecoin/stats").then(function (r) { return r.json(); })
+    ]).then(function (results) {
+      var prices = results[0];
+      var ltcStats = results[1];
+      var dogeStats = results[2];
+      var pLtc = prices.litecoin.usd;
+      var pDoge = prices.dogecoin.usd;
+      var dLtc = ltcStats.data.difficulty;
+      var dDoge = dogeStats.data.difficulty;
+      if (!(pLtc > 0) || !(pDoge > 0) || !(dLtc > 0) || !(dDoge > 0)) { throw new Error("bad data"); }
+      var rates = computeRates(pLtc, pDoge, dLtc, dDoge);
+      saveRatesCache(rates);
+      applyRates(rates, true);
+    }).catch(function () {
+      // static fallback already applied at load; just make sure the "(static estimate)"
+      // suffix is showing (no-op if applyRates(..., false) already ran at init)
+      if (!ratesAreLive) { updateRateDisplays(); }
+    });
+  }
+
   // ---- log (persisted, capped at LOG_MAX_LINES per task 006) ----
   function logLine(text) {
     if (!save) { return; }
@@ -747,7 +877,7 @@
       btn.className = "aw-choice";
       btn.disabled = !fits;
       btn.innerHTML = "<div class=\"ico\">🧩</div><h4>" + t.label + "</h4>" +
-        "<p><b>" + fmtAmt(t.price) + " $VITA</b> · +" + t.rate.toFixed(2) + " $VITA/day</p>" +
+        "<p><b>" + fmtAmt(t.price) + " $VITA</b> · +" + (t.frac * RATE_L9).toFixed(2) + " $VITA/day</p>" +
         (t.frac === 1 ? "<small>Solo owner. No Chain above you.</small>" : "");
       if (fits) {
         btn.addEventListener("click", function () { attemptPurchase(t); });
@@ -957,7 +1087,7 @@
     var h = Math.floor((gapMs % DAY_MS) / 3600000);
     var net = rate * gapMs / DAY_MS;
     var phrase = phase === "village" ? "Your Body kept mining." :
-      (rate === RATE_FROG ? "The Frog kept mining." : "The drift kept burning.");
+      (phase === "frog" ? "The Frog kept mining." : "The drift kept burning.");
     var sign = net >= 0 ? "+" : "−";
     recapText.textContent = "While you were gone — " + d + " days, " + h + " hours. " + phrase +
       " Net: " + sign + Math.abs(net).toFixed(2) + " $VITA.";
@@ -1112,8 +1242,10 @@
     save.lastSeenTs = initNow;
     persist();
   }
+  updateRateDisplays(); // static fallback shown immediately; fetchLiveRates() may upgrade it below
   render();
   startTicker();
+  fetchLiveRates();
 })();
 </script>
 </body>
