@@ -46,6 +46,7 @@
   .aw-vita{flex:none;width:max-content;max-width:220px;text-align:right;font-family:var(--mono);overflow-wrap:anywhere;order:2;}
   .aw-vita .lbl{font-size:.72rem;font-weight:700;color:var(--soft-on-dark);letter-spacing:.04em;text-transform:uppercase;}
   .aw-vita .num{font-size:1.3rem;font-weight:800;color:var(--gold-on-dark);}
+  .aw-vita .unit{font-size:.72rem;font-weight:700;color:var(--soft-on-dark);letter-spacing:.02em;}
   .aw-vita .rate{margin-top:4px;font-size:.72rem;font-weight:700;color:var(--soft-on-dark);}
   .aw-vita.up .num{color:#FFD873;text-shadow:0 0 12px rgba(255,185,46,.55);}
   .aw-vita.up .rate{color:#FFD873;font-weight:800;}
@@ -221,8 +222,8 @@
 <section><div class="wrap">
   <div class="aw-stage reveal" id="stage">
     <div class="aw-vita" id="vitaBox">
-      <span class="lbl">Energy banked <small>(&times;1000 view)</small></span><br><span class="num" id="vitaOut">10000.00</span>
-      <div class="rate" id="vitaRate">Day 0 · ▼ 1500.00 /day (view)</div>
+      <span class="lbl">Energy banked</span><br><span class="num" id="vitaOut">10000.00</span> <span class="unit">sparks</span>
+      <div class="rate" id="vitaRate">Day 0 · ▼ 1500.00 sparks/day</div>
       <button class="aw-wallet-link" type="button" id="btnOpenWallet" data-open-wallet>wallet →</button>
     </div>
     <div class="aw-content">
@@ -911,9 +912,10 @@
   // net $/day across the current phase (mining minus hosting/drift, sign-aware)
   function currentNetPerDayUsd() {
     if (!save) { return 0; }
+    if (save.phase === "onboarding") { return 0; } // accrue() doesn't drain yet — don't show a rate that isn't real
     if (save.phase === "frog") { return RATE_FROG; }
     if (save.phase === "village") { return round2((save.share || 0) * RATE_L9); }
-    return -DRIFT_COST_USD_DAY; // drifting (and onboarding, harmlessly)
+    return -DRIFT_COST_USD_DAY; // drifting
   }
 
   // Drain `needUsd` from the wallet in priority order VITA -> USDT -> DOGE -> LTC,
@@ -1026,9 +1028,9 @@
   function fmtEnergyAmount(usd) {
     return (usd * ENERGY_METER_SCALE).toFixed(2);
   }
-  function fmtEnergyRate(usd) {           // "▲ 90.00 /day (view)"
+  function fmtEnergyRate(usd) {           // "▲ 90.00 sparks/day"
     var r = fmtRateNum(usd * ENERGY_METER_SCALE);
-    return r.arrow + " " + r.num + " /day (view)";
+    return r.arrow + " " + r.num + " sparks/day";
   }
 
   function refreshDerived(pLtc, pDoge, dLtc, dDoge, height, live) {
