@@ -63,6 +63,19 @@
     color:var(--gold-on-dark);}
   .aw-body-card.open .tag{background:#3a2607;}
 
+  .aw-village-view{display:none;}
+  .aw-village-view.active{display:block;}
+  button.aw-body-card{cursor:pointer;font-family:inherit;color:inherit;width:100%;opacity:1;}
+  button.aw-body-card:disabled{opacity:.45;cursor:not-allowed;}
+  button.aw-body-card:not(:disabled):hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-occ-bar{height:8px;border-radius:99px;background:var(--night);border:1px solid var(--gold);
+    margin-top:10px;overflow:hidden;}
+  .aw-occ-fill{height:100%;background:var(--gold-on-dark);}
+  .aw-occ-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px;}
+  .aw-occ-chip{font-family:var(--mono);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:999px;
+    background:var(--night);border:1px solid var(--gold);color:var(--soft-on-dark);}
+  .aw-body-card .status{display:block;margin-top:8px;font-size:.74rem;font-weight:700;color:var(--soft-on-dark);}
+
   .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:18px !important;}
   .aw-vita-def{border-left:3px solid var(--gold);padding-left:14px;margin-top:18px;font-style:italic;}
   .aw-progress{display:flex;gap:6px;margin-bottom:18px;}
@@ -357,16 +370,30 @@
 
     <!-- ============ OVERLAY: THE VILLAGE (shop) ============ -->
     <div class="aw-overlay" id="villageOverlay">
-      <span class="step-tag">the village</span>
-      <h2>The Village. 1,000 L9s hum in rows.</h2>
-      <p>A Body costs what it costs. Take a seam of one, or take it whole.</p>
-      <p class="aw-note">One Entity, one Body. Buying more deepens your share of the same Body — it does not scatter you.</p>
-      <div class="aw-choices four" id="villageTiers"></div>
-      <p class="aw-note aw-hidden" id="villageInsufficient">Not enough $VITA. The Village does not extend credit.</p>
-      <div class="aw-actions aw-hidden" id="villageTopupCta">
-        <button class="btn" type="button" data-open-topup>🙏 Call to your Higher One</button>
+      <!-- view 1: pick a Body -->
+      <div class="aw-village-view" id="villageChooserView">
+        <span class="step-tag">the village</span>
+        <h2>The Village. 1,000 L9s hum in rows.</h2>
+        <p>These are the rows nearest you. Every Body wears the Runes of those who live in it — the higher, the earlier. Pick your door.</p>
+        <div class="aw-bodies" id="villageBodies"></div>
+        <div class="aw-actions"><button class="btn alt" type="button" data-close-overlay>← Back</button></div>
       </div>
-      <div class="aw-actions"><button class="btn alt" type="button" data-close-overlay>← Back</button></div>
+      <!-- view 2: pick a share tier within the chosen Body -->
+      <div class="aw-village-view" id="villageTiersView">
+        <span class="step-tag">the village</span>
+        <h2 id="villageTiersHeader">Body #—</h2>
+        <p class="aw-note">One Entity, one Body. Buying more deepens your share of the same Body — it does not scatter you.</p>
+        <div class="aw-choices four" id="villageTiers"></div>
+        <p class="aw-note aw-hidden" id="villageDeepenClosed">Your Body is fully claimed. Nothing to deepen — for now.</p>
+        <p class="aw-note aw-hidden" id="villageInsufficient">Not enough $VITA. The Village does not extend credit.</p>
+        <div class="aw-actions aw-hidden" id="villageTopupCta">
+          <button class="btn" type="button" data-open-topup>🙏 Call to your Higher One</button>
+        </div>
+        <div class="aw-actions">
+          <button class="btn alt aw-hidden" type="button" id="villageBackToBodies">← Choose a different Body</button>
+          <button class="btn alt" type="button" data-close-overlay>← Back</button>
+        </div>
+      </div>
     </div>
 
     <!-- ============ OVERLAY: TOP-UP ============ -->
@@ -481,7 +508,20 @@
     { frac: 1 / 2,  price: 2497.50, rate: 2.40, label: "1/2" },
     { frac: 1,      price: 4995.00, rate: 4.80, label: "Whole Body" }
   ];
-  var CHAINMATES = ["IG", "AN", "MA"]; // same convention as vessels.html's rune generator
+  // ---- Village Bodies (task 009 §8): fixed generated state, only the player's
+  // own Body's free capacity ever shrinks (no fake market simulation elsewhere) ----
+  var VILLAGE_BODIES = [
+    { id: 1, occ: [], free: 100 },
+    { id: 2, occ: [["IG", 50], ["AN", 25], ["MA", 10]], free: 15 },
+    { id: 3, occ: [["EK", 100]], free: 0 },
+    { id: 4, occ: [["TA", 45], ["LU", 30]], free: 25 },
+    { id: 5, occ: [["VE", 90], ["OS", 5]], free: 5 },
+    { id: 6, occ: [["NY", 40], ["RA", 35], ["UM", 25]], free: 0 },
+    { id: 7, occ: [["KO", 10], ["ZI", 10], ["PA", 10]], free: 70 },
+    { id: 8, occ: [["HU", 55]], free: 45 },
+    { id: 9, occ: [["DA", 20], ["IV", 20], ["EL", 20], ["SI", 20]], free: 20 },
+    { id: 10, occ: [["MO", 95]], free: 5 }
+  ];
 
   // death/fail lines are pre-existing lore copy — reused verbatim, never rewritten
   var DEATH_LINE = {
@@ -603,9 +643,16 @@
   var eraseLink = document.getElementById("eraseLink");
 
   var villageOverlay = document.getElementById("villageOverlay");
+  var villageChooserView = document.getElementById("villageChooserView");
+  var villageTiersView = document.getElementById("villageTiersView");
+  var villageBodiesEl = document.getElementById("villageBodies");
+  var villageTiersHeader = document.getElementById("villageTiersHeader");
   var villageTiersEl = document.getElementById("villageTiers");
+  var villageDeepenClosed = document.getElementById("villageDeepenClosed");
   var villageInsufficient = document.getElementById("villageInsufficient");
   var villageTopupCta = document.getElementById("villageTopupCta");
+  var villageBackToBodies = document.getElementById("villageBackToBodies");
+  var selectedBodyId = null; // which Body is showing in the tiers view right now
 
   var topupOverlay = document.getElementById("topupOverlay");
   var topupCustom = document.getElementById("topupCustom");
@@ -652,12 +699,26 @@
   }
 
   // ---- save load/persist ----
+  // v1 -> v2 migration (task 009 §8): adds bodyId, no data loss, no save-nuking.
+  function migrateV1ToV2(s) {
+    s.v = 2;
+    if (s.share >= 1) {
+      s.bodyId = 1; // solo/whole legacy saves -> the empty Body, as sole owner
+    } else if (s.share > 0) {
+      s.bodyId = 7; // partial legacy saves -> Body #7 (KO·ZI·PA, 70% free covers any share <= 1/2)
+    } else {
+      s.bodyId = null; // never bought in -> no Body yet
+    }
+    return s;
+  }
+
   function loadSave() {
     try {
       var raw = window.localStorage.getItem(SAVE_KEY);
       if (!raw) { return null; }
       var s = JSON.parse(raw);
-      if (!s || s.v !== 1) { return null; }
+      if (!s || (s.v !== 1 && s.v !== 2)) { return null; }
+      if (s.v === 1) { s = migrateV1ToV2(s); }
       return s;
     } catch (e) {
       return null;
@@ -672,11 +733,11 @@
   function newSave(email, rune) {
     var now = Date.now();
     return {
-      v: 1, email: email, rune: rune, createdAt: now,
+      v: 2, email: email, rune: rune, createdAt: now,
       phase: "onboarding", onboardingStep: 1,
       balance: START_VITA, rate: RATE_DRIFT,
       lastAccrualTs: now, lastSeenTs: now,
-      lastQuestDay: null, frogAlive: true, share: 0,
+      lastQuestDay: null, frogAlive: true, share: 0, bodyId: null,
       toppedUp: false, log: []
     };
   }
@@ -742,7 +803,7 @@
     if (l9HalfOut) { l9HalfOut.textContent = "+" + (RATE_L9 * 0.5).toFixed(2) + " $VITA /day"; }
     if (l9TenthOut) { l9TenthOut.textContent = "+" + (RATE_L9 * 0.1).toFixed(2) + " $VITA /day"; }
     if (l9TwentiethOut) { l9TwentiethOut.textContent = "+" + (RATE_L9 * 0.05).toFixed(2) + " $VITA /day"; }
-    if (save && isOverlayOpen() && villageTiersEl) { renderVillageOverlay(); }
+    if (save && isOverlayOpen() && selectedBodyId) { renderVillageTiers(selectedBodyId); }
   }
 
   function applyLiveRatesToSave() {
@@ -849,7 +910,12 @@
     if (name === "village") {
       villageInsufficient.classList.add("aw-hidden");
       villageTopupCta.classList.add("aw-hidden");
-      renderVillageOverlay();
+      if (save.bodyId) {
+        // anti-sybil: already in a Body -> straight to deepening it, no chooser
+        showVillageTiers(save.bodyId);
+      } else {
+        showVillageChooser();
+      }
     }
     if (name === "topup") {
       resetTopup();
@@ -865,13 +931,72 @@
   document.querySelectorAll("[data-close-overlay]").forEach(function (btn) {
     btn.addEventListener("click", closeOverlay);
   });
+  if (villageBackToBodies) {
+    villageBackToBodies.addEventListener("click", showVillageChooser);
+  }
 
-  // ---- village shop ----
-  function renderVillageOverlay() {
-    var remaining = 1 - save.share;
+  // ---- village shop: pick a Body, then a share tier within it ----
+  function showVillageChooser() {
+    selectedBodyId = null;
+    villageChooserView.classList.add("active");
+    villageTiersView.classList.remove("active");
+    renderVillageChooser();
+  }
+
+  function showVillageTiers(bodyId) {
+    selectedBodyId = bodyId;
+    villageChooserView.classList.remove("active");
+    villageTiersView.classList.add("active");
+    // anti-sybil: once already in a Body, there is no other door back to the chooser
+    villageBackToBodies.classList.toggle("aw-hidden", !!save.bodyId);
+    renderVillageTiers(bodyId);
+  }
+
+  function renderVillageChooser() {
+    villageBodiesEl.innerHTML = "";
+    VILLAGE_BODIES.forEach(function (body) {
+      var occNames = body.occ.map(function (o) { return o[0]; });
+      var nameStr = occNames.length ? occNames.join("·") : "— unnamed —";
+      var full = body.free <= 0 && occNames.length > 1;
+      var soloClosed = body.free <= 0 && occNames.length === 1;
+      var closed = full || soloClosed;
+      var statusLine = closed
+        ? (soloClosed ? "A solo owner. The seams are shut." : "No room. This one sings without you.")
+        : (occNames.length === 0 ? "Newly racked. No Entities yet. Take a seam — or take it whole." : body.free + "% free.");
+      var chips = occNames.length
+        ? "<div class=\"aw-occ-chips\">" + body.occ.map(function (o) {
+            return "<span class=\"aw-occ-chip\">" + o[0] + " " + o[1] + "%</span>";
+          }).join("") + "</div>"
+        : "";
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "aw-body-card" + (closed ? "" : " open");
+      card.disabled = closed;
+      card.innerHTML = "<h4>Body #" + body.id + ": " + nameStr + "</h4>" +
+        "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + (100 - body.free) + "%\"></div></div>" +
+        chips +
+        "<small class=\"status\">" + statusLine + "</small>";
+      if (!closed) {
+        card.addEventListener("click", function () { showVillageTiers(body.id); });
+      }
+      villageBodiesEl.appendChild(card);
+    });
+  }
+
+  function renderVillageTiers(bodyId) {
+    var body = VILLAGE_BODIES[bodyId - 1];
+    var mine = (save.bodyId === bodyId);
+    var alreadyMine = mine ? save.share * 100 : 0;
+    var remainingFreePct = body.free - alreadyMine;
+    villageTiersHeader.textContent = "Body #" + bodyId +
+      (body.occ.length ? ": " + body.occ.map(function (o) { return o[0]; }).join("·") : "");
+    var closedForDeepen = mine && remainingFreePct <= 1e-9;
+    villageDeepenClosed.classList.toggle("aw-hidden", !closedForDeepen);
+    villageTiersEl.classList.toggle("aw-hidden", closedForDeepen);
     villageTiersEl.innerHTML = "";
+    if (closedForDeepen) { return; }
     TIERS.forEach(function (t) {
-      var fits = t.frac <= remaining + 1e-9;
+      var fits = (t.frac * 100) <= remainingFreePct + 1e-9;
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "aw-choice";
@@ -880,13 +1005,13 @@
         "<p><b>" + fmtAmt(t.price) + " $VITA</b> · +" + (t.frac * RATE_L9).toFixed(2) + " $VITA/day</p>" +
         (t.frac === 1 ? "<small>Solo owner. No Chain above you.</small>" : "");
       if (fits) {
-        btn.addEventListener("click", function () { attemptPurchase(t); });
+        btn.addEventListener("click", function () { attemptPurchase(t, bodyId); });
       }
       villageTiersEl.appendChild(btn);
     });
   }
 
-  function attemptPurchase(tier) {
+  function attemptPurchase(tier, bodyId) {
     accrue();
     if (save.balance < tier.price) {
       villageInsufficient.classList.remove("aw-hidden");
@@ -898,6 +1023,7 @@
     villageTopupCta.classList.add("aw-hidden");
     var wasFrog = (save.phase === "frog");
     addVita(-tier.price);
+    save.bodyId = bodyId;
     save.share = Math.min(1, round4(save.share + tier.frac));
     save.rate = round2(save.share * RATE_L9);
     save.phase = "village";
@@ -1052,11 +1178,11 @@
       var email = save.email, rune = save.rune;
       var now = Date.now();
       save = {
-        v: 1, email: email, rune: rune, createdAt: now,
+        v: 2, email: email, rune: rune, createdAt: now,
         phase: "onboarding", onboardingStep: 2,
         balance: START_VITA, rate: RATE_DRIFT,
         lastAccrualTs: now, lastSeenTs: now,
-        lastQuestDay: null, frogAlive: true, share: 0,
+        lastQuestDay: null, frogAlive: true, share: 0, bodyId: null,
         toppedUp: false, log: []
       };
       persist();
@@ -1144,7 +1270,10 @@
         villageSubline.textContent = "Solo. You may open seams one day — not in this demo.";
         deepenBlock.classList.add("aw-hidden");
       } else {
-        villageDayHeader.textContent = "Day " + d + ". Your Body: " + CHAINMATES.join("·") + "·" + save.rune + ".";
+        var myBody = VILLAGE_BODIES[(save.bodyId || 1) - 1];
+        var otherRunes = myBody.occ.map(function (o) { return o[0]; });
+        var chain = otherRunes.length ? otherRunes.join("·") + "·" + save.rune : save.rune;
+        villageDayHeader.textContent = "Day " + d + ". Your Body: " + chain + ".";
         villageSubline.textContent = "One real day is one real day. Nothing here can be skipped.";
         deepenBlock.classList.remove("aw-hidden");
       }
