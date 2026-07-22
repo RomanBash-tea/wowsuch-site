@@ -49,6 +49,7 @@
   .aw-vita .rate{margin-top:4px;font-size:.72rem;font-weight:700;color:var(--soft-on-dark);}
   .aw-vita.up .num{color:#FFD873;text-shadow:0 0 12px rgba(255,185,46,.55);}
   .aw-vita.up .rate{color:#FFD873;font-weight:800;}
+  .aw-wallet-link{display:inline-block;margin-top:6px;background:none;border:none;padding:0;font-family:inherit;font-size:.72rem;font-weight:700;color:var(--gold-on-dark);text-decoration:underline;cursor:pointer;}
 
   .aw-bodies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
   .aw-bodies.solo{grid-template-columns:min(280px,100%);justify-content:center;}
@@ -209,6 +210,7 @@
     <div class="aw-vita" id="vitaBox">
       <span class="lbl">$VITA banked</span><br><span class="num" id="vitaOut">100.0000</span>
       <div class="rate" id="vitaRate">Day 0 · ▼ 1.50 $VITA/day</div>
+      <button class="aw-wallet-link" type="button" id="btnOpenWallet" data-open-wallet>wallet →</button>
     </div>
     <div class="aw-content">
     <div class="aw-progress" id="awProgress"></div>
@@ -286,6 +288,7 @@
       <p><b>Ipollo V1 Mini SE · 200 MH</b> · your whole world, for now</p>
       <p class="aw-note">One real day is one real day. Nothing here can be skipped.</p>
       <p class="aw-aside" id="frogThought"></p>
+      <p class="aw-note aw-hidden" id="frogStarvingNote">The meter is starving. Feed the Wallet, or the Watcher will have words.</p>
 
       <div id="questAvailableBlock">
         <p>The Frog naps once a day. Once a day, you get one chance.</p>
@@ -418,6 +421,46 @@
         <button class="btn alt" type="button" data-close-overlay>← Back</button>
       </div>
     </div>
+
+    <!-- ============ OVERLAY: WALLET ============ -->
+    <div class="aw-overlay" id="walletOverlay">
+      <span class="step-tag">the wallet</span>
+      <h2>The Wallet.</h2>
+      <p>Energy comes in many currencies. Your Body mines LTC and DOGE. The Higher One sends dollars. $VITA is the Village's own measure — worth exactly one dollar here, by decree. Any of them keeps an Entity alive, and any can become any other. Rates are today's, from the open market.</p>
+      <div class="aw-math" id="walletRows">
+        <div class="row"><span>LTC</span><b id="wLtcOut">0.000000 LTC <small>≈ $0.00</small></b></div>
+        <div class="row"><span>DOGE</span><b id="wDogeOut">0.00 DOGE <small>≈ $0.00</small></b></div>
+        <div class="row"><span>$VITA</span><b id="wVitaOut">0.00 $VITA <small>≈ $0.00</small></b></div>
+        <div class="row"><span>USDT</span><b id="wUsdtOut">0.00 USDT <small>≈ $0.00</small></b></div>
+        <div class="row net"><span>Total Energy</span><b id="wTotalOut">≈ $0.00</b></div>
+      </div>
+      <div class="aw-panel">
+        <h3>Change currency</h3>
+        <div class="aw-actions">
+          <select class="aw-input" id="wExchangeFrom">
+            <option value="ltc">LTC</option>
+            <option value="doge">DOGE</option>
+            <option value="vita">$VITA</option>
+            <option value="usdt">USDT</option>
+          </select>
+          <select class="aw-input" id="wExchangeTo">
+            <option value="usdt">USDT</option>
+            <option value="vita">$VITA</option>
+            <option value="ltc">LTC</option>
+            <option value="doge">DOGE</option>
+          </select>
+        </div>
+        <input class="aw-input" id="wExchangeAmt" type="number" min="0" step="any" placeholder="Amount">
+        <p class="aw-note" id="wExchangeRateLine">1 LTC ≈ $0.00 today</p>
+        <div class="aw-actions">
+          <button class="btn" type="button" id="wExchangeBtn">Change</button>
+        </div>
+      </div>
+      <div class="aw-actions">
+        <button class="btn alt" type="button" data-close-overlay>← Back</button>
+      </div>
+      <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout, and resale mechanics are concept-stage and pending legal wording.</p>
+    </div>
     </div>
   </div>
 </div></section>
@@ -478,29 +521,41 @@
 (function () {
   "use strict";
 
-  // ---- constants (all $VITA math derives from these; see dev-inbox/008) ----
+  // ---- constants (see dev-inbox/010 for the multi-currency wallet model) ----
   var SAVE_KEY    = "wowsuch_awakening_save_v1";
   var DAY_MS      = 86400000;
-  var START_VITA  = 100.00;
-  var RATE_DRIFT  = -1.50;  // $/day bodiless (illustrative, never live)
-  var RATE_FROG   = -0.09;  // $/day net in the Frog — live-updated; starts as static fallback
-  var RATE_L9     = 4.80;   // $/day whole L9 — live-updated; starts as static fallback
-  var FROG_GROSS  = 0.13;   // components paired with RATE_FROG (also live-updated)
-  var FROG_COST   = 0.22;
+  var START_VITA  = 10.00;
+  var DRIFT_COST_USD_DAY = 1.50; // $/day bodiless (illustrative, never live)
   var FROG_HASH_MH = 200,  FROG_KWH_DAY = 2.784;   // Ipollo V1 Mini SE
   var L9_HASH_MH   = 16000, L9_KWH_DAY = 80.64;    // Antminer L9 per buy.html: 16 GH/s, ~3,360 W × 24h
   var POOL_FEE     = 0.03;
   var HOSTING_RATE = 0.079; // $/kWh all-in, matches the topbar peg sentence
+  var LTC_HALVING_INTERVAL = 840000; // blocks; R_LTC = 50 / 2^floor(height / this)
+  // static fallback (snapshot 2026-07-22) — overwritten the moment a live fetch succeeds
+  var PRICE_LTC = 46.45, PRICE_DOGE = 0.072737;
+  var DIFF_LTC  = 96655801.08, DIFF_DOGE = 39795164.58;
+  var LTC_HEIGHT = 3146769;
+  var LTC_REWARD = ltcRewardForHeight(LTC_HEIGHT); // derived, recomputed on every rate refresh
+  var FROG_LTC_DAY = 0, FROG_DOGE_DAY = 0;         // per-day coin accrual, solo Frog — live-updated
+  var FROG_GROSS = 0, FROG_COST = 0, RATE_FROG = 0, RATE_L9 = 0; // $/day, derived — see refreshDerived()
   var ratesAreLive = false; // true once a live network fetch has actually succeeded
   var RATES_CACHE_KEY = "wowsuch_awakening_rates_v1";
   var RATES_TTL_MS = 6 * 3600000;
-  var QUEST_COST  = 0.15;   // one-off VITA burned on a quest attempt
+  var QUEST_COST  = 0.15;   // one-off, denominated in $VITA; drained VITA→USDT→DOGE→LTC like any cost
   var QUEST_P     = 0.15;   // daily quest success probability
-  var EJECT_COST  = 3.00;   // one-time, on the Frog's death
+  var EJECT_COST  = 3.00;   // one-time, on the Frog's death, same drain order
   var AWAY_RECAP_MIN_H = 6; // hours away before the recap panel appears
   var L9_PRICE    = 4995;
   var LOG_MAX_LINES = 20;
   var TOTAL = 4; // onboarding steps only
+  var pendingLifting = false; // transient: true right after first embodiment w/ a prior top-up
+
+  (function seedDerived() {
+    var f = usdNetPerDay(FROG_HASH_MH, 1, FROG_KWH_DAY);
+    FROG_GROSS = f.gross; FROG_COST = f.cost; RATE_FROG = f.net;
+    FROG_LTC_DAY = f.ltc; FROG_DOGE_DAY = f.doge;
+    RATE_L9 = usdNetPerDay(L9_HASH_MH, 1, L9_KWH_DAY).net;
+  })();
 
   var TIERS = [
     { frac: 1 / 20, price: 249.75,  rate: 0.24, label: "1/20" },
@@ -610,6 +665,7 @@
   var frogQuestPicker = document.getElementById("frogQuestPicker");
 
   var frogThought = document.getElementById("frogThought");
+  var frogStarvingNote = document.getElementById("frogStarvingNote");
 
   var frogGrossOut = document.getElementById("frogGrossOut");
   var frogCostOut = document.getElementById("frogCostOut");
@@ -657,6 +713,18 @@
   var topupOverlay = document.getElementById("topupOverlay");
   var topupCustom = document.getElementById("topupCustom");
   var topupConfirm = document.getElementById("topupConfirm");
+
+  var walletOverlay = document.getElementById("walletOverlay");
+  var wLtcOut = document.getElementById("wLtcOut");
+  var wDogeOut = document.getElementById("wDogeOut");
+  var wVitaOut = document.getElementById("wVitaOut");
+  var wUsdtOut = document.getElementById("wUsdtOut");
+  var wTotalOut = document.getElementById("wTotalOut");
+  var wExchangeFrom = document.getElementById("wExchangeFrom");
+  var wExchangeTo = document.getElementById("wExchangeTo");
+  var wExchangeAmt = document.getElementById("wExchangeAmt");
+  var wExchangeRateLine = document.getElementById("wExchangeRateLine");
+  var wExchangeBtn = document.getElementById("wExchangeBtn");
 
   var save = null;
   var topupAmt = 0;
@@ -712,13 +780,27 @@
     return s;
   }
 
+  // v2 -> v3 migration (task 010 §8): balance -> 4-currency wallet, no data loss.
+  function migrateV2ToV3(s) {
+    s.v = 3;
+    s.wallet = { ltc: 0, doge: 0, vita: (typeof s.balance === "number" ? s.balance : 0), usdt: 0 };
+    delete s.balance;
+    delete s.rate;
+    s.hasToppedUp = !!s.toppedUp;
+    delete s.toppedUp;
+    // migrated saves already living in a Body skip the retroactive Lifting interstitial
+    s.liftingShown = (s.phase === "village");
+    return s;
+  }
+
   function loadSave() {
     try {
       var raw = window.localStorage.getItem(SAVE_KEY);
       if (!raw) { return null; }
       var s = JSON.parse(raw);
-      if (!s || (s.v !== 1 && s.v !== 2)) { return null; }
+      if (!s || (s.v !== 1 && s.v !== 2 && s.v !== 3)) { return null; }
       if (s.v === 1) { s = migrateV1ToV2(s); }
+      if (s.v === 2) { s = migrateV2ToV3(s); }
       return s;
     } catch (e) {
       return null;
@@ -733,13 +815,70 @@
   function newSave(email, rune) {
     var now = Date.now();
     return {
-      v: 2, email: email, rune: rune, createdAt: now,
+      v: 3, email: email, rune: rune, createdAt: now,
       phase: "onboarding", onboardingStep: 1,
-      balance: START_VITA, rate: RATE_DRIFT,
+      wallet: { ltc: 0, doge: 0, vita: START_VITA, usdt: 0 },
       lastAccrualTs: now, lastSeenTs: now,
       lastQuestDay: null, frogAlive: true, share: 0, bodyId: null,
-      toppedUp: false, log: []
+      hasToppedUp: false, liftingShown: false, log: []
     };
+  }
+
+  function walletTotalUsd() {
+    if (!save) { return 0; }
+    var w = save.wallet;
+    return w.ltc * PRICE_LTC + w.doge * PRICE_DOGE + w.vita + w.usdt;
+  }
+
+  // net $/day across the current phase (mining minus hosting/drift, sign-aware)
+  function currentNetPerDayUsd() {
+    if (!save) { return 0; }
+    if (save.phase === "frog") { return RATE_FROG; }
+    if (save.phase === "village") { return round2((save.share || 0) * RATE_L9); }
+    return -DRIFT_COST_USD_DAY; // drifting (and onboarding, harmlessly)
+  }
+
+  // Drain `needUsd` from the wallet in priority order VITA -> USDT -> DOGE -> LTC,
+  // converting non-cash coins at the live price at drain time. Clamped at zero —
+  // no negative balances, no repossession. Returns how much of each coin was tapped.
+  function drainUSD(needUsd) {
+    var w = save.wallet;
+    var remaining = Math.max(0, needUsd);
+    var tapped = { ltcCoin: 0, dogeCoin: 0, ltcUsd: 0, dogeUsd: 0 };
+    var fromVita = Math.min(w.vita, remaining);
+    w.vita -= fromVita; remaining -= fromVita;
+    var fromUsdt = Math.min(w.usdt, remaining);
+    w.usdt -= fromUsdt; remaining -= fromUsdt;
+    if (remaining > 0 && w.doge > 0) {
+      var dogeUsdAvail = w.doge * PRICE_DOGE;
+      var dogeUsdTake = Math.min(dogeUsdAvail, remaining);
+      var dogeCoinTake = PRICE_DOGE > 0 ? dogeUsdTake / PRICE_DOGE : 0;
+      w.doge = Math.max(0, w.doge - dogeCoinTake);
+      remaining -= dogeUsdTake;
+      tapped.dogeCoin = dogeCoinTake; tapped.dogeUsd = dogeUsdTake;
+    }
+    if (remaining > 0 && w.ltc > 0) {
+      var ltcUsdAvail = w.ltc * PRICE_LTC;
+      var ltcUsdTake = Math.min(ltcUsdAvail, remaining);
+      var ltcCoinTake = PRICE_LTC > 0 ? ltcUsdTake / PRICE_LTC : 0;
+      w.ltc = Math.max(0, w.ltc - ltcCoinTake);
+      remaining -= ltcUsdTake;
+      tapped.ltcCoin = ltcCoinTake; tapped.ltcUsd = ltcUsdTake;
+    }
+    return tapped; // if wallet total < needUsd, everything is already at zero
+  }
+
+  // discrete cost (quest/eject/purchase): drains + logs the verbatim "meter was hungry" line
+  // whenever it had to dip into DOGE or LTC to cover it.
+  function drainDiscreteUSD(amountUsd) {
+    var tapped = drainUSD(amountUsd);
+    if (tapped.dogeCoin > 0) {
+      logLine("The meter was hungry: −" + tapped.dogeCoin.toFixed(2) + " DOGE (≈ $" + tapped.dogeUsd.toFixed(2) + ").");
+    }
+    if (tapped.ltcCoin > 0) {
+      logLine("The meter was hungry: −" + tapped.ltcCoin.toFixed(6) + " LTC (≈ $" + tapped.ltcUsd.toFixed(2) + ").");
+    }
+    return tapped;
   }
 
   // ---- accrual: continuous, computed, never ticked by user action ----
@@ -747,14 +886,23 @@
     if (!save) { return; }
     var now = Date.now();
     var elapsed = now - save.lastAccrualTs;
+    var days = elapsed / DAY_MS;
     if (elapsed > 0) {
-      save.balance = Math.max(0, save.balance + save.rate * elapsed / DAY_MS);
+      if (save.phase === "frog") {
+        save.wallet.ltc += FROG_LTC_DAY * days;
+        save.wallet.doge += FROG_DOGE_DAY * days;
+        drainUSD(FROG_COST * days);
+      } else if (save.phase === "village") {
+        var share = save.share || 0;
+        var f = usdNetPerDay(L9_HASH_MH, share, L9_KWH_DAY * share);
+        save.wallet.ltc += f.ltc * days;
+        save.wallet.doge += f.doge * days;
+        drainUSD(f.cost * days);
+      } else if (save.phase === "drifting") {
+        drainUSD(DRIFT_COST_USD_DAY * days);
+      }
     }
     save.lastAccrualTs = now;
-  }
-
-  function addVita(delta) {
-    save.balance = Math.max(0, save.balance + delta);
   }
 
   function dayNumber() {
@@ -764,25 +912,50 @@
   // ---- live profitability (task 009 §6): LTC+DOGE merge-mining, scrypt ----
   // revPerMHDay = (576 * 6.25 * P_LTC / H_LTC_MH) + (1440 * 10000 * P_DOGE / H_DOGE_MH)
   // H_MH = difficulty * 2^32 / blocktime / 1e6
-  function computeRates(pLtc, pDoge, dLtc, dDoge) {
-    var hLtcMH = dLtc * 4294967296 / 150 / 1e6;
-    var hDogeMH = dDoge * 4294967296 / 60 / 1e6;
-    var revPerMHDay = (576 * 6.25 * pLtc / hLtcMH) + (1440 * 10000 * pDoge / hDogeMH);
-    var frogGross = round4(revPerMHDay * FROG_HASH_MH * (1 - POOL_FEE));
-    var frogCost = round4(FROG_KWH_DAY * HOSTING_RATE);
-    var l9Gross = revPerMHDay * L9_HASH_MH * (1 - POOL_FEE);
-    var l9Cost = L9_KWH_DAY * HOSTING_RATE;
-    return {
-      frogGross: frogGross, frogCost: frogCost, frogNet: round2(frogGross - frogCost),
-      l9Net: round2(l9Gross - l9Cost)
-    };
+  function ltcRewardForHeight(height) {
+    var halvings = Math.floor(height / LTC_HALVING_INTERVAL);
+    return 50 / Math.pow(2, halvings);
   }
 
-  function applyRates(rates, live) {
-    FROG_GROSS = rates.frogGross;
-    FROG_COST = rates.frogCost;
-    RATE_FROG = rates.frogNet;
-    RATE_L9 = rates.l9Net;
+  function networkHashMH(diff, blockTimeSec) {
+    return diff * 4294967296 / blockTimeSec / 1e6;
+  }
+
+  // gross/cost/net in USD for a hashMH-sized slice mining at `share` of a Body, hosted at kwhDay
+  function usdNetPerDay(hashMH, share, kwhDay) {
+    var hLtcMH = networkHashMH(DIFF_LTC, 150);
+    var hDogeMH = networkHashMH(DIFF_DOGE, 60);
+    var ltcPerDay = 0.97 * share * (hashMH / hLtcMH) * 576 * LTC_REWARD;
+    var dogePerDay = 0.97 * share * (hashMH / hDogeMH) * 1440 * 10000;
+    var gross = ltcPerDay * PRICE_LTC + dogePerDay * PRICE_DOGE;
+    var cost = kwhDay * HOSTING_RATE;
+    return { ltc: ltcPerDay, doge: dogePerDay, gross: round4(gross), cost: round4(cost), net: round2(gross - cost) };
+  }
+
+  // ---- sign-aware rate formatting: one formatter, arrow always carries the sign (010 §7) ----
+  function fmtRateNum(usd) {
+    return { arrow: usd >= 0 ? "▲" : "▼", num: Math.abs(usd).toFixed(2) };
+  }
+  function fmtRateSuffix(usd) {           // "▲ 4.80 $/day"
+    var r = fmtRateNum(usd);
+    return r.arrow + " " + r.num + " $/day";
+  }
+  function fmtRateDollarPrefix(usd) {     // "▲ $4.80"
+    var r = fmtRateNum(usd);
+    return r.arrow + " $" + r.num;
+  }
+
+  function refreshDerived(pLtc, pDoge, dLtc, dDoge, height, live) {
+    if (pLtc > 0) { PRICE_LTC = pLtc; }
+    if (pDoge > 0) { PRICE_DOGE = pDoge; }
+    if (dLtc > 0) { DIFF_LTC = dLtc; }
+    if (dDoge > 0) { DIFF_DOGE = dDoge; }
+    if (height > 0) { LTC_HEIGHT = height; }
+    LTC_REWARD = ltcRewardForHeight(LTC_HEIGHT);
+    var f = usdNetPerDay(FROG_HASH_MH, 1, FROG_KWH_DAY);
+    FROG_GROSS = f.gross; FROG_COST = f.cost; RATE_FROG = f.net;
+    FROG_LTC_DAY = f.ltc; FROG_DOGE_DAY = f.doge;
+    RATE_L9 = usdNetPerDay(L9_HASH_MH, 1, L9_KWH_DAY).net;
     ratesAreLive = !!live;
     updateRateDisplays();
     applyLiveRatesToSave();
@@ -790,30 +963,29 @@
 
   function updateRateDisplays() {
     var estSuffix = ratesAreLive ? "" : " (static estimate)";
-    if (frogGrossOut) { frogGrossOut.textContent = "+" + FROG_GROSS.toFixed(2) + " $VITA /day"; }
-    if (frogCostOut) { frogCostOut.textContent = "−" + FROG_COST.toFixed(2) + " $VITA /day"; }
-    if (frogNetOut) {
-      var fSign = RATE_FROG >= 0 ? "+" : "−";
-      frogNetOut.textContent = fSign + Math.abs(RATE_FROG).toFixed(2) + " $VITA /day" + estSuffix;
+    if (frogGrossOut) {
+      frogGrossOut.textContent = FROG_LTC_DAY.toFixed(6) + " LTC + " + FROG_DOGE_DAY.toFixed(2) +
+        " DOGE ≈ " + fmtRateDollarPrefix(FROG_GROSS) + " /day";
     }
+    if (frogCostOut) { frogCostOut.textContent = fmtRateDollarPrefix(-FROG_COST) + " /day"; }
+    if (frogNetOut) { frogNetOut.textContent = fmtRateDollarPrefix(RATE_FROG) + " /day" + estSuffix; }
     if (frogTragedyP) {
       frogTragedyP.textContent = (RATE_FROG >= 0) ? FROG_MIRACLE_TEXT : FROG_TRAGEDY_TEXT;
     }
-    if (l9WholeOut) { l9WholeOut.textContent = "+" + RATE_L9.toFixed(2) + " $VITA /day" + estSuffix; }
-    if (l9HalfOut) { l9HalfOut.textContent = "+" + (RATE_L9 * 0.5).toFixed(2) + " $VITA /day"; }
-    if (l9TenthOut) { l9TenthOut.textContent = "+" + (RATE_L9 * 0.1).toFixed(2) + " $VITA /day"; }
-    if (l9TwentiethOut) { l9TwentiethOut.textContent = "+" + (RATE_L9 * 0.05).toFixed(2) + " $VITA /day"; }
+    if (l9WholeOut) { l9WholeOut.textContent = fmtRateSuffix(RATE_L9) + estSuffix; }
+    if (l9HalfOut) { l9HalfOut.textContent = fmtRateSuffix(RATE_L9 * 0.5); }
+    if (l9TenthOut) { l9TenthOut.textContent = fmtRateSuffix(RATE_L9 * 0.1); }
+    if (l9TwentiethOut) { l9TwentiethOut.textContent = fmtRateSuffix(RATE_L9 * 0.05); }
+    var l9Negative = RATE_L9 < 0;
+    if (watcherNoteOnb4) { watcherNoteOnb4.classList.toggle("aw-hidden", !l9Negative); }
+    if (watcherNoteShop) { watcherNoteShop.classList.toggle("aw-hidden", !l9Negative); }
     if (save && isOverlayOpen() && selectedBodyId) { renderVillageTiers(selectedBodyId); }
+    paintBalance();
   }
 
   function applyLiveRatesToSave() {
     if (!save) { return; }
     accrue();
-    if (save.phase === "frog") {
-      save.rate = RATE_FROG;
-    } else if (save.phase === "village") {
-      save.rate = round2(save.share * RATE_L9);
-    }
     persist();
     render();
   }
@@ -823,24 +995,27 @@
       var raw = window.localStorage.getItem(RATES_CACHE_KEY);
       if (!raw) { return null; }
       var c = JSON.parse(raw);
-      if (!c || !c.rates || !c.ts) { return null; }
+      if (!c || !c.ts) { return null; }
       if (Date.now() - c.ts > RATES_TTL_MS) { return null; }
+      if (!(c.pLtc > 0) || !(c.pDoge > 0) || !(c.dLtc > 0) || !(c.dDoge > 0) || !(c.height > 0)) { return null; }
       return c;
     } catch (e) {
       return null;
     }
   }
 
-  function saveRatesCache(rates) {
+  function saveRatesCache(c) {
     try {
-      window.localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ ts: Date.now(), rates: rates }));
+      window.localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({
+        ts: Date.now(), pLtc: c.pLtc, pDoge: c.pDoge, dLtc: c.dLtc, dDoge: c.dDoge, height: c.height
+      }));
     } catch (e) { /* ignore */ }
   }
 
   function fetchLiveRates() {
     var cached = loadRatesCache();
     if (cached) {
-      applyRates(cached.rates, true);
+      refreshDerived(cached.pLtc, cached.pDoge, cached.dLtc, cached.dDoge, cached.height, true);
       return;
     }
     var priceUrl = "https://api.coingecko.com/api/v3/simple/price?ids=litecoin,dogecoin&vs_currencies=usd";
@@ -856,13 +1031,14 @@
       var pDoge = prices.dogecoin.usd;
       var dLtc = ltcStats.data.difficulty;
       var dDoge = dogeStats.data.difficulty;
-      if (!(pLtc > 0) || !(pDoge > 0) || !(dLtc > 0) || !(dDoge > 0)) { throw new Error("bad data"); }
-      var rates = computeRates(pLtc, pDoge, dLtc, dDoge);
-      saveRatesCache(rates);
-      applyRates(rates, true);
+      var height = ltcStats.data.blocks;
+      if (!(pLtc > 0) || !(pDoge > 0) || !(dLtc > 0) || !(dDoge > 0) || !(height > 0)) { throw new Error("bad data"); }
+      var c = { pLtc: pLtc, pDoge: pDoge, dLtc: dLtc, dDoge: dDoge, height: height };
+      saveRatesCache(c);
+      refreshDerived(pLtc, pDoge, dLtc, dDoge, height, true);
     }).catch(function () {
       // static fallback already applied at load; just make sure the "(static estimate)"
-      // suffix is showing (no-op if applyRates(..., false) already ran at init)
+      // suffix is showing (no-op if refreshDerived(..., false) already ran at init)
       if (!ratesAreLive) { updateRateDisplays(); }
     });
   }
@@ -897,6 +1073,7 @@
     stageEl.classList.remove("show-overlay");
     villageOverlay.classList.remove("active");
     topupOverlay.classList.remove("active");
+    walletOverlay.classList.remove("active");
     render();
   }
 
@@ -907,6 +1084,7 @@
     stageEl.classList.add("show-overlay");
     villageOverlay.classList.toggle("active", name === "village");
     topupOverlay.classList.toggle("active", name === "topup");
+    walletOverlay.classList.toggle("active", name === "wallet");
     if (name === "village") {
       villageInsufficient.classList.add("aw-hidden");
       villageTopupCta.classList.add("aw-hidden");
@@ -920,6 +1098,9 @@
     if (name === "topup") {
       resetTopup();
     }
+    if (name === "wallet") {
+      renderWallet();
+    }
   }
 
   document.querySelectorAll("[data-open-village]").forEach(function (btn) {
@@ -927,6 +1108,9 @@
   });
   document.querySelectorAll("[data-open-topup]").forEach(function (btn) {
     btn.addEventListener("click", function () { openOverlay("topup"); });
+  });
+  document.querySelectorAll("[data-open-wallet]").forEach(function (btn) {
+    btn.addEventListener("click", function () { openOverlay("wallet"); });
   });
   document.querySelectorAll("[data-close-overlay]").forEach(function (btn) {
     btn.addEventListener("click", closeOverlay);
@@ -1002,7 +1186,7 @@
       btn.className = "aw-choice";
       btn.disabled = !fits;
       btn.innerHTML = "<div class=\"ico\">🧩</div><h4>" + t.label + "</h4>" +
-        "<p><b>" + fmtAmt(t.price) + " $VITA</b> · +" + (t.frac * RATE_L9).toFixed(2) + " $VITA/day</p>" +
+        "<p><b>" + fmtAmt(t.price) + " $VITA</b> · " + fmtRateSuffix(t.frac * RATE_L9) + "</p>" +
         (t.frac === 1 ? "<small>Solo owner. No Chain above you.</small>" : "");
       if (fits) {
         btn.addEventListener("click", function () { attemptPurchase(t, bodyId); });
@@ -1013,7 +1197,7 @@
 
   function attemptPurchase(tier, bodyId) {
     accrue();
-    if (save.balance < tier.price) {
+    if (walletTotalUsd() < tier.price) {
       villageInsufficient.classList.remove("aw-hidden");
       villageTopupCta.classList.remove("aw-hidden");
       persist();
@@ -1022,16 +1206,20 @@
     villageInsufficient.classList.add("aw-hidden");
     villageTopupCta.classList.add("aw-hidden");
     var wasFrog = (save.phase === "frog");
-    addVita(-tier.price);
+    var enteringVillage = (save.phase !== "village");
+    drainDiscreteUSD(tier.price);
     save.bodyId = bodyId;
     save.share = Math.min(1, round4(save.share + tier.frac));
-    save.rate = round2(save.share * RATE_L9);
     save.phase = "village";
     save.frogAlive = false;
-    persist();
     if (wasFrog) {
       logLine("The Frog watches you leave. It does not croak. It knew.");
     }
+    if (enteringVillage && save.hasToppedUp && !save.liftingShown) {
+      save.liftingShown = true;
+      pendingLifting = true;
+    }
+    persist();
     closeOverlay();
   }
 
@@ -1081,6 +1269,58 @@
     });
   }
 
+  // ---- wallet: four-currency balances + manual exchange ----
+  var COIN_LABEL = { ltc: "LTC", doge: "DOGE", vita: "VITA", usdt: "USDT" };
+  function coinUsdPrice(coin) {
+    if (coin === "ltc") { return PRICE_LTC; }
+    if (coin === "doge") { return PRICE_DOGE; }
+    return 1; // vita and usdt are pegged $1 in this demo
+  }
+  function coinDecimals(coin) {
+    if (coin === "ltc") { return 6; }
+    if (coin === "doge") { return 2; }
+    return 2; // vita, usdt
+  }
+  function renderWallet() {
+    if (!save || !wLtcOut) { return; }
+    var w = save.wallet;
+    wLtcOut.innerHTML = w.ltc.toFixed(6) + " LTC <small>&#8776; $" + (w.ltc * PRICE_LTC).toFixed(2) + "</small>";
+    wDogeOut.innerHTML = w.doge.toFixed(2) + " DOGE <small>&#8776; $" + (w.doge * PRICE_DOGE).toFixed(2) + "</small>";
+    wVitaOut.innerHTML = w.vita.toFixed(2) + " $VITA <small>&#8776; $" + w.vita.toFixed(2) + "</small>";
+    wUsdtOut.innerHTML = w.usdt.toFixed(2) + " USDT <small>&#8776; $" + w.usdt.toFixed(2) + "</small>";
+    wTotalOut.textContent = "≈ $" + walletTotalUsd().toFixed(2);
+    updateExchangeRateLine();
+  }
+  function updateExchangeRateLine() {
+    if (!wExchangeFrom || !wExchangeRateLine) { return; }
+    var from = wExchangeFrom.value;
+    var price = coinUsdPrice(from);
+    wExchangeRateLine.textContent = "1 " + COIN_LABEL[from] + " ≈ $" + price.toFixed(price >= 1 ? 2 : 6) + " today";
+  }
+  if (wExchangeFrom) { wExchangeFrom.addEventListener("change", updateExchangeRateLine); }
+  if (wExchangeTo) { wExchangeTo.addEventListener("change", updateExchangeRateLine); }
+  if (wExchangeBtn) {
+    wExchangeBtn.addEventListener("click", function () {
+      if (!save) { return; }
+      var from = wExchangeFrom.value, to = wExchangeTo.value;
+      var amt = parseFloat(wExchangeAmt.value);
+      if (!(amt > 0) || from === to) { return; }
+      var w = save.wallet;
+      if (amt > w[from]) { amt = w[from]; }
+      if (!(amt > 0)) { return; }
+      var usd = amt * coinUsdPrice(from);
+      var toAmt = coinUsdPrice(to) > 0 ? usd / coinUsdPrice(to) : 0;
+      w[from] = Math.max(0, round4(w[from] - amt));
+      w[to] = round4(w[to] + toAmt);
+      persist();
+      renderWallet();
+      paintBalance();
+      logLine("Changed " + amt.toFixed(coinDecimals(from)) + " " + COIN_LABEL[from] + " into " +
+        toAmt.toFixed(coinDecimals(to)) + " " + COIN_LABEL[to] + ". The Wallet takes no cut. The market already did.");
+      wExchangeAmt.value = "";
+    });
+  }
+
   // ---- signup ----
   function deriveRune(raw) {
     var letters = (raw || "").replace(/[^a-zA-Z]/g, "").toUpperCase();
@@ -1126,7 +1366,6 @@
         save.onboardingStep = 2;
       } else if (goto === "onb3") {
         save.onboardingStep = 3;
-        save.rate = RATE_FROG;
       } else if (goto === "onb4") {
         save.onboardingStep = 4;
       } else if (goto === "frog") {
@@ -1151,15 +1390,14 @@
       if (!save) { return; }
       var path = btn.getAttribute("data-path");
       accrue();
-      addVita(-QUEST_COST);
+      drainDiscreteUSD(QUEST_COST);
       save.lastQuestDay = todayStr();
       frogQuestPicker.classList.add("aw-hidden");
       var success = Math.random() < QUEST_P;
       if (success) {
         logLine(DEATH_LINE[path]);
-        addVita(-EJECT_COST);
+        drainDiscreteUSD(EJECT_COST);
         save.phase = "drifting";
-        save.rate = RATE_DRIFT;
         save.frogAlive = false;
         logLine("−3.00 $VITA. You are out. Nothing holds you now — and nothing shelters you. Drift burns −1.50 $VITA a day until you claim a place in the Village.");
       } else {
@@ -1178,12 +1416,12 @@
       var email = save.email, rune = save.rune;
       var now = Date.now();
       save = {
-        v: 2, email: email, rune: rune, createdAt: now,
+        v: 3, email: email, rune: rune, createdAt: now,
         phase: "onboarding", onboardingStep: 2,
-        balance: START_VITA, rate: RATE_DRIFT,
+        wallet: { ltc: 0, doge: 0, vita: START_VITA, usdt: 0 },
         lastAccrualTs: now, lastSeenTs: now,
         lastQuestDay: null, frogAlive: true, share: 0, bodyId: null,
-        toppedUp: false, log: []
+        hasToppedUp: false, liftingShown: false, log: []
       };
       persist();
       render();
@@ -1208,15 +1446,14 @@
   }
 
   // ---- away recap ----
-  function showRecap(gapMs, rate, phase) {
+  function showRecap(gapMs, phase) {
     var d = Math.floor(gapMs / DAY_MS);
     var h = Math.floor((gapMs % DAY_MS) / 3600000);
-    var net = rate * gapMs / DAY_MS;
+    var net = currentNetPerDayUsd() * gapMs / DAY_MS;
     var phrase = phase === "village" ? "Your Body kept mining." :
       (phase === "frog" ? "The Frog kept mining." : "The drift kept burning.");
-    var sign = net >= 0 ? "+" : "−";
     recapText.textContent = "While you were gone — " + d + " days, " + h + " hours. " + phrase +
-      " Net: " + sign + Math.abs(net).toFixed(2) + " $VITA.";
+      " Net: " + fmtRateDollarPrefix(net) + ".";
     recapPanel.classList.remove("aw-hidden");
   }
 
@@ -1224,7 +1461,8 @@
   function screenNameForState() {
     if (!save) { return "signup"; }
     if (save.phase === "onboarding") { return "onb" + (save.onboardingStep || 1); }
-    var fade = save.balance <= 0.00005 && save.rate < 0;
+    if (pendingLifting) { return "the-lifting"; }
+    var fade = walletTotalUsd() <= 0.00005 && currentNetPerDayUsd() < 0;
     if (fade) { return "fade"; }
     if (save.phase === "frog") { return "home-frog"; }
     if (save.phase === "drifting") { return "home-drifting"; }
@@ -1260,6 +1498,9 @@
       questDoneBlock.classList.toggle("aw-hidden", !doneToday);
       if (doneToday) { frogQuestPicker.classList.add("aw-hidden"); }
       frogThought.textContent = entityThought(THOUGHTS_FROG, d);
+      if (frogStarvingNote) {
+        frogStarvingNote.classList.toggle("aw-hidden", walletTotalUsd() > 0.00005);
+      }
     } else if (name === "home-drifting") {
       driftDayHeader.textContent = "Day " + d + ". Bodiless.";
       driftThought.textContent = entityThought(THOUGHTS_DRIFT, d);
@@ -1289,9 +1530,9 @@
       return;
     }
     vitaBox.classList.remove("aw-hidden");
-    vitaOut.textContent = save.balance.toFixed(4);
-    vitaRate.textContent = "Day " + dayNumber() + " · " + fmtRate(save.rate);
-    vitaBox.classList.toggle("up", save.rate >= 0);
+    vitaOut.textContent = "$" + walletTotalUsd().toFixed(2);
+    vitaRate.textContent = "Day " + dayNumber() + " · " + fmtRateSuffix(currentNetPerDayUsd());
+    vitaBox.classList.toggle("up", currentNetPerDayUsd() >= 0);
   }
 
   function render() {
@@ -1349,7 +1590,7 @@
       accrue();
       var now = Date.now();
       var gap = now - (save.lastSeenTs || now);
-      if (gap > AWAY_RECAP_MIN_H * 3600000) { showRecap(gap, save.rate, save.phase); }
+      if (gap > AWAY_RECAP_MIN_H * 3600000) { showRecap(gap, save.phase); }
       save.lastSeenTs = now;
       persist();
       render();
@@ -1367,7 +1608,7 @@
     accrue();
     var initNow = Date.now();
     var initGap = initNow - (save.lastSeenTs || initNow);
-    if (initGap > AWAY_RECAP_MIN_H * 3600000) { showRecap(initGap, save.rate, save.phase); }
+    if (initGap > AWAY_RECAP_MIN_H * 3600000) { showRecap(initGap, save.phase); }
     save.lastSeenTs = initNow;
     persist();
   }
