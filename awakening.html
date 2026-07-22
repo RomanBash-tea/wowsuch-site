@@ -132,7 +132,7 @@
   .aw-chain-list .pos{color:var(--gold-on-dark);margin-right:6px;}
   .aw-chain-list .pct{float:right;}
   .aw-chain-list .aw-occ-bar{margin-top:6px;}
-  .aw-body-card.yours{cursor:default;}
+  .aw-body-card.yours{cursor:pointer;}
 
   @media (max-width:640px){
     .aw-bodies,.aw-choices{grid-template-columns:1fr;}
@@ -221,8 +221,8 @@
 <section><div class="wrap">
   <div class="aw-stage reveal" id="stage">
     <div class="aw-vita" id="vitaBox">
-      <span class="lbl">Energy banked</span><br><span class="num" id="vitaOut">$10.00</span>
-      <div class="rate" id="vitaRate">Day 0 · ▼ 1.50 $/day</div>
+      <span class="lbl">Energy banked <small>(&times;1000 view)</small></span><br><span class="num" id="vitaOut">10000.00</span>
+      <div class="rate" id="vitaRate">Day 0 · ▼ 1500.00 /day (view)</div>
       <button class="aw-wallet-link" type="button" id="btnOpenWallet" data-open-wallet>wallet →</button>
     </div>
     <div class="aw-content">
@@ -263,6 +263,7 @@
       </div>
       <p><b>Read before you leap.</b> A Body is not a hotel. Once you're in, you stay in — until your share is bought out, or until the Body dies. A buyer may come knocking, or you may put your share up yourself — either way, you are released only when the deal closes. Those are the two doors. There is no third.</p>
       <p class="aw-note">(Exact exit and resale terms are for the lawyers to word. In this story it's simpler: no take-backs.)</p>
+      <p class="aw-note">(Heads up: a real iPollo V1 Mini SE mines a different algorithm entirely — it isn't Scrypt hardware. The Frog is cast against type on purpose, as the one throwaway starter Body nobody wants. Every other Body in the Village, including every Antminer L9, is the real Scrypt LTC+DOGE article.)</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="onb3">Take the Frog — better than bleeding <span class="arrow">→</span></button></div>
     </div>
 
@@ -276,7 +277,7 @@
       </div>
       <p id="frogTragedyP">That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do. Your $VITA drains sixteen times slower than drifting. But it drains.</p>
       <p class="aw-aside">(Nobody, anywhere, switches a Body off out of mercy. Farms curtail when the grid demands it — and book the silence as a loss. The kindest floors let a Watcher ease a losing Body into a low-power drowse, where the house allows it. The old warehouse allows nothing and demands nothing. The Frog just runs.)</p>
-      <p class="aw-note" id="frogRateNote">Figures reflect live LTC + DOGE network data at the site's flat all-in hosting rate — the margin is already inside the rate. The real unit mines a different algorithm; in this story, Frogs hash what Frogs hash.</p>
+      <p class="aw-note" id="frogRateNote">Figures reflect live LTC + DOGE network data at the site's flat all-in hosting rate — the margin is already inside the rate. (Same algorithm mismatch as before: a real Frog wouldn't hash Scrypt. In this story it does.)</p>
       <p class="aw-note aw-hidden" id="watcherNoteFrog">A note from the Watcher: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's.</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="onb4">There has to be something better <span class="arrow">→</span></button></div>
     </div>
@@ -363,7 +364,6 @@
 
       <h3 class="aw-section-h">The Village</h3>
       <div class="aw-bodies" id="villageHomeBodies"></div>
-      <p class="aw-note aw-hidden" id="villageHomeNote">One Entity, one Body. Yours already hums.</p>
 
       <div class="aw-actions">
         <button class="btn alt" type="button" data-open-topup>🙏 Call to your Higher One</button>
@@ -505,6 +505,23 @@
       </div>
       <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout, and resale mechanics are concept-stage and pending legal wording.</p>
     </div>
+
+    <!-- ============ OVERLAY: BODY INSPECTOR ============ -->
+    <div class="aw-overlay" id="bodyInspectOverlay">
+      <span class="step-tag">inspect a body</span>
+      <h2 id="inspectBodyTitle">Body #—</h2>
+      <ol class="aw-chain-list" id="inspectBodyChainList"></ol>
+      <p class="aw-note" id="inspectBodySpecLine">Antminer L9 — 16 GH/s, drinks 80.64 kWh a day.</p>
+      <div class="aw-math">
+        <div class="row"><span>running temp</span><b id="inspectBodyTemp">—°C</b></div>
+        <div class="row net"><span>free in this Body</span><b id="inspectBodyFree">0% free</b></div>
+      </div>
+      <div class="aw-occ-bar"><div class="aw-occ-fill" id="inspectBodyOccFill" style="width:0%"></div></div>
+      <p class="aw-note">Temperature and efficiency are illustrative Phase-0 flavor — sketched for comparison, not simulated in this demo.</p>
+      <div class="aw-actions">
+        <button class="btn alt" type="button" data-close-overlay>← Back</button>
+      </div>
+    </div>
     </div>
   </div>
 </div></section>
@@ -571,6 +588,7 @@
   var START_VITA  = 10.00;
   var VITA_GRANT_LINE = "You wake with 10 $VITA — a pocketful of Energy from nowhere in particular. It will not last. It is not supposed to.";
   var DRIFT_COST_USD_DAY = 1.50; // $/day bodiless (illustrative, never live)
+  var ENERGY_METER_SCALE = 1000; // topbar-only display scale so drain/gain is visible tick-to-tick; wallet $ underneath is untouched
   var FROG_HASH_MH = 200,  FROG_KWH_DAY = 2.784;   // Ipollo V1 Mini SE
   var L9_HASH_MH   = 16000, L9_KWH_DAY = 80.64;    // Antminer L9 per buy.html: 16 GH/s, ~3,360 W × 24h
   var POOL_FEE     = 0.03;
@@ -610,17 +628,20 @@
   ];
   // ---- Village Bodies (task 009 §8): fixed generated state, only the player's
   // own Body's free capacity ever shrinks (no fake market simulation elsewhere) ----
+  // occ tuples are [rune, sharePct, illustrative efficiencyPct] — temp/efficiency are
+  // Phase-0 flavor numbers, not simulated (011 Body Inspector), same disclaimer class
+  // as the rest of the demo's illustrative figures.
   var VILLAGE_BODIES = [
-    { id: 1, occ: [], free: 100 },
-    { id: 2, occ: [["IG", 50], ["AN", 25], ["MA", 10]], free: 15 },
-    { id: 3, occ: [["EK", 100]], free: 0 },
-    { id: 4, occ: [["TA", 45], ["LU", 30]], free: 25 },
-    { id: 5, occ: [["VE", 90], ["OS", 5]], free: 5 },
-    { id: 6, occ: [["NY", 40], ["RA", 35], ["UM", 25]], free: 0 },
-    { id: 7, occ: [["KO", 10], ["ZI", 10], ["PA", 10]], free: 70 },
-    { id: 8, occ: [["HU", 55]], free: 45 },
-    { id: 9, occ: [["DA", 20], ["IV", 20], ["EL", 20], ["SI", 20]], free: 20 },
-    { id: 10, occ: [["MO", 95]], free: 5 }
+    { id: 1, temp: 63, occ: [], free: 100 },
+    { id: 2, temp: 69, occ: [["IG", 50, 94], ["AN", 25, 88], ["MA", 10, 79]], free: 15 },
+    { id: 3, temp: 71, occ: [["EK", 100, 96]], free: 0 },
+    { id: 4, temp: 65, occ: [["TA", 45, 91], ["LU", 30, 85]], free: 25 },
+    { id: 5, temp: 73, occ: [["VE", 90, 97], ["OS", 5, 82]], free: 5 },
+    { id: 6, temp: 68, occ: [["NY", 40, 93], ["RA", 35, 89], ["UM", 25, 80]], free: 0 },
+    { id: 7, temp: 62, occ: [["KO", 10, 90], ["ZI", 10, 86], ["PA", 10, 95]], free: 70 },
+    { id: 8, temp: 70, occ: [["HU", 55, 92]], free: 45 },
+    { id: 9, temp: 66, occ: [["DA", 20, 97], ["IV", 20, 91], ["EL", 20, 84], ["SI", 20, 88]], free: 20 },
+    { id: 10, temp: 74, occ: [["MO", 95, 99]], free: 5 }
   ];
 
   // death/fail lines are pre-existing lore copy — reused verbatim, never rewritten
@@ -740,7 +761,6 @@
   var deepenBlock = document.getElementById("deepenBlock");
   var villageDeepenClosedHome = document.getElementById("villageDeepenClosedHome");
   var villageHomeBodies = document.getElementById("villageHomeBodies");
-  var villageHomeNote = document.getElementById("villageHomeNote");
 
   var btnReincarnate = document.getElementById("btnReincarnate");
   var btnEnterVillage = document.getElementById("btnEnterVillage");
@@ -780,6 +800,14 @@
   var wExchangeAmt = document.getElementById("wExchangeAmt");
   var wExchangeRateLine = document.getElementById("wExchangeRateLine");
   var wExchangeBtn = document.getElementById("wExchangeBtn");
+
+  var bodyInspectOverlay = document.getElementById("bodyInspectOverlay");
+  var inspectBodyTitle = document.getElementById("inspectBodyTitle");
+  var inspectBodyChainList = document.getElementById("inspectBodyChainList");
+  var inspectBodySpecLine = document.getElementById("inspectBodySpecLine");
+  var inspectBodyTemp = document.getElementById("inspectBodyTemp");
+  var inspectBodyFree = document.getElementById("inspectBodyFree");
+  var inspectBodyOccFill = document.getElementById("inspectBodyOccFill");
 
   var save = null;
   var topupAmt = 0;
@@ -994,6 +1022,14 @@
     var r = fmtRateNum(usd);
     return r.arrow + " $" + r.num;
   }
+  // ---- topbar-only Energy meter: same $ underneath, ×ENERGY_METER_SCALE view so drain/gain reads tick-to-tick ----
+  function fmtEnergyAmount(usd) {
+    return (usd * ENERGY_METER_SCALE).toFixed(2);
+  }
+  function fmtEnergyRate(usd) {           // "▲ 90.00 /day (view)"
+    var r = fmtRateNum(usd * ENERGY_METER_SCALE);
+    return r.arrow + " " + r.num + " /day (view)";
+  }
 
   function refreshDerived(pLtc, pDoge, dLtc, dDoge, height, live) {
     if (pLtc > 0) { PRICE_LTC = pLtc; }
@@ -1124,10 +1160,11 @@
     villageOverlay.classList.remove("active");
     topupOverlay.classList.remove("active");
     walletOverlay.classList.remove("active");
+    bodyInspectOverlay.classList.remove("active");
     render();
   }
 
-  function openOverlay(name) {
+  function openOverlay(name, arg) {
     if (!save) { return; }
     accrue(); persist(); paintBalance();
     recapPanel.classList.add("aw-hidden");
@@ -1135,6 +1172,7 @@
     villageOverlay.classList.toggle("active", name === "village");
     topupOverlay.classList.toggle("active", name === "topup");
     walletOverlay.classList.toggle("active", name === "wallet");
+    bodyInspectOverlay.classList.toggle("active", name === "bodyinspect");
     if (name === "village") {
       villageInsufficient.classList.add("aw-hidden");
       villageTopupCta.classList.add("aw-hidden");
@@ -1150,6 +1188,9 @@
     }
     if (name === "wallet") {
       renderWallet();
+    }
+    if (name === "bodyinspect") {
+      renderBodyInspector(arg);
     }
   }
 
@@ -1219,17 +1260,44 @@
       var card = document.createElement(isYours ? "div" : "button");
       if (!isYours) { card.type = "button"; }
       card.className = "aw-body-card" + (closed ? "" : " open") + (isYours ? " yours" : "");
-      if (!isYours) { card.disabled = closed; }
       card.innerHTML = (isYours ? "<span class=\"tag\">YOURS</span>" : "") +
         "<h4>Body #" + body.id + ": " + nameStr + "</h4>" +
         "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + (100 - trueFree) + "%\"></div></div>" +
         chips +
         "<small class=\"status\">" + statusLine + "</small>";
-      if (!isYours && !closed) {
-        card.addEventListener("click", function () { villageHomeNote.classList.remove("aw-hidden"); });
-      }
+      // every card — yours, open, or closed — opens the inspector; closed just means you can look, not join
+      card.addEventListener("click", function () { openOverlay("bodyinspect", body.id); });
       villageHomeBodies.appendChild(card);
     });
+  }
+
+  function renderBodyInspector(bodyId) {
+    var body = VILLAGE_BODIES[bodyId - 1];
+    var isYours = (bodyId === save.bodyId) && save.phase === "village";
+    var occ = body.occ.slice();
+    var playerPct = 0;
+    if (isYours) {
+      playerPct = Math.round((save.share || 0) * 100);
+      occ = occ.concat([[save.rune, playerPct, null]]);
+    }
+    var occNames = occ.map(function (o) { return o[0]; });
+    var nameStr = occNames.length ? occNames.join("·") : "— unnamed —";
+    inspectBodyTitle.textContent = "Body #" + body.id + ": " + nameStr;
+    var listItems = "";
+    occ.forEach(function (o, i) {
+      var isYouRow = isYours && i === occ.length - 1;
+      var effStr = isYouRow ? "too new to read" : "eff " + o[2] + "%";
+      listItems += "<li" + (isYouRow ? " class=\"you\"" : "") + "><span class=\"pos\">" + (i + 1) + ".</span>" +
+        o[0] + (isYouRow ? " (you)" : "") +
+        "<span class=\"pct\">" + o[1] + "% · " + effStr + "</span>" +
+        "<div class=\"aw-occ-bar\"><div class=\"aw-occ-fill\" style=\"width:" + o[1] + "%\"></div></div></li>";
+    });
+    inspectBodyChainList.innerHTML = listItems;
+    inspectBodySpecLine.textContent = "Antminer L9 — 16 GH/s, drinks " + L9_KWH_DAY.toFixed(2) + " kWh a day.";
+    inspectBodyTemp.textContent = body.temp + "°C";
+    var trueFree = isYours ? Math.max(0, body.free - playerPct) : body.free;
+    inspectBodyFree.textContent = trueFree + "% free";
+    inspectBodyOccFill.style.width = (100 - trueFree) + "%";
   }
 
   function renderVillageChooser() {
@@ -1650,7 +1718,6 @@
       villageDeepenClosedHome.classList.toggle("aw-hidden", !solo);
 
       villageThought.textContent = entityThought(THOUGHTS_VILLAGE, d);
-      villageHomeNote.classList.add("aw-hidden");
       renderHomeVillageGrid();
     }
   }
@@ -1661,8 +1728,8 @@
       return;
     }
     vitaBox.classList.remove("aw-hidden");
-    vitaOut.textContent = "$" + walletTotalUsd().toFixed(2);
-    vitaRate.textContent = "Day " + dayNumber() + " · " + fmtRateSuffix(currentNetPerDayUsd());
+    vitaOut.textContent = fmtEnergyAmount(walletTotalUsd());
+    vitaRate.textContent = "Day " + dayNumber() + " · " + fmtEnergyRate(currentNetPerDayUsd());
     vitaBox.classList.toggle("up", currentNetPerDayUsd() >= 0);
   }
 
