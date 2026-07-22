@@ -348,6 +348,18 @@
       <p class="aw-note">Already running a real Body? <a href="dashboard.html">Check your dashboard →</a></p>
     </div>
 
+    <!-- ============ THE LIFTING ============ -->
+    <div class="aw-scene" data-screen="the-lifting">
+      <span class="step-tag">the lifting</span>
+      <h2>The Lifting.</h2>
+      <p>The call went up. Your Higher One heard — and pulled.</p>
+      <p>Dollars fell from a sky you cannot see, the deal closed, and the Frog croaked once into empty air. You are out. Lifted through the seams, past the drift, into a Body that hums instead of blinking.</p>
+      <p class="aw-aside">The Entity thinks: &ldquo;I knew someone up there kept accounts. I intend to be a line worth reading.&rdquo;</p>
+      <div class="aw-actions">
+        <button class="btn" type="button" id="btnEnterVillage">Enter the Village <span class="arrow">→</span></button>
+      </div>
+    </div>
+
     <!-- ============ FADE ============ -->
     <div class="aw-scene" data-screen="fade">
       <span class="step-tag">the fade</span>
@@ -404,12 +416,12 @@
     <div class="aw-overlay" id="topupOverlay">
       <span class="step-tag">call to your higher one</span>
       <h2>Call to your Higher One.</h2>
-      <p>This is the part where a real product would ask for real money. We ask for pretend money. The process is real; the dollars are not.</p>
+      <p>Somewhere above the Village there is someone who believes in you — or at least in your debts. Call, and dollars come down. Demo dollars. The pull they buy is real enough in here.</p>
       <div class="aw-actions" id="topupPresets">
-        <button class="btn alt aw-preset" type="button" data-amt="100">100 $VITA</button>
-        <button class="btn alt aw-preset" type="button" data-amt="500">500 $VITA</button>
-        <button class="btn alt aw-preset" type="button" data-amt="1000">1,000 $VITA</button>
-        <button class="btn alt aw-preset" type="button" data-amt="5000">5,000 $VITA</button>
+        <button class="btn alt aw-preset" type="button" data-amt="100">$100</button>
+        <button class="btn alt aw-preset" type="button" data-amt="500">$500</button>
+        <button class="btn alt aw-preset" type="button" data-amt="1000">$1,000</button>
+        <button class="btn alt aw-preset" type="button" data-amt="5000">$5,000</button>
       </div>
       <label class="aw-note" for="topupCustom">Or enter a custom amount</label>
       <input class="aw-input" id="topupCustom" type="number" min="1" step="1" placeholder="Custom amount">
@@ -691,6 +703,7 @@
   var deepenBlock = document.getElementById("deepenBlock");
 
   var btnReincarnate = document.getElementById("btnReincarnate");
+  var btnEnterVillage = document.getElementById("btnEnterVillage");
 
   var recapPanel = document.getElementById("recapPanel");
   var recapText = document.getElementById("recapText");
@@ -1261,11 +1274,11 @@
     topupConfirm.addEventListener("click", function () {
       if (!(topupAmt > 0) || !save) { return; }
       accrue();
-      addVita(topupAmt);
-      save.toppedUp = true;
+      save.wallet.usdt = round4(save.wallet.usdt + topupAmt);
+      save.hasToppedUp = true;
       persist();
       if (window.WOW && window.WOW.showToast) {
-        window.WOW.showToast("+" + fmtAmt(topupAmt) + " demo $VITA. If only it were always this easy.");
+        window.WOW.showToast("+$" + fmtAmt(topupAmt) + " from your Higher One. If only it were always this easy.");
       }
       closeOverlay();
     });
@@ -1426,6 +1439,14 @@
         hasToppedUp: false, liftingShown: false, log: [VITA_GRANT_LINE]
       };
       persist();
+      render();
+    });
+  }
+
+  // ---- the lifting: one-time interstitial on first embodiment after a top-up ----
+  if (btnEnterVillage) {
+    btnEnterVillage.addEventListener("click", function () {
+      pendingLifting = false;
       render();
     });
   }
