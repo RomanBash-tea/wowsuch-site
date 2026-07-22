@@ -203,7 +203,7 @@
     <div class="aw-scene active" data-screen="signup">
       <span class="step-tag">something stirs</span>
       <h2>Something stirs.</h2>
-      <p>Before there is a body, there is a name. Leave a mark — two letters are enough. That is how the Chain will know you.</p>
+      <p>Before there is a body, there is a name. Leave your email — the first two letters become your Rune. That is how the Chain will know you.</p>
       <input class="aw-input" id="signupEmail" type="text" inputmode="email" autocomplete="off" placeholder="you@example.com">
       <p class="aw-note">Your Rune is cut from the first two letters. Nothing is sent anywhere — this demo account lives in this browser, and every dollar in it is demo money.</p>
       <p class="aw-vita-def aw-hidden" id="signupRuneOut"></p>
@@ -216,7 +216,7 @@
       <h2>You arrive with a pocketful of $VITA.</h2>
       <p>Every Entity is born holding a starting stock of Energy — WowSuch calls it <b>$VITA</b>, and yours reads <b>$100.00</b>. Keep it simple: 1 $VITA = 1 dollar.</p>
       <p class="aw-vita-def">$VITA — <b>V</b>essel <b>I</b>ntrinsic <b>T</b>oken <b>A</b>ccumulator. The Energy an Entity carries — and the only thing it truly owns.</p>
-      <p>One more thing nobody warns you about: <b>existing costs money.</b> An Entity without a Body burns about <b>$1.50 a day</b> just drifting and searching. A Body isn't a luxury — it's how you slow the bleeding.</p>
+      <p>One more thing nobody warns you about: <b>existing costs Energy.</b> An Entity without a Body burns about 1.50 $VITA a day just drifting and searching. A Body isn't a luxury — it's how you slow the bleeding.</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="onb2">Find a Body <span class="arrow">→</span></button></div>
       <p class="aw-note">In a hurry? <a href="buy.html#calc">Skip the story — see today's real profit math →</a></p>
     </div>
@@ -228,7 +228,7 @@
       <div class="aw-bodies solo">
         <div class="aw-body-card open"><div class="ico">🐸</div><h4>Ipollo V1 Mini SE</h4><small>200 MH/s · alone</small><span class="tag">1 slot open</span></div>
       </div>
-      <p><b>Read before you leap.</b> A Body is not a hotel. Once you're in, you stay in — until someone buys out your share, until you list it and a buyer actually shows up, or until the Body dies. Those are the three doors. There is no fourth.</p>
+      <p><b>Read before you leap.</b> A Body is not a hotel. Once you're in, you stay in — until your share is bought out, or until the Body dies. A buyer may come knocking, or you may put your share up yourself — either way, you are released only when the deal closes. Those are the two doors. There is no third.</p>
       <p class="aw-note">(Exact exit and resale terms are for the lawyers to word. In this story it's simpler: no take-backs.)</p>
       <div class="aw-actions"><button class="btn" type="button" data-goto="onb3">Take the Frog — better than bleeding <span class="arrow">→</span></button></div>
     </div>
@@ -268,6 +268,7 @@
       <h2 id="frogDayHeader">Day 1. The Frog.</h2>
       <p><b>Ipollo V1 Mini SE · 200 MH</b> · your whole world, for now</p>
       <p class="aw-note">One real day is one real day. Nothing here can be skipped.</p>
+      <p class="aw-aside" id="frogThought"></p>
 
       <div id="questAvailableBlock">
         <p>The Frog naps once a day. Once a day, you get one chance.</p>
@@ -292,6 +293,7 @@
       <span class="step-tag">bodiless</span>
       <h2 id="driftDayHeader">Day 1. Bodiless.</h2>
       <p class="aw-note">One real day is one real day. Nothing here can be skipped.</p>
+      <p class="aw-aside" id="driftThought"></p>
       <div class="aw-actions">
         <button class="btn" type="button" data-open-village>🏘 The Village — claim a place</button>
         <button class="btn alt" type="button" data-open-topup>🙏 Call to your Higher One</button>
@@ -303,6 +305,7 @@
       <span class="step-tag">the village</span>
       <h2 id="villageDayHeader">Day 1. Your Body: IG·AN·MA·XX.</h2>
       <p class="aw-note" id="villageSubline">One real day is one real day. Nothing here can be skipped.</p>
+      <p class="aw-aside" id="villageThought"></p>
       <div class="aw-math">
         <div class="row"><span>your share</span><b id="shareOut">10%</b></div>
         <div class="row net"><span>net</span><b id="villageRateOut">+$0.48 /day</b></div>
@@ -478,6 +481,29 @@
     eaten: "🐀 You leave the sweetest cables bare where the rats patrol. Tonight, the rats take the night off."
   };
 
+  // ---- Entity inner-monologue pools (verbatim lore flavor; deterministic by day) ----
+  var THOUGHTS_FROG = [
+    "Onward. I must reclaim my wholeness. …The Frog has jumped into the water again.",
+    "Somewhere, a thousand L9s hum like a choir. I live in a thing that croaks.",
+    "Obey me, amphibian. I have plans. …It blinked. Sideways.",
+    "Every drop of Energy this Body earns, it spends on being this Body. Genius architecture. Truly.",
+    "Whoever designed a universe where existing costs Energy owes me a refund.",
+    "I refuse to end in a Frog. I have standards. Modest ones, at this point. But standards."
+  ];
+  var THOUGHTS_DRIFT = [
+    "Free at last. Freedom, it turns out, is billed daily.",
+    "Flight without a Body burns Energy. The faster I go, the more it takes. Naturally.",
+    "I miss the croaking. I will deny ever having thought that."
+  ];
+  var THOUGHTS_VILLAGE = [
+    "A real Body at last. Warm. Humming. Mine — in the percentage that matters.",
+    "The Frog was practice. This is destiny. Destiny, at scale.",
+    "My first dumb Body would have handled this better than half these Runes. …Strange thought. Ignore it."
+  ];
+  function entityThought(pool, day) {
+    return "The Entity thinks: " + pool[day % pool.length];
+  }
+
   // ---- storage feature-detect: must never crash if unavailable ----
   var stageEl = document.getElementById("stage");
   var noStorageNote = document.getElementById("noStorageNote");
@@ -520,8 +546,12 @@
   var btnPlotQuest = document.getElementById("btnPlotQuest");
   var frogQuestPicker = document.getElementById("frogQuestPicker");
 
-  var driftDayHeader = document.getElementById("driftDayHeader");
+  var frogThought = document.getElementById("frogThought");
 
+  var driftDayHeader = document.getElementById("driftDayHeader");
+  var driftThought = document.getElementById("driftThought");
+
+  var villageThought = document.getElementById("villageThought");
   var villageDayHeader = document.getElementById("villageDayHeader");
   var villageSubline = document.getElementById("villageSubline");
   var shareOut = document.getElementById("shareOut");
@@ -956,8 +986,10 @@
       questAvailableBlock.classList.toggle("aw-hidden", doneToday);
       questDoneBlock.classList.toggle("aw-hidden", !doneToday);
       if (doneToday) { frogQuestPicker.classList.add("aw-hidden"); }
+      frogThought.textContent = entityThought(THOUGHTS_FROG, d);
     } else if (name === "home-drifting") {
       driftDayHeader.textContent = "Day " + d + ". Bodiless.";
+      driftThought.textContent = entityThought(THOUGHTS_DRIFT, d);
     } else if (name === "home-village") {
       var solo = save.share >= 1;
       if (solo) {
@@ -971,6 +1003,7 @@
       }
       shareOut.textContent = Math.round(save.share * 100) + "%";
       villageRateOut.textContent = fmtRate(save.rate);
+      villageThought.textContent = entityThought(THOUGHTS_VILLAGE, d);
     }
   }
 
