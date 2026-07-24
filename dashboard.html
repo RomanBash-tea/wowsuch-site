@@ -49,6 +49,10 @@
   .addr-box .a{font-family:var(--mono);font-weight:700;font-size:.92rem;word-break:break-all;}
   .empty-state{color:var(--ink-soft);font-weight:600;padding:6px 0 14px;}
   .card h2{font-size:1.2rem;margin:0 0 14px;}
+  .feed-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:22px;}
+  .feed-tile{background:var(--cream-2);border:2.5px solid var(--ink);border-radius:var(--r-sm);padding:14px 16px;}
+  .feed-tile .ft-lab{display:block;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);margin-bottom:6px;}
+  .feed-tile .ft-val{display:block;font-family:var(--mono);font-weight:700;font-size:1.15rem;}
 </style>
 </head>
 <body>
@@ -93,6 +97,14 @@
       <h2>Payouts &amp; orders</h2>
       <div id="ordersWrap"></div>
     </div>
+  </div>
+
+  <div class="card feature reveal" id="feedCard" style="margin-top:26px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+      <h2>Fleet &amp; earnings</h2>
+      <span class="status soon" id="feedStatus">⏳ loading</span>
+    </div>
+    <div id="feedBody"><p class="empty-state">Loading your fleet…</p></div>
   </div>
 </div></main>
 
@@ -257,6 +269,64 @@
         '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn sm" href="buy.html">Buy an L9 →</a><a class="btn sm alt" href="rent-to-own.html">Rent to own →</a></div>';
     }
   }
+
+  /* ---- fleet & earnings feed ---- */
+  var feedStatus = byId("feedStatus"), feedBody = byId("feedBody");
+  function feedTile(label, val) {
+    return '<div class="feed-tile"><span class="ft-lab">' + esc(label) + '</span><span class="ft-val">' + esc(val) + '</span></div>';
+  }
+  function renderFeed(detail) {
+    if (!feedBody) return;
+    var status = detail && detail.status, data = detail && detail.data;
+
+    if (status === "error") {
+      if (feedStatus) { feedStatus.className = "status kyc"; feedStatus.textContent = "⚠ error"; }
+      feedBody.innerHTML = '<p class="empty-state">Couldn’t load your fleet data right now.</p>';
+      return;
+    }
+    if (status !== "success" || !data) return; // still loading — static markup already shows the loading state
+
+    var fleet = data.fleet || {}, earnings = data.earnings || {}, series = data.series || {};
+
+    if (!fleet.total_miners) {
+      if (feedStatus) { feedStatus.className = "status soon"; feedStatus.textContent = "⏳ no fleet yet"; }
+      feedBody.innerHTML = '<p class="empty-state">No mining fleet on this account yet.</p>' +
+        '<a class="btn sm" href="buy.html">Buy an L9 <span class="arrow">→</span></a>';
+      return;
+    }
+
+    if (feedStatus) { feedStatus.className = "status live"; feedStatus.innerHTML = '<span class="d"></span> live'; }
+
+    var netDay = earnings.net_24h_usd, net7 = earnings.net_7d_usd;
+    // net_* can be genuinely negative (real net-loss data) — W.money() only ever
+    // renders the unsigned magnitude, so prepend the sign ourselves (same
+    // convention lease.html uses for its cost lines) to render truthfully.
+    function fmtNet(n) { return n == null ? "—" : (n < 0 ? "-" : "") + W.money(n); }
+    var tiles = feedTile("Active miners", (fleet.active_miners || 0).toLocaleString()) +
+      feedTile("Total miners", (fleet.total_miners || 0).toLocaleString()) +
+      feedTile("Total hashrate", W.hashStr(fleet.total_ghs || 0)) +
+      feedTile("Net (24h)", fmtNet(netDay)) +
+      feedTile("Net (7d)", fmtNet(net7));
+
+    var ghs = series.ghs || [], netUsd = series.net_usd || [];
+    var canChartGhs = ghs.length >= 2;
+    var canChartNet = netUsd.length >= 2 && netUsd.every(function (v) { return v != null; });
+    var charts = '<div class="charts">' +
+      '<div class="chart-card"><div class="chart-head"><h3>Hashrate</h3><span class="illus">live · ~10 min refresh</span></div>' +
+      (canChartGhs ? '<svg id="feedChartGhs" viewBox="0 0 520 240" role="img" aria-label="Fleet hashrate trend"></svg>' :
+        '<p class="chart-note">Not enough data yet for a trend.</p>') +
+      '</div>' +
+      '<div class="chart-card"><div class="chart-head"><h3>Net earnings</h3><span class="illus">live · ~10 min refresh</span></div>' +
+      (canChartNet ? '<svg id="feedChartNet" viewBox="0 0 520 240" role="img" aria-label="Net earnings trend"></svg>' :
+        '<p class="chart-note">Net-earnings trend isn’t available yet for this account.</p>') +
+      '</div></div>';
+
+    feedBody.innerHTML = '<div class="feed-tiles">' + tiles + '</div>' + charts;
+    if (canChartGhs) W.renderChart(byId("feedChartGhs"), ghs, "#C77A08", "rgba(199,122,8,0.16)");
+    if (canChartNet) W.renderChart(byId("feedChartNet"), netUsd, "#1E8A4C", "rgba(30,138,76,0.16)");
+  }
+  document.addEventListener("wow:feed", function (e) { renderFeed(e.detail); });
+  if (W.fetchFeed) W.fetchFeed();
 })();
 </script>
 </body>
