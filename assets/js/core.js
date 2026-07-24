@@ -7,6 +7,11 @@
 (function () {
   "use strict";
 
+  /* ---------- feed config (Tea backend, dashboard.html "Fleet & earnings") ---------- */
+  var FEED_BASE_URL = "https://zs-mining-dashboards.onrender.com";
+  var FEED_ACCOUNT  = "teaSub221";   // demo account (confirmed live on the backend allowlist)
+  var WOWSUCH_FEED_TOKEN = "";   // dedicated feed token — INJECTED AT DEPLOY; keep this empty-string placeholder in git, never commit the real value
+
   /* ---------- utilities ---------- */
   function money(n) {
     var abs = Math.abs(n);
@@ -27,6 +32,12 @@
     });
   }
   function byId(id) { return document.getElementById(id); }
+  function fetchJSON(url, opts) {
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
 
   /* ---------- footer year ---------- */
   var yr = byId("yr");
@@ -162,6 +173,26 @@
         .catch(function () { /* keep reference prices */ });
     } catch (e) { /* fetch unsupported — keep reference prices */ }
   })();
+
+  /* ---------- live feed (Tea mining backend, cached 10 min) ---------- */
+  function broadcastFeed(status, data) {
+    document.dispatchEvent(new CustomEvent("wow:feed", { detail: { status: status, data: data || null } }));
+  }
+  function fetchFeed() {
+    var cacheKey = "wowsuch_feed_" + FEED_ACCOUNT;
+    try {
+      var cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        var c = JSON.parse(cached);
+        if (c && Date.now() - c.t < 10 * 60 * 1000) { broadcastFeed("success", c.d); return; }
+      }
+    } catch (e) { /* storage unavailable — fall through to fetch */ }
+    var url = FEED_BASE_URL + "/mdi/feed/account-summary?account=" + encodeURIComponent(FEED_ACCOUNT) + "&token=" + encodeURIComponent(WOWSUCH_FEED_TOKEN);
+    fetchJSON(url).then(function (j) {
+      broadcastFeed("success", j);
+      try { sessionStorage.setItem(cacheKey, JSON.stringify({ d: j, t: Date.now() })); } catch (e) {}
+    }).catch(function () { broadcastFeed("error", null); });
+  }
 
   /* ---------- lead capture ---------- */
   function saveLead(o) {
@@ -308,6 +339,6 @@
   window.WOW = {
     money: money, whole: whole, hashStr: hashStr, esc: esc,
     saveLead: saveLead, showToast: showToast, renderChart: renderChart,
-    prices: prices
+    prices: prices, fetchJSON: fetchJSON, fetchFeed: fetchFeed
   };
 })();
