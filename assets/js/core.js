@@ -195,6 +195,12 @@
   }
 
   /* ---------- lead capture ---------- */
+  /* NOTE (dev-inbox/022, 2026-07-24): leads captured here — including PII (name,
+     email) — are written to this browser's localStorage only. This is a stopgap
+     for a single-device internal console (admin.html) and is NOT a real,
+     multi-tenant, server-side lead store. Server-side lead storage and real
+     server-side admin auth are tracked as a follow-up for the backend/multi-tenant
+     phase — do not treat this as a real data-protection boundary until that lands. */
   function saveLead(o) {
     try {
       o.ts = new Date().toISOString();
