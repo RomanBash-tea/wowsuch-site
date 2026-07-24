@@ -133,7 +133,18 @@
 <script>
 (function () {
   "use strict";
-  var KEY = "wowsuch_leads", PASS = "wowsuch-int-9f24k";
+  var KEY = "wowsuch_leads";
+  var PASS_HASH = "4eb22a7e2d80d101c1861eab2032c933f5a93c63c40718275a08bf7c9dac412c";
+  /* NOTE (dev-inbox/022): this passcode gate is a client-side stopgap only — no
+     server-side auth exists yet. Do not treat it as real access control. Real
+     admin auth is tracked as a follow-up for the backend/multi-tenant phase. */
+  function sha256Hex(str) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+        return b.toString(16).padStart(2, "0");
+      }).join("");
+    });
+  }
   var W = window.WOW || {};
   function esc(v) {
     return W.esc ? W.esc(v) : String(v == null ? "" : v).replace(/[&<>"]/g, function (c) {
@@ -220,14 +231,18 @@
 
   function unlock() {
     var v = (pass.value || "").trim();
-    if (v === PASS) {
-      gate.hidden = true; gate.style.display = "none";
-      dash.hidden = false;
-      gateErr.textContent = "";
-      render();
-    } else {
-      gateErr.textContent = "Wrong passcode. Try again.";
-    }
+    sha256Hex(v).then(function (hex) {
+      if (hex === PASS_HASH) {
+        gate.hidden = true; gate.style.display = "none";
+        dash.hidden = false;
+        gateErr.textContent = "";
+        render();
+      } else {
+        gateErr.textContent = "Wrong passcode. Try again.";
+      }
+    }).catch(function () {
+      gateErr.textContent = "Passcode check unavailable in this browser.";
+    });
   }
   function lock() {
     dash.hidden = true;
