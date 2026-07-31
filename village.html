@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Village — Claim a Body | WowSuch</title>
+<meta name="description" content="Register, choose a seeded Body, and claim a share with your game balance — no real money moves yet.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://wowsuch.example/village.html">
+<meta name="theme-color" content="#FFB92E">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+  /* ---- page-specific: village (buy-flow, dev-inbox #025) ---- */
+  .dash-main{padding:44px 0 80px;}
+  .vg-panel{max-width:520px;}
+  .vg-panel label{display:block;font-weight:700;font-size:.82rem;margin-top:14px;}
+  .vg-panel input{width:100%;padding:10px 12px;border:2.5px solid var(--ink);border-radius:var(--r-sm);
+    font-family:inherit;font-size:.95rem;margin-top:4px;background:var(--paper);}
+  .vg-error{color:#a33;font-weight:700;font-size:.85rem;margin-top:10px;}
+  .vg-onboard-card h4{font-family:var(--display);font-size:1rem;margin-top:8px;}
+  .vg-onboard-card p{color:var(--ink-soft);font-weight:600;font-size:.88rem;margin-top:6px;}
+  .vg-balance-chip{font-family:var(--mono);font-weight:800;color:var(--gold-on-dark);}
+
+  /* ---- reused verbatim from awakening.html's Village/Body-Inspector styles ---- */
+  .aw-stage{background:var(--night);color:var(--cream-on-dark);border:4px solid var(--gold);
+    border-radius:var(--r-lg);padding:26px 22px;}
+  .aw-stage .step-tag{font-family:var(--mono);font-weight:700;font-size:.8rem;color:var(--gold-on-dark);
+    text-transform:uppercase;letter-spacing:.04em;}
+  .aw-stage h2{color:#fff;margin-top:8px;}
+  .aw-stage h3{color:#fff;}
+  .aw-stage p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:56ch;}
+  .aw-bodies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .aw-body-card{border:3px solid var(--gold);border-radius:var(--r-md);padding:16px 14px;text-align:center;
+    background:#2A1B06;opacity:.45;}
+  .aw-body-card.open{opacity:1;box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-body-card .ico{font-size:1.6rem;}
+  .aw-body-card h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
+  .aw-body-card small{display:block;color:var(--soft-on-dark);font-weight:700;margin-top:4px;font-size:.78rem;}
+  .aw-body-card .tag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:.68rem;
+    font-weight:700;padding:3px 8px;border-radius:999px;background:var(--night);border:1px solid var(--gold);
+    color:var(--gold-on-dark);}
+  .aw-body-card.open .tag{background:#3a2607;}
+  button.aw-body-card{cursor:pointer;font-family:inherit;color:inherit;width:100%;opacity:1;}
+  button.aw-body-card:disabled{opacity:.45;cursor:not-allowed;}
+  button.aw-body-card:not(:disabled):hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-occ-bar{height:8px;border-radius:99px;background:var(--night);border:1px solid var(--gold);
+    margin-top:10px;overflow:hidden;}
+  .aw-occ-fill{height:100%;background:var(--gold-on-dark);}
+  .aw-occ-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px;}
+  .aw-occ-chip{font-family:var(--mono);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:999px;
+    background:var(--night);border:1px solid var(--gold);color:var(--soft-on-dark);}
+  .aw-body-card .status{display:block;margin-top:8px;font-size:.74rem;font-weight:700;color:var(--soft-on-dark);}
+  .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:18px !important;}
+  .aw-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .aw-choices.two{grid-template-columns:repeat(2,1fr);}
+  .aw-choice{text-align:left;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
+    padding:16px;cursor:pointer;color:inherit;font-family:inherit;}
+  .aw-choice:hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  .aw-choice.selected{box-shadow:0 0 0 3px rgba(255,185,46,.6);background:#3a2607;}
+  .aw-choice.selected h4::after{content:" ✓";color:var(--gold-on-dark);}
+  .aw-choice:disabled{opacity:.4;cursor:not-allowed;}
+  .aw-choice h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
+  .aw-choice p{color:var(--soft-on-dark);font-weight:600;font-size:.83rem;margin-top:6px;max-width:none;}
+  .aw-panel{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:18px 20px;margin-top:22px;max-width:56ch;}
+  .aw-panel h3{font-family:var(--display);color:#fff;font-size:1rem;margin:0 0 10px;}
+  .aw-math{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:6px 16px;margin-top:20px;max-width:56ch;}
+  .aw-math .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;
+    font-family:var(--mono);font-size:.85rem;color:var(--soft-on-dark);font-weight:700;
+    border-bottom:1px solid rgba(255,185,46,.25);}
+  .aw-math .row:last-child{border-bottom:none;}
+  .aw-math .row b{color:var(--gold-on-dark);}
+  .aw-math .row.net{font-weight:800;}
+  .aw-math .row.net b{color:#fff;}
+  .aw-chain-list{list-style:none;margin:14px 0 0;padding:0;}
+  .aw-chain-list li{font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--soft-on-dark);
+    padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.25);}
+  .aw-chain-list li:last-child{border-bottom:none;}
+  .aw-chain-list li.you{color:#fff;}
+  .aw-chain-list .pos{color:var(--gold-on-dark);margin-right:6px;}
+  .aw-chain-list .pct{float:right;}
+  .aw-wallet-link{display:inline-block;margin-top:6px;background:none;border:none;padding:0;font-family:inherit;
+    font-size:.82rem;font-weight:700;color:var(--gold-on-dark);text-decoration:underline;cursor:pointer;}
+  .aw-hidden{display:none !important;}
+  @media (max-width:640px){ .aw-bodies,.aw-choices{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="dash-head"><div class="wrap">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <span class="acct" id="acctChip">—</span>
+</div></div>
+
+<main id="top" class="dash-main"><div class="wrap">
+  <span class="eyebrow reveal">much village, very yours</span>
+  <h1 class="reveal">Claim a Body</h1>
+  <p class="reveal" style="font-weight:700;color:var(--ink-soft);max-width:60ch;margin-top:6px">
+    Register, pick a seeded Body from the real fleet, and claim a share with your game balance. No real money moves through this yet.
+  </p>
+
+  <!-- ============ AUTH GATE ============ -->
+  <section id="authGate" class="card feature reveal vg-panel">
+    <h2 id="authHeadline">Every entity needs a line in the ledger.</h2>
+    <p id="authSubhead" style="margin-top:10px;color:var(--ink-soft);font-weight:600">
+      Give us an email and a password — the ledger takes it from there. Your runes are already inside that address; you don't have to draw them yourself.
+    </p>
+    <form id="authForm">
+      <label>Email <input type="email" id="authEmail" required autocomplete="email"></label>
+      <label>Password <input type="password" id="authPassword" required autocomplete="current-password" minlength="6"></label>
+      <button type="submit" class="btn" id="authSubmit" style="margin-top:16px">Enter the Ledger</button>
+    </form>
+    <p style="margin-top:10px"><button type="button" class="aw-wallet-link" id="authToggle">Already have runes? Log in.</button></p>
+    <p class="vg-error aw-hidden" id="authError"></p>
+    <p style="font-size:.8rem;color:var(--ink-soft);margin-top:14px">WowSuch is in early build. No real money moves through this account yet.</p>
+  </section>
+
+  <!-- ============ FIRST-SESSION ONBOARDING (shown once) ============ -->
+  <section id="onboarding" class="aw-hidden" style="margin-top:26px">
+    <div class="aw-choices two" id="onboardCards" style="max-width:900px"></div>
+    <button class="btn" id="onboardDone" style="margin-top:22px">Choose a Body</button>
+  </section>
+
+  <!-- ============ THE VILLAGE (dark stage) ============ -->
+  <section id="villageStage" class="aw-stage aw-hidden" style="margin-top:26px">
+    <span class="step-tag">YOUR GAME BALANCE</span>
+    <h2><span class="vg-balance-chip" id="balanceLine">—</span></h2>
+    <p>Practice energy, not real money — watch how it moves. <button type="button" class="aw-wallet-link" id="logoutLink">Log out</button></p>
+
+    <div id="villageListView">
+      <h3 style="margin-top:22px">The Village</h3>
+      <p>Every card below is a real, seeded Antminer L9. Pick one with room left.</p>
+      <div class="aw-bodies" id="villageBodies"></div>
+      <button class="btn alt" id="loadMoreBodies" style="margin-top:18px">Show more Bodies →</button>
+    </div>
+
+    <div id="bodyDetailView" class="aw-hidden">
+      <button type="button" class="btn sm alt" id="backToList" style="margin-top:22px">← Back to the Village</button>
+      <h3 id="detailTitle" style="margin-top:14px"></h3>
+      <div class="aw-occ-bar"><div class="aw-occ-fill" id="detailOccFill" style="width:0%"></div></div>
+      <ol class="aw-chain-list" id="detailChainList"></ol>
+      <p id="detailFullNote" class="aw-hidden" style="color:#FFD873;font-weight:700">This chain is at capacity — no room for a new Entity right now.</p>
+
+      <div id="shareTiersWrap">
+        <p style="margin-top:18px;font-weight:700;color:#fff">Choose a share size:</p>
+        <div class="aw-choices" id="shareTiers"></div>
+      </div>
+
+      <div class="aw-panel aw-hidden" id="previewPanel">
+        <h3>Before you confirm</h3>
+        <div class="aw-math">
+          <div class="row"><span>Fixed chain position</span><b id="prevPosition">—</b></div>
+          <div class="row"><span>Worst-case floor (per day, for this share)</span><b id="prevFloor">—</b></div>
+          <div class="row net"><span>Cost (from your game balance)</span><b id="prevCost">—</b></div>
+        </div>
+        <p class="aw-note" id="prevDisclaimer"></p>
+        <button class="btn" id="confirmPurchase" style="margin-top:14px">Confirm purchase</button>
+        <p class="vg-error aw-hidden" id="purchaseError"></p>
+      </div>
+
+      <div class="aw-panel aw-hidden" id="resultPanel">
+        <h3>Welcome to the Chain</h3>
+        <p id="resultLine" style="color:#fff"></p>
+      </div>
+    </div>
+  </section>
+</div></main>
+
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="dashboard.html">Your dashboard</a>
+      <a href="awakening.html">The Awakening (concept demo)</a>
+      <a href="vessels.html">Vessels (concept preview)</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a></div>
+  </div>
+  <p class="risk">⚠ Early build: the Village runs on a game balance, not real money. All chain-economy figures (commissions, floors, splits) are theoretical placeholders pending Phase-0 simulation and calibration — not a promise of future payout. No purchase here moves real LTC, DOGE, or any other currency.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<script src="assets/js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var API_BASE = "https://wowsuch-game.onrender.com";
+  var LS_SESSION = "wowsuch_game_session";
+  var LS_ONBOARDED = "wowsuch_game_onboarded";
+  var PAGE_SIZE = 12;
+
+  function byId(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
+  function money(n) { return "◈ " + Number(n).toFixed(2); } // "◈" -- placeholder glyph, not $VITA, not a real currency symbol
+
+  function loadSession() {
+    try { return JSON.parse(localStorage.getItem(LS_SESSION) || "null"); } catch (e) { return null; }
+  }
+  function saveSession(s) { localStorage.setItem(LS_SESSION, JSON.stringify(s)); }
+  function clearSession() { localStorage.removeItem(LS_SESSION); }
+
+  var session = loadSession();
+  var bodiesOffset = 0;
+  var currentBody = null;   // {body_id, class_code, capacity, chain, ...}
+  var selectedShare = null;
+
+  async function api(path, opts) {
+    opts = opts || {};
+    var headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+    if (session && session.access_token) headers.Authorization = "Bearer " + session.access_token;
+    var resp = await fetch(API_BASE + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      // Balance/body-detail state changes on every purchase; without this a
+      // browser can (and, tested live, does) serve a stale cached GET for
+      // an identical /bodies/{id} URL instead of the just-updated row.
+      cache: "no-store"
+    });
+    var data = null;
+    try { data = await resp.json(); } catch (e) { /* no body */ }
+    if (!resp.ok) {
+      var detail = data && data.detail;
+      var err = new Error(typeof detail === "string" ? detail : (resp.status + " " + resp.statusText));
+      err.status = resp.status;
+      throw err;
+    }
+    return data;
+  }
+
+  /* ---------------- AUTH ---------------- */
+  var authGate = byId("authGate"), authForm = byId("authForm"), authError = byId("authError");
+  var authHeadline = byId("authHeadline"), authSubhead = byId("authSubhead"), authSubmit = byId("authSubmit"), authToggle = byId("authToggle");
+  var mode = "register";
+
+  function setMode(next) {
+    mode = next;
+    if (mode === "register") {
+      authHeadline.textContent = "Every entity needs a line in the ledger.";
+      authSubhead.textContent = "Give us an email and a password — the ledger takes it from there. Your runes are already inside that address; you don't have to draw them yourself.";
+      authSubmit.textContent = "Enter the Ledger";
+      authToggle.textContent = "Already have runes? Log in.";
+    } else {
+      authHeadline.textContent = "Return to the Ledger.";
+      authSubhead.textContent = "Log back in with the email and password you registered with.";
+      authSubmit.textContent = "Return to the Ledger";
+      authToggle.textContent = "New here? Enter the Ledger instead.";
+    }
+  }
+  authToggle.addEventListener("click", function () { setMode(mode === "register" ? "login" : "register"); });
+  setMode("register");
+
+  function showAuthError(msg) { authError.textContent = msg; authError.classList.remove("aw-hidden"); }
+  function hideAuthError() { authError.classList.add("aw-hidden"); }
+
+  authForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    hideAuthError();
+    var email = byId("authEmail").value.trim();
+    var password = byId("authPassword").value;
+    var path = mode === "register" ? "/auth/register" : "/auth/login";
+    try {
+      var data = await api(path, { method: "POST", body: { email: email, password: password } });
+      if (!data.session) throw new Error("No session returned — check your email/password.");
+      session = { access_token: data.session.access_token, user_id: data.user_id, email: data.email };
+      saveSession(session);
+      enterVillage(mode === "register");
+    } catch (err) {
+      var msg = String(err.message || err);
+      if (/already registered|already answers/i.test(msg)) msg = "An entity already answers to that email. Log in instead?";
+      else if (/invalid.*credential|invalid login/i.test(msg)) msg = "That email and password don't match anything in the ledger.";
+      else if (/password/i.test(msg) && /char/i.test(msg)) msg = "Passwords need at least 6 characters.";
+      showAuthError(msg);
+    }
+  });
+
+  /* ---------------- ONBOARDING ---------------- */
+  var ONBOARD_CARDS = [
+    { title: "You have a line now.", body: "No body yet — just a name in the ledger and a spark of your own. That's an entity: you, before you've claimed anything to hold." },
+    { title: "A body holds what you can't.", body: "A body is a real machine, working right now — extracting energy and holding your share of it. Claim a piece of one, and it starts holding for you too." },
+    { title: "You won't be alone in it.", body: "Most bodies house more than one entity, lined up in a chain. Share a body, and you share what it extracts — in the order you joined." },
+    { title: "Your balance, for now.", body: "What you're spending and earning here is a game balance — practice energy, not real money. Watch how it moves; later, keep watch over your own body's health and earn extra for the trouble." }
+  ];
+  function renderOnboarding() {
+    byId("onboardCards").innerHTML = ONBOARD_CARDS.map(function (c) {
+      return '<div class="aw-choice vg-onboard-card" style="cursor:default"><h4>' + esc(c.title) + '</h4><p>' + esc(c.body) + '</p></div>';
+    }).join("");
+  }
+  byId("onboardDone").addEventListener("click", function () {
+    localStorage.setItem(LS_ONBOARDED, "1");
+    byId("onboarding").classList.add("aw-hidden");
+    byId("villageStage").classList.remove("aw-hidden");
+    loadBodies(true);
+  });
+
+  /* ---------------- VILLAGE: body list ---------------- */
+  var villageBodiesEl = byId("villageBodies");
+
+  function bodyCardHtml(b) {
+    var closed = b.slots_open <= 0 || b.share_room <= 0;
+    var occPct = Math.round((1 - b.share_room) * 100);
+    return '<button type="button" class="aw-body-card' + (closed ? "" : " open") + '" data-body-id="' + esc(b.body_id) + '"' + (closed ? " disabled" : "") + '>' +
+      '<div class="ico">⛏️</div>' +
+      '<h4>' + esc(b.class_code) + ' Body</h4>' +
+      '<div class="aw-occ-bar"><div class="aw-occ-fill" style="width:' + occPct + '%"></div></div>' +
+      '<small>' + b.active_population + '/' + b.capacity + ' entities · ' + Math.round(b.share_room * 100) + '% unclaimed</small>' +
+      '<span class="tag">' + (closed ? "full" : "open") + '</span>' +
+      '</button>';
+  }
+
+  async function loadBodies(reset) {
+    if (reset) { bodiesOffset = 0; villageBodiesEl.innerHTML = ""; }
+    var data = await api("/bodies?limit=" + PAGE_SIZE + "&offset=" + bodiesOffset);
+    bodiesOffset += PAGE_SIZE;
+    villageBodiesEl.insertAdjacentHTML("beforeend", data.bodies.map(bodyCardHtml).join(""));
+    villageBodiesEl.querySelectorAll("[data-body-id]").forEach(function (btn) {
+      btn.addEventListener("click", function () { openBody(btn.getAttribute("data-body-id")); });
+    });
+  }
+  byId("loadMoreBodies").addEventListener("click", function () { loadBodies(false); });
+
+  /* ---------------- VILLAGE: body detail + Inspector ---------------- */
+  var villageListView = byId("villageListView"), bodyDetailView = byId("bodyDetailView");
+
+  async function openBody(bodyId) {
+    currentBody = await api("/bodies/" + bodyId);
+    currentBody.is_top_up = false;
+    selectedShare = null;
+    if (session && session.access_token) {
+      // Cheap read-only probe so the tier picker knows whether THIS player
+      // already has an entity here (top-up: gated only by share_room) or
+      // would be a brand-new resident (also gated by slots_open) -- the body
+      // payload itself never carries platform_account_ref (client-safe
+      // fields only), so this is the only way the client can tell.
+      try {
+        var probe = await api("/bodies/" + bodyId + "/preview", { method: "POST", body: { share: 0.01 } });
+        currentBody.is_top_up = probe.is_top_up;
+      } catch (e) { /* not fatal -- tiers fall back to new-purchase rules */ }
+    }
+    villageListView.classList.add("aw-hidden");
+    bodyDetailView.classList.remove("aw-hidden");
+    byId("previewPanel").classList.add("aw-hidden");
+    byId("resultPanel").classList.add("aw-hidden");
+    renderBodyDetail();
+  }
+  byId("backToList").addEventListener("click", function () {
+    bodyDetailView.classList.add("aw-hidden");
+    villageListView.classList.remove("aw-hidden");
+    currentBody = null;
+  });
+
+  function renderBodyDetail() {
+    var b = currentBody;
+    byId("detailTitle").textContent = b.class_code + " Body — " + b.active_population + "/" + b.capacity + " entities";
+    var occPct = Math.round((1 - b.share_room) * 100);
+    byId("detailOccFill").style.width = occPct + "%";
+    byId("detailChainList").innerHTML = b.chain.map(function (e) {
+      var rune = e.rune + (e.rune_suffix ? e.rune_suffix : "");
+      return '<li><span class="pos">#' + e.chain_position + "</span>" + esc(rune.toUpperCase()) +
+        '<span class="pct">' + Math.round(e.share * 100) + '%</span></li>';
+    }).join("") || '<li style="opacity:.7">No entities yet — you\'d be the first.</li>';
+    var canJoinAtAll = b.is_top_up || b.slots_open > 0;
+    byId("detailFullNote").classList.toggle("aw-hidden", canJoinAtAll && b.share_room > 0);
+    renderShareTiers();
+  }
+
+  var TIERS = [
+    { frac: 0.05, label: "A sliver" },
+    { frac: 0.10, label: "A toehold" },
+    { frac: 0.25, label: "A quarter" },
+    { frac: 1.00, label: "The whole Body" }
+  ];
+  function renderShareTiers() {
+    var b = currentBody;
+    // A top-up (b.is_top_up) is only gated by remaining share_room; a
+    // brand-new resident also needs an open slot (capacity gates headcount
+    // independently of how much of the Body has been sold, migration 005).
+    var canJoinAtAll = b.is_top_up || b.slots_open > 0;
+    byId("shareTiersWrap").classList.toggle("aw-hidden", !canJoinAtAll || b.share_room <= 0);
+    byId("shareTiers").innerHTML = TIERS.map(function (t) {
+      var disabled = !canJoinAtAll || t.frac > b.share_room + 1e-9;
+      return '<button type="button" class="aw-choice" data-frac="' + t.frac + '"' + (disabled ? " disabled" : "") + '>' +
+        '<h4>' + Math.round(t.frac * 100) + '%</h4><p>' + esc(t.label) + '</p></button>';
+    }).join("");
+    byId("shareTiers").querySelectorAll("[data-frac]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        byId("shareTiers").querySelectorAll(".aw-choice").forEach(function (c) { c.classList.remove("selected"); });
+        btn.classList.add("selected");
+        selectShare(parseFloat(btn.getAttribute("data-frac")));
+      });
+    });
+  }
+
+  async function selectShare(frac) {
+    selectedShare = frac;
+    var prevPanel = byId("previewPanel");
+    try {
+      var preview = await api("/bodies/" + currentBody.body_id + "/preview", { method: "POST", body: { share: frac } });
+      byId("prevPosition").textContent = "#" + preview.fixed_chain_position + (preview.is_top_up ? " (already yours)" : "");
+      byId("prevFloor").textContent = money(preview.worst_case_floor_usd) + " / day";
+      byId("prevCost").textContent = money(preview.cost);
+      byId("prevDisclaimer").textContent = preview.disclaimer;
+      prevPanel.classList.remove("aw-hidden");
+      byId("purchaseError").classList.add("aw-hidden");
+    } catch (err) {
+      prevPanel.classList.remove("aw-hidden");
+      byId("purchaseError").textContent = String(err.message || err);
+      byId("purchaseError").classList.remove("aw-hidden");
+    }
+  }
+
+  byId("confirmPurchase").addEventListener("click", async function () {
+    if (!selectedShare) return;
+    var errEl = byId("purchaseError");
+    errEl.classList.add("aw-hidden");
+    try {
+      var result = await api("/bodies/" + currentBody.body_id + "/purchase", { method: "POST", body: { share: selectedShare } });
+      byId("resultLine").textContent = "You are now " + result.rune.toUpperCase() + (result.rune_suffix || "") +
+        " — position #" + result.chain_position + ", " + Math.round(result.share * 100) + "% of this Body. New balance: " + money(result.balance) + ".";
+      byId("resultPanel").classList.remove("aw-hidden");
+      await updateBalance();
+      currentBody = await api("/bodies/" + currentBody.body_id);
+      currentBody.is_top_up = true; // this purchase just gave the player an active entity here
+      renderBodyDetail();
+    } catch (err) {
+      errEl.textContent = String(err.message || err);
+      errEl.classList.remove("aw-hidden");
+    }
+  });
+
+  /* ---------------- session bootstrap ---------------- */
+  async function updateBalance() {
+    try {
+      var b = await api("/me/balance");
+      byId("balanceLine").textContent = money(b.balance);
+      byId("acctChip").textContent = session.email || "—";
+    } catch (err) {
+      if (err.status === 401) { clearSession(); location.reload(); }
+    }
+  }
+
+  function enterVillage(freshRegistration) {
+    authGate.classList.add("aw-hidden");
+    if (freshRegistration || !localStorage.getItem(LS_ONBOARDED)) {
+      renderOnboarding();
+      byId("onboarding").classList.remove("aw-hidden");
+    } else {
+      byId("villageStage").classList.remove("aw-hidden");
+      loadBodies(true);
+    }
+    updateBalance();
+  }
+
+  byId("logoutLink").addEventListener("click", function () {
+    clearSession();
+    location.reload();
+  });
+
+  byId("yr") && (byId("yr").textContent = new Date().getFullYear());
+
+  if (session && session.access_token) {
+    enterVillage(false);
+  }
+})();
+</script>
+</body>
+</html>
