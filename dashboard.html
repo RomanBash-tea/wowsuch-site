@@ -53,6 +53,21 @@
   .feed-tile{background:var(--cream-2);border:2.5px solid var(--ink);border-radius:var(--r-sm);padding:14px 16px;}
   .feed-tile .ft-lab{display:block;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);margin-bottom:6px;}
   .feed-tile .ft-val{display:block;font-family:var(--mono);font-weight:700;font-size:1.15rem;}
+
+  /* ---- game-balance chain card (dev-inbox #026, reused verbatim from village.html/awakening.html) ---- */
+  .aw-panel{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:18px 20px;margin-top:18px;max-width:640px;}
+  .aw-panel h3{font-family:var(--display);color:#fff;font-size:1rem;margin:0 0 10px;}
+  .aw-math{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:6px 16px;margin-top:12px;}
+  .aw-math .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;
+    font-family:var(--mono);font-size:.85rem;color:var(--soft-on-dark);font-weight:700;
+    border-bottom:1px solid rgba(255,185,46,.25);}
+  .aw-math .row:last-child{border-bottom:none;}
+  .aw-math .row b{color:var(--gold-on-dark);}
+  .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:14px !important;}
+  .game-note-light{font-size:.85rem;color:var(--ink-soft);opacity:.85;margin-top:14px;font-weight:600;}
+  .game-balance-chip{font-family:var(--mono);font-weight:800;font-size:1.1rem;}
 </style>
 </head>
 <body>
@@ -105,6 +120,15 @@
       <span class="status soon" id="feedStatus">⏳ loading</span>
     </div>
     <div id="feedBody"><p class="empty-state">Loading your fleet…</p></div>
+  </div>
+
+  <div class="card feature reveal" id="gameCard" style="margin-top:26px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+      <h2>Your Village chain</h2>
+      <span class="status soon" id="gameStatus">⏳ loading</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--ink-soft);font-weight:600;margin-bottom:14px">Game-balance chain from the Village — practice energy, not real money. Payouts run once a night; check back tomorrow after a fresh purchase.</p>
+    <div id="gameBody"><p class="empty-state">Checking your game balance…</p></div>
   </div>
 </div></main>
 
@@ -328,6 +352,72 @@
   }
   document.addEventListener("wow:feed", function (e) { renderFeed(e.detail); });
   if (W.fetchFeed) W.fetchFeed();
+
+  /* ---- game-balance chain (dev-inbox #026 / Asana [backend] Player UI) ----
+     Reuses the wowsuch-game session village.html already writes to
+     localStorage -- a player who registered/logged in there is
+     automatically recognized here too, same origin, same key. ---- */
+  var GAME_API_BASE = "https://wowsuch-game.onrender.com";
+  var LS_GAME_SESSION = "wowsuch_game_session";
+  function loadGameSession() {
+    try { return JSON.parse(localStorage.getItem(LS_GAME_SESSION) || "null"); } catch (e) { return null; }
+  }
+  function gameMoney(n) { return "◈ " + Number(n).toFixed(2); } // placeholder glyph, matches village.html -- not $VITA, not real currency
+
+  var gameStatus = byId("gameStatus"), gameBody = byId("gameBody");
+  var BODY_STATUS_LABEL = { active: "active", degraded: "degraded", EOL: "end of life", "no data": "no data" };
+  function bodyStatusClass(s) { return s === "active" ? "status live" : s === "no data" ? "status soon" : "status kyc"; }
+
+  function renderGameChain(data) {
+    if (!data.chains.length) {
+      gameStatus.className = "status soon"; gameStatus.textContent = "⏳ no chain yet";
+      gameBody.innerHTML = '<p class="empty-state">You haven’t claimed a Body yet.</p>' +
+        '<a class="btn sm" href="village.html">The Village — claim a Body <span class="arrow">→</span></a>';
+      return;
+    }
+    gameStatus.className = "status live"; gameStatus.innerHTML = '<span class="d"></span> live';
+    var panels = data.chains.map(function (c) {
+      var rows = c.payouts.length
+        ? c.payouts.map(function (p) {
+            return '<div class="row"><span>' + esc(p.period) + '</span><b>' + gameMoney(p.income_k) + '</b></div>';
+          }).join("")
+        : '<div class="row"><span>No payouts yet</span><b>—</b></div>';
+      return '<div class="aw-panel">' +
+        '<h3>' + esc(c.class_code) + ' Body — position #' + c.chain_position + ', ' + Math.round(c.share * 100) + '% share ' +
+        '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span></h3>' +
+        '<div class="aw-math"><div class="row"><span>earned so far (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div></div>' +
+        '<p class="aw-note">Payout history (most recent first):</p>' +
+        '<div class="aw-math">' + rows + '</div>' +
+        (c.body_status === "no data" ? '<p class="aw-note">No telemetry available for this Body right now.</p>' : "") +
+        '</div>';
+    }).join("");
+    gameBody.innerHTML =
+      '<p style="font-weight:700">Game balance (spendable): <span class="game-balance-chip">' + gameMoney(data.balance) + '</span></p>' +
+      panels +
+      '<p class="game-note-light">Commission cap on any resident’s loss: <b>' + Math.round(data.c_max * 100) + '%</b> — a floor, not a promise.</p>' +
+      '<p class="game-note-light">' + esc(data.disclaimer) + '</p>';
+  }
+
+  function loadGameChain() {
+    var session = loadGameSession();
+    if (!session || !session.access_token) {
+      gameStatus.className = "status soon"; gameStatus.textContent = "⏳ not signed in";
+      gameBody.innerHTML = '<p class="empty-state">Log in to see your Village chain and payout history.</p>' +
+        '<a class="btn sm" href="village.html">The Village — log in <span class="arrow">→</span></a>';
+      return;
+    }
+    fetch(GAME_API_BASE + "/me/dashboard", {
+      headers: { Authorization: "Bearer " + session.access_token },
+      cache: "no-store"
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error(String(resp.status));
+      return resp.json();
+    }).then(renderGameChain).catch(function () {
+      gameStatus.className = "status kyc"; gameStatus.textContent = "⚠ error";
+      gameBody.innerHTML = '<p class="empty-state">Couldn’t load your Village chain right now.</p>';
+    });
+  }
+  if (gameBody) loadGameChain();
 })();
 </script>
 </body>

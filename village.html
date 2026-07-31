@@ -291,6 +291,16 @@
   authToggle.addEventListener("click", function () { setMode(mode === "register" ? "login" : "register"); });
   setMode("register");
 
+  // L4 bridge (dev-inbox #027): a player arriving from awakening.html's
+  // "Incarnate Into a Real Body" CTA carries their demo email over as a
+  // prefill -- convenience only, not an account link (the game-balance
+  // account is a fresh Supabase Auth signup, same as any other).
+  (function prefillEmailFromBridge() {
+    var params = new URLSearchParams(location.search);
+    var email = params.get("email");
+    if (email) byId("authEmail").value = email;
+  })();
+
   function showAuthError(msg) { authError.textContent = msg; authError.classList.remove("aw-hidden"); }
   function hideAuthError() { authError.classList.add("aw-hidden"); }
 

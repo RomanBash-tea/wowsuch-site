@@ -376,6 +376,16 @@
         <a class="btn alt" href="rent-to-own.html">Move in chip by chip <span class="arrow">→</span></a>
         <a class="btn alt" href="vessels.html">Peek at the full Vessels concept <span class="arrow">→</span></a>
       </div>
+
+      <!-- ============ L4 BRIDGE: Awakening -> game-balance purchase (dev-inbox #027/#029 section C, verbatim copy) ============ -->
+      <div class="aw-panel" id="l4BridgePanel">
+        <p style="margin-top:0">Somewhere up there, someone's already keeping your line in the ledger. Time to give them something to enter.</p>
+        <div class="aw-actions">
+          <a class="btn" id="l4BridgeLink" href="village.html">Incarnate Into a Real Body <span class="arrow">→</span></a>
+        </div>
+        <p class="aw-note">This isn't $VITA cashing out — $VITA stays right here, yours to keep. Past this point you're spending a fresh game balance on a real, seeded body. No real money moves yet.</p>
+      </div>
+
       <p class="aw-note">L9 figures use the same assumptions as our profit calculator (hosting at the site's real all-in kWh rate, live LTC + DOGE network data). Markets move daily — nothing here is a promise or an offer.</p>
       <p class="aw-note">$VITA is a narrative device for this demo, not a live token, security, or payment method — no such thing exists yet. Exit, buyout, and resale mechanics are concept-stage and pending legal wording.</p>
       <p class="aw-note">Already running a real Body? <a href="dashboard.html">Check your dashboard →</a></p>
@@ -1730,6 +1740,13 @@
 
       villageThought.textContent = entityThought(THOUGHTS_VILLAGE, d);
       renderHomeVillageGrid();
+
+      // L4 bridge (dev-inbox #027): hand the player's email/rune identity off
+      // to the game-balance purchase flow -- reusing this scene's own rune
+      // derivation, not re-deriving it. village.html prefills its auth form's
+      // email field from this query param.
+      var bridgeLink = document.getElementById("l4BridgeLink");
+      if (bridgeLink) bridgeLink.href = "village.html?email=" + encodeURIComponent(save.email || "");
     }
   }
 
