@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your WowSuch Dashboard</title>
-<meta name="description" content="Your WowSuch account in one place: wallet balances, deposit addresses, and your mining payouts and orders, all self-custodied via WowSuch MPC.">
+<meta name="description" content="Your WowSuch account in one place: mining payouts and orders. WowSuch MPC self-custody wallet balances and deposit addresses are on our roadmap and not yet live.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://wowsuch.example/dashboard.html">
 <meta name="theme-color" content="#FFB92E">
@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"WowSuch Dashboard","description":"Your WowSuch wallet balances, deposit addresses, and mining payouts in one place.","isPartOf":{"@type":"WebSite","name":"WowSuch","url":"https://wowsuch.example/"}}
+{"@context":"https://schema.org","@type":"WebPage","name":"WowSuch Dashboard","description":"Your WowSuch mining payouts and orders in one place. Wallet balances and deposit addresses are on our roadmap and not yet live.","isPartOf":{"@type":"WebSite","name":"WowSuch","url":"https://wowsuch.example/"}}
 </script>
 <style>
   /* ---- page-specific: dashboard ---- */
@@ -157,7 +157,7 @@
       <a href="whitelabel.html">Pool + wallet software</a>
     </div>
     <div><h4>Resources</h4>
-      <a href="wallet.html">Create a wallet</a>
+      <a href="wallet.html">Wallet (coming soon)</a>
       <a href="buy.html#calc">Profit calculator</a>
       <a href="index.html#how">How payouts work</a>
       <a href="wallet.html#faq">Wallet FAQ</a>
@@ -171,8 +171,8 @@
   </div>
   <div class="foot-trust">
     <span class="t">🇺🇸 US facility · 24/7 monitored</span>
-    <span class="t">🔑 MPC self-custody payouts</span>
-    <span class="t">⛏ 9,800+ L9s sold &amp; hosted</span>
+    <span class="t">🔑 MPC self-custody wallet · in development</span>
+    <span class="t">⛏ Proven Antminer L9 hardware</span>
     <span class="t">💵 paid daily · LTC + DOGE</span>
   </div>
   <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Your WowSuch wallet is self-custodied via MPC — you alone control access, and WowSuch cannot recover funds sent to an address you enter incorrectly. Coin balances and values shown are estimates at current network and market conditions. Mining and holding crypto may have tax consequences — consult your own tax and legal advisors.</p>
@@ -190,9 +190,9 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script>window.WOW_KB = [
-  { k: ["deposit", "address", "receive", "fund", "top up"], a: "Your deposit address appears in the dashboard once your wallet finishes provisioning. We also email your details within one business day of activating." },
-  { k: ["order", "payout", "payouts", "when", "hashing"], a: "Payouts appear on this dashboard once your machine is hashing — daily LTC + DOGE, automatically, straight to your wallet." },
-  { k: ["activate", "no wallet", "create a wallet"], a: "Head to the wallet page to activate — it takes under a minute and your dashboard updates immediately." }
+  { k: ["deposit", "address", "receive", "fund", "top up"], a: "The WowSuch MPC self-custody wallet is on our roadmap and not yet open. Sign up on the wallet page and we'll notify you when it launches." },
+  { k: ["order", "payout", "payouts", "when", "hashing"], a: "Payouts appear on this dashboard once your machine is hashing — daily LTC + DOGE, automatically. A self-custody wallet for these payouts is on our roadmap." },
+  { k: ["activate", "no wallet", "create a wallet"], a: "Head to the wallet page to sign up for early access — the wallet is on our roadmap and not yet open." }
 ];</script>
 <script src="assets/js/core.js"></script>
 <script>
@@ -255,8 +255,8 @@
           '<span class="bal-wrap"><span class="bal">' + esc(balTxt) + '</span>' + (usd ? '<span class="usd">' + esc(usd) + '</span>' : '') + '</span></div>';
       }).join("");
     } else {
-      coinList.innerHTML = '<p class="empty-state">Activate your free wallet to see live balances here.</p>' +
-        '<a class="btn sm" href="wallet.html#activate">Create my wallet <span class="arrow">→</span></a>';
+      coinList.innerHTML = '<p class="empty-state">The WowSuch MPC self-custody wallet is on our roadmap and not yet open.</p>' +
+        '<a class="btn sm" href="wallet.html#activate">Get notified when it opens <span class="arrow">→</span></a>';
     }
   }
   renderCoins();
@@ -269,14 +269,14 @@
       var addr = WA.coins[0].address;
       addrState.innerHTML = '<div class="a" id="depAddr">' + esc(addr) + '</div>' +
         '<button class="btn sm alt" id="copyAddr" type="button" style="margin-top:10px">Copy address</button>' +
-        '<p style="font-weight:600;font-size:.82rem;color:var(--ink-soft);margin-top:8px">This is your unique WowSuch MPC deposit address for DOGE, assigned when your wallet was created. Send DOGE here from any wallet or exchange.</p>';
+        '<p style="font-weight:600;font-size:.82rem;color:var(--ink-soft);margin-top:8px">Preview only: this is an example of the WowSuch MPC deposit address you would get once the self-custody wallet is live. The wallet is on our roadmap and not yet open — do not send funds to this address.</p>';
       var copyBtn = byId("copyAddr");
       if (copyBtn) copyBtn.addEventListener("click", function () {
         if (navigator.clipboard) navigator.clipboard.writeText(addr).then(function () { W.showToast("Address copied. Wow."); });
       });
     } else {
-      addrState.innerHTML = '<p style="font-weight:700">Your wallet is being provisioned — your unique deposit address will be emailed to you within one business day.</p>' +
-        '<a class="btn sm" href="wallet.html#activate" style="margin-top:10px;display:inline-flex">Activate my free wallet <span class="arrow">→</span></a>';
+      addrState.innerHTML = '<p style="font-weight:700">The WowSuch MPC self-custody wallet is on our roadmap and not yet open.</p>' +
+        '<a class="btn sm" href="wallet.html#activate" style="margin-top:10px;display:inline-flex">Get notified when it opens <span class="arrow">→</span></a>';
     }
   }
 
