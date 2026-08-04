@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pool &amp; Payout Transparency · WowSuch</title>
+<meta name="description" content="How WowSuch mining actually works: LTC+DOGE merge-mining mechanics, the 3% pool fee, the profitability calculator's methodology, Bitmain L9 hardware specs, and what we don't publish yet.">
+<link rel="canonical" href="https://wowsuch.example/transparency.html">
+<meta name="theme-color" content="#FFB92E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WowSuch">
+<meta property="og:title" content="Pool &amp; Payout Transparency · WowSuch">
+<meta property="og:description" content="The mechanics behind the machine: merge-mining, the pool fee, the calculator's methodology, and the hardware spec sheet — cited, not marketing copy.">
+<meta property="og:url" content="https://wowsuch.example/transparency.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pool &amp; Payout Transparency · WowSuch">
+<meta name="twitter:description" content="LTC+DOGE merge-mining, the 3% pool fee, calculator methodology, and hardware specs — explained and cited.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+  /* ---- page-specific: transparency (same doc pattern as terms.html) ---- */
+  .legal-head{padding:46px 0 8px;}
+  .legal-head h1{font-size:clamp(2rem,4.4vw,3rem);line-height:1.05;}
+  .legal-head .eff{font-family:var(--mono);font-weight:600;font-size:.92rem;color:var(--ink-soft);margin-top:14px;}
+  .legal-head .lede{font-size:1.1rem;font-weight:600;color:var(--ink-soft);max-width:76ch;margin-top:10px;}
+  .legal-doc{max-width:76ch;background:var(--paper);border:3px solid var(--ink);
+    border-radius:var(--r-lg);box-shadow:var(--sh-2);padding:34px 40px;margin:0 auto 64px;}
+  .legal-doc h2{font-size:1.35rem;margin:34px 0 10px;scroll-margin-top:90px;
+    padding-top:18px;border-top:2px solid var(--ink-faint);}
+  .legal-doc h2:first-of-type{border-top:0;margin-top:6px;padding-top:0;}
+  .legal-doc h2 .n{color:var(--amber);font-family:var(--mono);font-size:1rem;margin-right:8px;}
+  .legal-doc p{font-weight:500;color:var(--ink);line-height:1.7;margin:0 0 14px;}
+  .legal-doc ul{margin:0 0 14px;padding-left:22px;}
+  .legal-doc li{font-weight:500;line-height:1.65;margin-bottom:7px;}
+  .legal-doc a{color:var(--amber);text-decoration:underline;font-weight:700;}
+  .legal-doc .meta{font-family:var(--mono);font-weight:600;font-size:.86rem;}
+  .toc{max-width:76ch;margin:0 auto 22px;background:var(--cream-2,#FFE6AE);border:3px solid var(--ink);
+    border-radius:var(--r-md);box-shadow:var(--sh-1);padding:20px 26px;}
+  .toc h2{font-family:var(--display);font-size:1.05rem;margin:0 0 10px;}
+  .toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px;}
+  .toc li{font-weight:700;margin-bottom:6px;break-inside:avoid;}
+  .toc a{color:var(--ink);text-decoration:none;}
+  .toc a:hover{color:var(--amber);text-decoration:underline;}
+  @media(max-width:680px){.legal-doc{padding:26px 22px;}.toc ol{columns:1;}}
+  /* open-question + placeholder callouts */
+  .oq{background:var(--cream-2,#FFE6AE);border:2.5px solid var(--amber-ink);border-radius:var(--r-sm);
+    padding:12px 16px;margin:0 0 14px;font-weight:600;font-size:.92rem;color:var(--ink);}
+  .oq b{color:var(--amber-ink);}
+  .stub{background:var(--night);color:var(--cream-on-dark);border:3px dashed var(--gold);
+    border-radius:var(--r-md);padding:22px 24px;margin:0 0 14px;}
+  .stub .stub-tag{font-family:var(--mono);font-weight:700;font-size:.78rem;letter-spacing:.5px;
+    color:var(--gold-on-dark);text-transform:uppercase;}
+  .stub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px;}
+  .stub-tile{background:var(--night-2);border:2px solid var(--gold);border-radius:var(--r-sm);
+    padding:14px 16px;text-align:center;}
+  .stub-tile .v{font-family:var(--mono);font-weight:700;font-size:1.3rem;color:var(--soft-on-dark);}
+  .stub-tile .l{font-weight:700;font-size:.82rem;color:var(--soft-on-dark);margin-top:4px;}
+  @media(max-width:680px){.stub-grid{grid-template-columns:1fr;}}
+  .formula{font-family:var(--mono);font-weight:600;font-size:.92rem;background:var(--cream);
+    border:2px solid var(--ink-faint);border-radius:var(--r-sm);padding:14px 16px;
+    overflow-x:auto;white-space:pre;margin:0 0 14px;}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#top">Skip to content</a>
+
+<div class="topbar"><span>🔍 <b>Pool &amp; payout transparency</b> — how merge-mining, fees, and the calculator actually work</span><a class="tb-btn" href="index.html">Back to home →</a></div>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="index.html" aria-label="WowSuch home">
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+      <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+      <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+      <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+      <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
+  </a>
+  <nav class="links" id="navlinks" aria-label="Main">
+    <span class="has-drop"><a class="drop-toggle">Solutions <span class="caret">▾</span></a>
+      <span class="drop-menu">
+        <a href="rent-to-own.html">Rent to Own &amp; Mine it<small>by the chip · from $13.89/mo · 12 chips</small></a>
+        <a href="buy.html">Buy a Full Rig &amp; Mine it<small>own an L9 outright · $4,995</small></a>
+        <a href="lease.html">Lease your Rig to us &amp; Earn<small>we run it, you get paid USDC</small></a>
+        <a href="enterprise.html">Bring your Own Rigs<small>enterprise colocation · 50+</small></a>
+        <a href="whitelabel.html">Pool + Wallet Software<small>launch your own pool + MPC</small></a>
+      </span>
+    </span>
+    <a href="wallet.html">Create a wallet</a>
+    <a href="buy.html#calc">Profit calc</a>
+    <a href="transparency.html" aria-current="page">Transparency</a>
+    <a href="vessels.html">Vessels <span class="chip" style="margin-left:4px">concept</span></a>
+    <a class="btn sm nav-cta" href="buy.html">Buy an L9 <span class="arrow">→</span></a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Menu"><span></span></button>
+</div></header>
+
+<main id="top">
+
+<!-- ============ HEADER ============ -->
+<section class="legal-head"><div class="wrap">
+  <span class="eyebrow reveal">much detail, very honest</span>
+  <h1 class="reveal" style="transition-delay:.05s">Pool &amp; Payout Transparency</h1>
+  <p class="eff reveal" style="transition-delay:.1s">Last updated: August 4, 2026</p>
+  <p class="lede reveal" style="transition-delay:.14s">An independent trust review of this site (Vlad K, August 2026) found that our pool mechanics and profitability calculator disclosed a 3% fee but little else. This page is the fix: the real mechanics, in plain language, with every number either cited or clearly marked as an open question.</p>
+</div></section>
+
+<section style="padding-top:14px"><div class="wrap">
+
+  <!-- ============ TABLE OF CONTENTS ============ -->
+  <nav class="toc reveal" aria-label="Sections of this page">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#mergemining">Merge-mining LTC + DOGE</a></li>
+      <li><a href="#fee">The 3% pool fee</a></li>
+      <li><a href="#scheme">Payout scheme</a></li>
+      <li><a href="#calc-method">Calculator methodology</a></li>
+      <li><a href="#hardware">Hardware specs</a></li>
+      <li><a href="#fleet">Live fleet stats</a></li>
+      <li><a href="#notpublished">What we don't publish yet</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ DOCUMENT ============ -->
+  <article class="legal-doc reveal" style="transition-delay:.06s">
+
+    <h2 id="mergemining"><span class="n">1.</span>Merge-mining LTC + DOGE</h2>
+    <p>Litecoin (LTC) and Dogecoin (DOGE) both use the <b>Scrypt</b> hashing algorithm, and Dogecoin adopted <b>AuxPoW</b> (merged mining) specifically so it could share Litecoin's network security. In practice, that means a single Antminer L9 pointed at our pool hashes <b>one</b> proof-of-work problem that is simultaneously valid for both chains — the same GH/s, the same watts, and one hashboard, but two independent block-reward streams: an LTC reward stream and a DOGE reward stream.</p>
+    <p>Both streams are tracked separately by the pool as blocks are found on each chain, and both land together in your <b>daily payout</b> — you receive LTC and DOGE, not a converted or blended single coin. This is standard, publicly documented Scrypt/AuxPoW behavior, not a WowSuch-specific mechanism; you can verify the LTC↔DOGE merged-mining relationship independently (e.g. Litecoin Project / Dogecoin Foundation documentation).</p>
+
+    <h2 id="fee"><span class="n">2.</span>The 3% pool fee, in context</h2>
+    <p>WowSuch Pool charges a flat <span class="meta">3%</span> fee, deducted from your <b>gross</b> mining rewards <b>before</b> the daily payout is calculated — you never receive an invoice for it separately, it's simply netted out. That 3% covers pool operation: running and securing the stratum/pool infrastructure that finds blocks, tracks shares, and calculates and distributes payouts. It is separate from hosting ($0.079/kWh all-in, disclosed on <a href="buy.html">buy.html</a> and <a href="terms.html#hosting">terms.html §4</a>), which is its own line item withheld independently.</p>
+    <p>We are not publishing a further breakdown of pool-fee cost allocation beyond "pool operation" — we don't want to state a specific split (e.g. infrastructure vs. margin) that we can't stand behind with real numbers. If a more granular breakdown becomes something Roman and Igor want to publish, it will be added here with real figures, not estimated ones.</p>
+
+    <h2 id="scheme"><span class="n">3.</span>Payout scheme</h2>
+    <div class="oq"><b>Open question — not yet published:</b> the specific payout scheme (PPS, PPLNS, or FPPS) that WowSuch Pool runs is not documented anywhere in our public site, terms, or internal materials that we could find. Rather than guess or imply one, we're marking it as pending and routing the question to the team.</div>
+    <p><b>Payout scheme: to be published — ask us.</b> In general terms across the mining industry: <b>PPS</b> (Pay Per Share) pays a fixed amount per share submitted regardless of whether the pool finds a block, shifting variance onto the pool; <b>PPLNS</b> (Pay Per Last N Shares) pays out proportionally to shares contributed in a rolling window only when blocks are actually found, shifting variance onto miners; <b>FPPS</b> (Full Pay Per Share) is PPS for the block subsidy plus a share of actual transaction fees. Which of these — or which variant — WowSuch Pool runs will be confirmed and published here once we have a definitive answer.</p>
+
+    <h2 id="calc-method"><span class="n">4.</span>Profitability calculator methodology</h2>
+    <p>The profit calculator on <a href="buy.html#calc">buy.html</a> models your expected daily payout from four inputs:</p>
+    <ul>
+      <li><b>Scrypt network difficulty</b> — how hard it currently is to find a block on the shared LTC/DOGE Scrypt network. Higher difficulty means a fixed hashrate earns fewer coins per day. The calculator's difficulty trend chart is illustrative, not a live feed; live difficulty at calc-time is what actually determines your payout.</li>
+      <li><b>LTC and DOGE spot prices</b> — fetched live when the calculator page loads, so the dollar-value estimate reflects current market prices, not a stale snapshot.</li>
+      <li><b>An uptime assumption</b> — the calculator assumes the machine is hashing continuously; real-world downtime (repairs, curtailment) reduces actual output proportionally to hours offline.</li>
+      <li><b>Pool luck variance</b> — even at constant hashrate and difficulty, actual blocks found fluctuate around the statistical expectation. The calculator shows an expected value, not a guaranteed one.</li>
+    </ul>
+    <p>The shape of the formula, in plain language:</p>
+    <div class="formula">daily reward  ≈  (your hashrate ÷ network hashrate) × block reward × 2 coins (LTC + DOGE)
+                 adjusted for: network difficulty, pool luck variance
+                 minus: 3% pool fee
+                 minus: hosting cost, if hosted ($0.079/kWh all-in)
+                 =  estimated daily payout (LTC + DOGE, converted to USD at live spot prices for display)</div>
+    <div class="oq"><b>Open question — not yet sourced:</b> the <span class="meta">$0.079/kWh</span> hosting rate used throughout this site and in the calculator does not currently have a cited source (utility rate sheet, contract, or facility disclosure). We're not publishing a fabricated citation for it — it's marked here as pending until the team supplies one.</div>
+    <p>Every calculator output is an estimate, not a promise — see the risk disclosure in <a href="terms.html#risk">terms.html §8</a>.</p>
+
+    <h2 id="hardware"><span class="n">5.</span>Hardware specs</h2>
+    <p>WowSuch hosts the Bitmain Antminer L9, a Scrypt ASIC rated at 16 GH/s. Rather than restate specs here that could drift out of sync, we link directly to Bitmain's own product listing for the L9 — the manufacturer's own numbers, not our summary of them:</p>
+    <ul>
+      <li><a href="https://shop.bitmain.com/product/detail?pid=0002024060414102512924WQ0sqy0686" target="_blank" rel="noopener">Bitmain Antminer L9 — official product page (shop.bitmain.com)</a></li>
+      <li><a href="https://support.bitmain.com/hc/en-us/articles/33850555425305-L9-Specifications" target="_blank" rel="noopener">Bitmain Antminer L9 — full specification sheet (support.bitmain.com)</a></li>
+    </ul>
+    <p>Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+
+    <h2 id="fleet"><span class="n">6.</span>Live fleet stats</h2>
+    <!--
+      STUB: this block is a visual hook only. It does NOT fetch, compute, or display any
+      real telemetry. Wire it to real sanitized aggregate data once the Foreman telemetry
+      bulk health sync ships (Asana gid 1217083325651356) — aggregate hashrate + fleet
+      uptime ONLY, never per-unit data, real pool accounts, worker names, or addresses
+      (see Section 7). Until that ships, this stays a labeled placeholder.
+    -->
+    <div class="stub">
+      <span class="stub-tag">Coming soon · not live data</span>
+      <p style="color:var(--cream-on-dark);font-weight:600;margin:8px 0 0">Once the fleet telemetry sync ships, this section will show real, sanitized, aggregate fleet numbers — never per-machine data, accounts, or addresses.</p>
+      <div class="stub-grid">
+        <div class="stub-tile"><div class="v">—</div><div class="l">aggregate fleet hashrate</div></div>
+        <div class="stub-tile"><div class="v">—</div><div class="l">fleet uptime (rolling)</div></div>
+      </div>
+    </div>
+
+    <h2 id="notpublished"><span class="n">7.</span>What we don't publish yet</h2>
+    <p>To be direct about the boundary of this page: we do <b>not</b> publish real pool account identifiers, worker names, or on-chain wallet addresses anywhere on this site, including here. Disclosing those would let anyone verify pool activity independently — which is exactly what full transparency would look like — but it is a deliberate trade-off against our telemetry sanitization policy (never expose real fleet pool accounts or worker identifiers via any public endpoint), and it requires an explicit, scoped decision from Roman and Igor. It is not something this page decides on its own.</p>
+    <p>Until that decision is made, Sections 3 and 4 above list the two other specifics (payout scheme, power-rate source) still pending. All three open questions are tracked in one place internally and will be answered here, with citations, once resolved — not guessed at in the meantime.</p>
+
+  </article>
+
+  <!-- ============ CROSS-SELL ============ -->
+  <div class="sec-head center reveal" style="max-width:62ch;margin:0 auto 24px"><span class="eyebrow">keep exploring</span>
+    <h2>See the numbers in action</h2>
+  </div>
+  <div class="xsell reveal" style="max-width:76ch;margin:0 auto">
+    <a class="xsell-card" href="buy.html#calc">
+      <span class="xs-ico" aria-hidden="true">🧮</span>
+      <h3>Profit Calculator</h3>
+      <p>Model your estimated daily payout with live LTC + DOGE prices.</p>
+      <span class="xs-go">Try the calculator →</span>
+    </a>
+    <a class="xsell-card" href="terms.html">
+      <span class="xs-ico" aria-hidden="true">📄</span>
+      <h3>Terms of Service</h3>
+      <p>The hosting, fee, and risk terms that back everything on this page.</p>
+      <span class="xs-go">Read the terms →</span>
+    </a>
+    <a class="xsell-card" href="buy.html">
+      <span class="xs-ico" aria-hidden="true">⛏</span>
+      <h3>Buy a Full Rig</h3>
+      <p>Own an L9 outright for $4,995, hosted in the US and hashing within 1 business day.</p>
+      <span class="xs-go">Buy a rig →</span>
+    </a>
+  </div>
+
+</div></section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="index.html" aria-label="WowSuch home">
+        <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#FFB92E" stroke="#2B1D05" stroke-width="3"/>
+          <path d="M16 24 L22 12 L30 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M48 24 L42 12 L34 22 Z" fill="#E9A23B" stroke="#2B1D05" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14 30 Q32 18 50 30 Q52 46 32 52 Q12 46 14 30 Z" fill="#FBE3B0" stroke="#2B1D05" stroke-width="2.4"/>
+          <circle cx="25" cy="33" r="2.6" fill="#2B1D05"/><circle cx="39" cy="33" r="2.6" fill="#2B1D05"/>
+          <ellipse cx="32" cy="40" rx="4" ry="3" fill="#2B1D05"/>
+          <path d="M28 44 Q32 47 36 44" fill="none" stroke="#2B1D05" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">Wow<b>Such</b><small>much hash · so doge</small></span>
+      </a>
+      <p style="font-weight:700;margin-top:14px;max-width:36ch;opacity:.9">One platform that mines and self-custodies. Buy, rent, host, license, or lease. Your keys, your coins.</p>
+    </div>
+    <div><h4>Solutions</h4>
+      <a href="rent-to-own.html">Rent to own</a>
+      <a href="buy.html">Buy a full rig</a>
+      <a href="lease.html">Lease &amp; earn USDC</a>
+      <a href="enterprise.html">Enterprise &amp; colocation</a>
+      <a href="whitelabel.html">Pool + wallet software</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a href="buy.html#calc">Profit calculator</a>
+      <a href="buy.html#machine">The Antminer L9</a>
+      <a href="transparency.html">Pool &amp; payout transparency</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="vessels.html">Vessels (concept preview)</a>
+    </div>
+    <div><h4>Company</h4>
+      <a href="enterprise.html#contact">Request a quote</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>    </div>
+  </div>
+  <div class="foot-trust">
+    <span class="t">🇺🇸 US facility · 24/7 monitored</span>
+    <span class="t">🔑 MPC self-custody wallet · in development</span>
+    <span class="t">⛏ Proven Antminer L9 hardware</span>
+    <span class="t">💵 paid daily · LTC + DOGE</span>
+  </div>
+  <p class="risk">⚠ Risk disclosure: cryptocurrency mining returns are variable and not guaranteed. They depend on network difficulty, coin prices, uptime, and pool luck; past performance does not predict future results. Rent-to-own is a fractional, by-the-chip plan (288 chips per L9, minimum 12 chips, ~$20.83 per chip over 18 months at 0%; payments are due regardless of mining results; repairs included for the term with up to 3 months of possible repair downtime). Buyback offers reflect live fair market value and are not guaranteed amounts. Hosting is $0.079/kWh all-in on a 1-year term; the security deposit and setup fee are waived only when WowSuch Pool forwards your hosting. Figures shown (including projected coin output) are estimates at current network conditions. Mining may have tax consequences — consult your own tax and legal advisors.</p>
+  <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
+</div></footer>
+
+<!-- ============ CHAT ============ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
+<div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
+  <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-input" id="chatForm"><input id="chatText" placeholder="Ask about price, hosting, payouts…" autocomplete="off" aria-label="Your question"><button type="submit" aria-label="Send">→</button></form>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/core.js"></script>
+</body>
+</html>
