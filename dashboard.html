@@ -95,6 +95,12 @@
   .vg-codex-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;
     cursor:pointer;font-weight:700;color:var(--ink-soft);line-height:1;padding:4px 6px;}
   .vg-codex-close:hover{color:var(--ink);}
+
+  /* ---- chain position/share row: was rendered as one run-on string
+     ("#2QA0110%") -- Asana [backend] Village map task, readability fix ---- */
+  .chain-pos-row{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-weight:700;
+    font-size:.85rem;color:var(--soft-on-dark);margin-top:2px;flex-wrap:wrap;}
+  .chain-pos-row .pos{color:var(--gold-on-dark);}
 </style>
 </head>
 <body>
@@ -471,8 +477,9 @@
           }).join("")
         : '<div class="row"><span>No payouts yet</span><b>—</b></div>';
       return '<div class="aw-panel">' +
-        '<h3>' + esc(c.class_code) + ' Body — position #' + c.chain_position + ', ' + Math.round(c.share * 100) + '% share ' +
+        '<h3>' + esc(c.display_name || c.class_code + ' Body') +
         '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span></h3>' +
+        '<div class="chain-pos-row"><span class="pos">Position #' + c.chain_position + '</span><span>' + Math.round(c.share * 100) + '% share</span></div>' +
         '<div class="aw-math"><div class="row"><span>earned so far (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div></div>' +
         '<p class="aw-note">Payout history (most recent first):</p>' +
         '<div class="aw-math">' + rows + '</div>' +

@@ -64,27 +64,35 @@
   .aw-stage h2{color:#fff;margin-top:8px;}
   .aw-stage h3{color:#fff;}
   .aw-stage p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:56ch;}
-  .aw-bodies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
-  .aw-body-card{border:3px solid var(--gold);border-radius:var(--r-md);padding:16px 14px;text-align:center;
-    background:#2A1B06;opacity:.45;}
-  .aw-body-card.open{opacity:1;box-shadow:0 0 0 3px rgba(255,185,46,.35);}
-  .aw-body-card .ico{font-size:1.6rem;}
-  .aw-body-card h4{font-family:var(--display);color:#fff;font-size:.95rem;margin-top:6px;}
-  .aw-body-card small{display:block;color:var(--soft-on-dark);font-weight:700;margin-top:4px;font-size:.78rem;}
-  .aw-body-card .tag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:.68rem;
-    font-weight:700;padding:3px 8px;border-radius:999px;background:var(--night);border:1px solid var(--gold);
-    color:var(--gold-on-dark);}
-  .aw-body-card.open .tag{background:#3a2607;}
-  button.aw-body-card{cursor:pointer;font-family:inherit;color:inherit;width:100%;opacity:1;}
-  button.aw-body-card:disabled{opacity:.45;cursor:not-allowed;}
-  button.aw-body-card:not(:disabled):hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
+  /* ---- village map (dev-inbox/Asana [backend] Village map, replaces the old aw-body-card list) ---- */
+  .vmap-wrap{position:relative;margin-top:14px;border:4px solid var(--gold);border-radius:var(--r-lg);
+    overflow:hidden;background:#150e02;}
+  #villageCanvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab;}
+  #villageCanvas:active{cursor:grabbing;}
+  .vmap-controls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;}
+  .vmap-controls .btn{padding:6px 10px;line-height:1;min-width:34px;}
+  .vmap-legend{position:absolute;bottom:8px;left:10px;display:flex;gap:12px;flex-wrap:wrap;
+    background:rgba(20,14,4,.72);padding:6px 10px;border-radius:8px;max-width:calc(100% - 20px);}
+  .vmap-legend span{font-family:var(--mono);font-size:.72rem;color:var(--soft-on-dark);
+    display:flex;align-items:center;gap:5px;white-space:nowrap;}
+  .vmap-legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none;}
+  .vmap-legend .dot.healthy{background:#3AA655;}
+  .vmap-legend .dot.warning{background:#E9A23B;}
+  .vmap-legend .dot.critical{background:#C0392B;}
+  .vmap-legend .dot.offline{background:#8a8a8a;}
+  .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
+  .vmap-hint{font-size:.82rem;color:var(--ink-soft);font-weight:600;margin-top:8px;}
+  .vg-telemetry{border:2px solid var(--gold);border-radius:var(--r-sm);background:#2A1B06;
+    padding:12px 14px;margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
+  .vg-telemetry .t-lab{display:block;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+    letter-spacing:.03em;color:var(--soft-on-dark);}
+  .vg-telemetry .t-val{display:block;font-family:var(--mono);font-weight:700;color:#fff;font-size:.9rem;margin-top:2px;}
   .aw-occ-bar{height:8px;border-radius:99px;background:var(--night);border:1px solid var(--gold);
     margin-top:10px;overflow:hidden;}
   .aw-occ-fill{height:100%;background:var(--gold-on-dark);}
   .aw-occ-chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px;}
   .aw-occ-chip{font-family:var(--mono);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:999px;
     background:var(--night);border:1px solid var(--gold);color:var(--soft-on-dark);}
-  .aw-body-card .status{display:block;margin-top:8px;font-size:.74rem;font-weight:700;color:var(--soft-on-dark);}
   .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:18px !important;}
   .aw-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
   .aw-choices.two{grid-template-columns:repeat(2,1fr);}
@@ -109,16 +117,17 @@
   .aw-math .row.net{font-weight:800;}
   .aw-math .row.net b{color:#fff;}
   .aw-chain-list{list-style:none;margin:14px 0 0;padding:0;}
-  .aw-chain-list li{font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--soft-on-dark);
-    padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.25);}
+  .aw-chain-list li{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:.82rem;
+    font-weight:700;color:var(--soft-on-dark);padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.25);}
   .aw-chain-list li:last-child{border-bottom:none;}
   .aw-chain-list li.you{color:#fff;}
-  .aw-chain-list .pos{color:var(--gold-on-dark);margin-right:6px;}
-  .aw-chain-list .pct{float:right;}
+  .aw-chain-list .pos{color:var(--gold-on-dark);flex:0 0 30px;}
+  .aw-chain-list .name{flex:1;text-align:left;}
+  .aw-chain-list .pct{flex:0 0 auto;text-align:right;}
   .aw-wallet-link{display:inline-block;margin-top:6px;background:none;border:none;padding:0;font-family:inherit;
     font-size:.82rem;font-weight:700;color:var(--gold-on-dark);text-decoration:underline;cursor:pointer;}
   .aw-hidden{display:none !important;}
-  @media (max-width:640px){ .aw-bodies,.aw-choices{grid-template-columns:1fr;} }
+  @media (max-width:640px){ .aw-choices{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -180,15 +189,30 @@
 
     <div id="villageListView">
       <h3 style="margin-top:22px">The Village</h3>
-      <p>Every card below is a real, seeded Antminer L9. Pick one with room left.</p>
-      <div class="aw-bodies" id="villageBodies"></div>
-      <button class="btn alt" id="loadMoreBodies" style="margin-top:18px">Show more Bodies →</button>
+      <p>All 1000 seeded Bodies, laid out district by district — colored by health, ringed in gold where you hold a share. Scroll/pinch to zoom, drag to pan, click a plot to open it.</p>
+      <div class="vmap-wrap">
+        <canvas id="villageCanvas" width="900" height="560" role="img" aria-label="Map of the Village — 1000 Bodies grouped into districts"></canvas>
+        <div class="vmap-controls">
+          <button type="button" class="btn sm alt" id="mapZoomIn" aria-label="Zoom in">+</button>
+          <button type="button" class="btn sm alt" id="mapZoomOut" aria-label="Zoom out">−</button>
+          <button type="button" class="btn sm alt" id="mapReset" aria-label="Reset view">⤾</button>
+        </div>
+        <div class="vmap-legend">
+          <span><i class="dot healthy"></i>healthy</span>
+          <span><i class="dot warning"></i>warning</span>
+          <span><i class="dot critical"></i>critical</span>
+          <span><i class="dot offline"></i>offline</span>
+          <span><i class="dot owned"></i>yours</span>
+        </div>
+      </div>
+      <p class="vmap-hint" id="mapLoadingNote">Loading the village…</p>
     </div>
 
     <div id="bodyDetailView" class="aw-hidden">
       <button type="button" class="btn sm alt" id="backToList" style="margin-top:22px">← Back to the Village</button>
       <h3 id="detailTitle" style="margin-top:14px"></h3>
       <div class="aw-occ-bar"><div class="aw-occ-fill" id="detailOccFill" style="width:0%"></div></div>
+      <div class="vg-telemetry aw-hidden" id="detailTelemetry"></div>
       <div id="chainViewBeatSlot"></div>
       <ol class="aw-chain-list" id="detailChainList"></ol>
       <p id="detailFullNote" class="aw-hidden" style="color:#FFD873;font-weight:700">This chain is at capacity — no room for a new Entity right now.</p>
@@ -281,7 +305,6 @@
   var API_BASE = "https://wowsuch-game.onrender.com";
   var LS_SESSION = "wowsuch_game_session";
   var LS_ONBOARDED = "wowsuch_game_onboarded";
-  var PAGE_SIZE = 12;
 
   function byId(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
@@ -337,9 +360,11 @@
   function clearSession() { localStorage.removeItem(LS_SESSION); }
 
   var session = loadSession();
-  var bodiesOffset = 0;
   var currentBody = null;   // {body_id, class_code, capacity, chain, ...}
   var selectedShare = null;
+  var mapData = null;       // { bodies: [...], grid: {width,height}, district_size: {...} }
+  var ownedBodyIds = {};    // body_id -> true, from /me/dashboard, for the ownership ring
+  var mapNeedsRefresh = false; // set after a purchase so the map re-fetches once, not on every frame
 
   async function api(path, opts) {
     opts = opts || {};
@@ -437,34 +462,180 @@
     localStorage.setItem(LS_ONBOARDED, "1");
     byId("onboarding").classList.add("aw-hidden");
     byId("villageStage").classList.remove("aw-hidden");
-    loadBodies(true);
+    loadMap();
   });
 
-  /* ---------------- VILLAGE: body list ---------------- */
-  var villageBodiesEl = byId("villageBodies");
+  /* ---------------- VILLAGE MAP: tiers 0+1 (whole village / mid-zoom), one <canvas> ----------------
+     A single canvas rendered at zoom-dependent detail avoids the "1000
+     unvirtualized DOM nodes will jank" problem the task spec calls out --
+     not just at the whole-village tier, at every zoom level. Tier 2 (click
+     a Body) reuses the existing bodyDetailView via openBody(), unchanged. */
+  var CELL = 20; // logical px per grid cell at scale 1
+  var MIN_SCALE = 0.5, MAX_SCALE = 10;
+  var LABEL_ZOOM_THRESHOLD = 2.3;   // mid-zoom tier: draw name + sold% per cell
+  var DISTRICT_LABEL_MAX_SCALE = 1.2; // whole-village tier: draw district names instead
+  var HEALTH_COLOR = { healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B", offline: "#8a8a8a" };
 
-  function bodyCardHtml(b) {
-    var closed = b.slots_open <= 0 || b.share_room <= 0;
-    var occPct = Math.round((1 - b.share_room) * 100);
-    return '<button type="button" class="aw-body-card' + (closed ? "" : " open") + '" data-body-id="' + esc(b.body_id) + '"' + (closed ? " disabled" : "") + '>' +
-      '<div class="ico">⛏️</div>' +
-      '<h4>' + esc(b.class_code) + ' Body</h4>' +
-      '<div class="aw-occ-bar"><div class="aw-occ-fill" style="width:' + occPct + '%"></div></div>' +
-      '<small>' + b.active_population + '/' + b.capacity + ' entities · ' + Math.round(b.share_room * 100) + '% unclaimed</small>' +
-      '<span class="tag">' + (closed ? "full" : "open") + '</span>' +
-      '</button>';
+  var canvas = byId("villageCanvas");
+  var ctx = canvas ? canvas.getContext("2d") : null;
+  var view = { scale: 1, offsetX: 0, offsetY: 0 };
+  var cellIndex = {}; // "x,y" -> body, built once per map load for O(1) click lookup
+  var districtLabelAt = {}; // district id -> {name, gx, gy} (top-left grid cell of that district)
+
+  function resetView() {
+    if (!mapData) return;
+    var gridPxW = mapData.grid.width * CELL, gridPxH = mapData.grid.height * CELL;
+    view.scale = Math.min(canvas.width / gridPxW, canvas.height / gridPxH, 1.4);
+    view.offsetX = (canvas.width - gridPxW * view.scale) / 2;
+    view.offsetY = (canvas.height - gridPxH * view.scale) / 2;
   }
 
-  async function loadBodies(reset) {
-    if (reset) { bodiesOffset = 0; villageBodiesEl.innerHTML = ""; }
-    var data = await api("/bodies?limit=" + PAGE_SIZE + "&offset=" + bodiesOffset);
-    bodiesOffset += PAGE_SIZE;
-    villageBodiesEl.insertAdjacentHTML("beforeend", data.bodies.map(bodyCardHtml).join(""));
-    villageBodiesEl.querySelectorAll("[data-body-id]").forEach(function (btn) {
-      btn.addEventListener("click", function () { openBody(btn.getAttribute("data-body-id")); });
+  function clampScale(s) { return Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)); }
+
+  function drawMap() {
+    if (!ctx || !mapData) return;
+    ctx.save();
+    ctx.fillStyle = "#150e02";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(view.offsetX, view.offsetY);
+    ctx.scale(view.scale, view.scale);
+
+    var showLabels = view.scale >= LABEL_ZOOM_THRESHOLD;
+    var showDistrictLabels = view.scale < DISTRICT_LABEL_MAX_SCALE;
+
+    if (showDistrictLabels) {
+      var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+      ctx.textAlign = "center";
+      ctx.font = Math.max(9, CELL * 0.5) + "px 'IBM Plex Mono', monospace";
+      Object.keys(districtLabelAt).forEach(function (d) {
+        var info = districtLabelAt[d];
+        var cx = info.gx * CELL + dW / 2, cy = info.gy * CELL + dH / 2;
+        ctx.strokeStyle = "rgba(255,185,46,.28)";
+        ctx.lineWidth = 1 / view.scale;
+        ctx.strokeRect(info.gx * CELL, info.gy * CELL, dW, dH);
+        ctx.fillStyle = "rgba(255,216,115,.75)";
+        ctx.fillText(info.name, cx, cy);
+      });
+    }
+
+    mapData.bodies.forEach(function (b) {
+      var x = b.x * CELL, y = b.y * CELL;
+      ctx.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
+      ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+      if (ownedBodyIds[b.id]) {
+        ctx.strokeStyle = "#FFB92E";
+        ctx.lineWidth = Math.max(1.5, 2 / view.scale);
+        ctx.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
+      }
+      if (showLabels) {
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#fff";
+        ctx.font = Math.max(7, CELL * 0.26) + "px 'IBM Plex Mono', monospace";
+        ctx.fillText(b.name, x + CELL / 2, y + CELL * 0.52);
+        ctx.fillStyle = "#FFD873";
+        ctx.font = Math.max(6, CELL * 0.2) + "px 'IBM Plex Mono', monospace";
+        ctx.fillText(b.sold_pct + "%", x + CELL / 2, y + CELL * 0.82);
+      }
+    });
+    ctx.restore();
+  }
+
+  function indexMap() {
+    cellIndex = {};
+    districtLabelAt = {};
+    mapData.bodies.forEach(function (b) {
+      cellIndex[b.x + "," + b.y] = b;
+      if (!(b.district in districtLabelAt)) {
+        // top-left cell of this district's block, from its own grid position
+        var dW = mapData.district_size.w, dH = mapData.district_size.h;
+        var col = b.district % mapData.district_size.cols;
+        var row = Math.floor(b.district / mapData.district_size.cols);
+        districtLabelAt[b.district] = { name: b.district_name, gx: col * dW, gy: row * dH };
+      }
     });
   }
-  byId("loadMoreBodies").addEventListener("click", function () { loadBodies(false); });
+
+  async function loadOwnedBodies() {
+    ownedBodyIds = {};
+    if (!session || !session.access_token) return;
+    try {
+      var dash = await api("/me/dashboard");
+      (dash.chains || []).forEach(function (c) { ownedBodyIds[c.body_id] = true; });
+    } catch (e) { /* not fatal -- ownership ring just won't show */ }
+  }
+
+  async function loadMap() {
+    byId("mapLoadingNote").textContent = "Loading the village…";
+    mapData = await api("/map");
+    indexMap();
+    await loadOwnedBodies();
+    resetView();
+    drawMap();
+    byId("mapLoadingNote").textContent = "";
+  }
+
+  function canvasPointFromEvent(e) {
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  }
+
+  function bodyAtCanvasPoint(pt) {
+    var wx = (pt.x - view.offsetX) / view.scale, wy = (pt.y - view.offsetY) / view.scale;
+    var gx = Math.floor(wx / CELL), gy = Math.floor(wy / CELL);
+    return cellIndex[gx + "," + gy];
+  }
+
+  (function setupMapInteraction() {
+    if (!canvas) return;
+    var dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+
+    canvas.addEventListener("pointerdown", function (e) {
+      dragging = true; dragMoved = false;
+      lastX = e.clientX; lastY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragMoved = true;
+      var rect = canvas.getBoundingClientRect();
+      var scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+      view.offsetX += dx * scaleX; view.offsetY += dy * scaleY;
+      lastX = e.clientX; lastY = e.clientY;
+      drawMap();
+    });
+    canvas.addEventListener("pointerup", function (e) {
+      dragging = false;
+      if (!dragMoved && mapData) {
+        var body = bodyAtCanvasPoint(canvasPointFromEvent(e));
+        if (body) openBody(body.id);
+      }
+    });
+    canvas.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      if (!mapData) return;
+      var pt = canvasPointFromEvent(e);
+      var worldX = (pt.x - view.offsetX) / view.scale, worldY = (pt.y - view.offsetY) / view.scale;
+      var factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+      view.scale = clampScale(view.scale * factor);
+      view.offsetX = pt.x - worldX * view.scale;
+      view.offsetY = pt.y - worldY * view.scale;
+      drawMap();
+    }, { passive: false });
+
+    function zoomAtCenter(factor) {
+      var cx = canvas.width / 2, cy = canvas.height / 2;
+      var worldX = (cx - view.offsetX) / view.scale, worldY = (cy - view.offsetY) / view.scale;
+      view.scale = clampScale(view.scale * factor);
+      view.offsetX = cx - worldX * view.scale;
+      view.offsetY = cy - worldY * view.scale;
+      drawMap();
+    }
+    byId("mapZoomIn").addEventListener("click", function () { zoomAtCenter(1.4); });
+    byId("mapZoomOut").addEventListener("click", function () { zoomAtCenter(1 / 1.4); });
+    byId("mapReset").addEventListener("click", function () { resetView(); drawMap(); });
+  })();
 
   /* ---------------- VILLAGE: body detail + Inspector ---------------- */
   var villageListView = byId("villageListView"), bodyDetailView = byId("bodyDetailView");
@@ -489,16 +660,55 @@
     byId("previewPanel").classList.add("aw-hidden");
     byId("resultPanel").classList.add("aw-hidden");
     renderBodyDetail();
+    loadTelemetry(bodyId);
+  }
+
+  /* ---------------- VILLAGE: live telemetry (tier-2 detail panel) ---------------- */
+  var TELEMETRY_LABELS = {
+    hashrate_current_ghs: "Hashrate now", hashrate_average_ghs: "Hashrate (7d avg)",
+    board_temp_max_c: "Board temp", uptime_seconds: "Uptime", last_seen: "Last seen"
+  };
+  function fmtUptime(sec) {
+    if (!sec) return "—";
+    var h = Math.floor(sec / 3600), d = Math.floor(h / 24);
+    return d > 0 ? d + "d " + (h % 24) + "h" : h + "h";
+  }
+  function fmtLastSeen(ts) {
+    if (!ts) return "—";
+    var mins = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + "m ago";
+    return Math.round(mins / 60) + "h ago";
+  }
+  async function loadTelemetry(bodyId) {
+    var slot = byId("detailTelemetry");
+    slot.classList.add("aw-hidden");
+    try {
+      var t = await api("/bodies/" + bodyId + "/telemetry");
+      slot.innerHTML =
+        '<div><span class="t-lab">' + TELEMETRY_LABELS.hashrate_current_ghs + '</span><span class="t-val">' + t.hashrate_current_ghs + ' GH/s</span></div>' +
+        '<div><span class="t-lab">' + TELEMETRY_LABELS.hashrate_average_ghs + '</span><span class="t-val">' + t.hashrate_average_ghs + ' GH/s</span></div>' +
+        '<div><span class="t-lab">' + TELEMETRY_LABELS.board_temp_max_c + '</span><span class="t-val">' + (t.board_temp_max_c != null ? t.board_temp_max_c + '°C' : '—') + '</span></div>' +
+        '<div><span class="t-lab">' + TELEMETRY_LABELS.uptime_seconds + '</span><span class="t-val">' + fmtUptime(t.uptime_seconds) + '</span></div>' +
+        '<div><span class="t-lab">' + TELEMETRY_LABELS.last_seen + '</span><span class="t-val">' + fmtLastSeen(t.last_seen) + '</span></div>';
+      slot.classList.remove("aw-hidden");
+    } catch (e) {
+      // 503 (not paired to a real unit yet) or any transient error -- degrade
+      // gracefully, never block the rest of the detail panel (chain/purchase).
+      slot.innerHTML = '<p class="aw-note" style="margin:0">Live telemetry isn\'t available for this Body right now.</p>';
+      slot.classList.remove("aw-hidden");
+    }
   }
   byId("backToList").addEventListener("click", function () {
     bodyDetailView.classList.add("aw-hidden");
     villageListView.classList.remove("aw-hidden");
     currentBody = null;
+    if (mapNeedsRefresh) { mapNeedsRefresh = false; loadMap(); }
   });
 
   function renderBodyDetail() {
     var b = currentBody;
-    byId("detailTitle").textContent = b.class_code + " Body — " + b.active_population + "/" + b.capacity + " entities";
+    byId("detailTitle").textContent = (b.display_name || b.class_code + " Body") + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
     var occPct = Math.round((1 - b.share_room) * 100);
     byId("detailOccFill").style.width = occPct + "%";
     // Beat: first chain view -- fires the first time a player views the
@@ -510,8 +720,8 @@
     }
     byId("detailChainList").innerHTML = b.chain.map(function (e) {
       var rune = e.rune + (e.rune_suffix ? e.rune_suffix : "");
-      return '<li><span class="pos">#' + e.chain_position + "</span>" + esc(rune.toUpperCase()) +
-        '<span class="pct">' + Math.round(e.share * 100) + '%</span></li>';
+      return '<li><span class="pos">#' + e.chain_position + '</span><span class="name">' + esc(rune.toUpperCase()) +
+        '</span><span class="pct">' + Math.round(e.share * 100) + '%</span></li>';
     }).join("") || '<li style="opacity:.7">No entities yet — you\'d be the first.</li>';
     var canJoinAtAll = b.is_top_up || b.slots_open > 0;
     byId("detailFullNote").classList.toggle("aw-hidden", canJoinAtAll && b.share_room > 0);
@@ -575,6 +785,7 @@
       // Beat: purchase / incarnation -- fires right after a player's first successful body purchase.
       showBeat(byId("purchaseBeatSlot"), "purchase", "You've incarnated.",
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
+      mapNeedsRefresh = true; // this body's sold_pct (and possibly the ownership ring) just changed
       await updateBalance();
       currentBody = await api("/bodies/" + currentBody.body_id);
       currentBody.is_top_up = true; // this purchase just gave the player an active entity here
@@ -603,7 +814,7 @@
       byId("onboarding").classList.remove("aw-hidden");
     } else {
       byId("villageStage").classList.remove("aw-hidden");
-      loadBodies(true);
+      loadMap();
     }
     updateBalance();
   }
