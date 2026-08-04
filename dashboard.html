@@ -68,6 +68,33 @@
   .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:14px !important;}
   .game-note-light{font-size:.85rem;color:var(--ink-soft);opacity:.85;margin-top:14px;font-weight:600;}
   .game-balance-chip{font-family:var(--mono);font-weight:800;font-size:1.1rem;}
+  .aw-hidden{display:none !important;} /* not defined page-wide -- village.html/awakening.html each define it locally, this page needs it now for the Codex overlay */
+
+  /* ---- guided-sequence story beat: nightly payout landing (reused pattern from village.html) ---- */
+  .vg-beat{border:3px solid var(--gold);border-radius:var(--r-md);background:var(--cream-2);
+    padding:14px 18px;margin-bottom:16px;position:relative;color:var(--ink);max-width:56ch;}
+  .vg-beat h4{font-family:var(--display);font-size:.95rem;margin:0 0 6px;padding-right:26px;}
+  .vg-beat p{font-size:.85rem;font-weight:600;color:var(--ink-soft);margin:0;}
+  .vg-beat-close{position:absolute;top:10px;right:10px;background:none;border:none;font-size:1rem;
+    cursor:pointer;color:var(--ink-soft);font-weight:700;line-height:1;padding:2px 6px;}
+  .vg-beat-close:hover{color:var(--ink);}
+
+  /* ---- Village Codex: persistent reference panel, reused verbatim from village.html ---- */
+  .vg-codex-overlay{position:fixed;inset:0;background:rgba(20,14,4,.62);display:flex;
+    align-items:center;justify-content:center;padding:20px;z-index:200;}
+  .vg-codex-panel{background:var(--paper);border:3px solid var(--ink);border-radius:var(--r-lg);
+    max-width:560px;max-height:86vh;overflow-y:auto;padding:28px 28px 24px;position:relative;}
+  .vg-codex-panel h2{margin:0 0 6px;}
+  .vg-codex-intro{font-weight:700;color:var(--ink-soft);margin-bottom:14px;}
+  .vg-codex-list{list-style:none;margin:0;padding:0;}
+  .vg-codex-entry{padding:10px 0;border-bottom:1px solid var(--ink-faint);}
+  .vg-codex-entry:last-child{border-bottom:none;}
+  .vg-codex-entry b{font-family:var(--display);font-weight:800;font-size:.95rem;display:block;}
+  .vg-codex-entry span{display:block;margin-top:4px;font-weight:600;color:var(--ink-soft);font-size:.88rem;}
+  .vg-codex-closing{margin-top:16px;font-size:.82rem;color:var(--ink-soft);font-weight:700;}
+  .vg-codex-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.2rem;
+    cursor:pointer;font-weight:700;color:var(--ink-soft);line-height:1;padding:4px 6px;}
+  .vg-codex-close:hover{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -86,7 +113,10 @@
     </svg>
     <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
   </a>
-  <span class="acct" id="acctChip">—</span>
+  <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+    <button type="button" class="btn sm alt" id="codexBtn">📖 Village Codex</button>
+    <span class="acct" id="acctChip">—</span>
+  </div>
 </div></div>
 
 <main id="top" class="dash-main"><div class="wrap">
@@ -128,6 +158,7 @@
       <span class="status soon" id="gameStatus">⏳ loading</span>
     </div>
     <p style="font-size:.85rem;color:var(--ink-soft);font-weight:600;margin-bottom:14px">Game-balance chain from the Village — practice energy, not real money. Payouts run once a night; check back tomorrow after a fresh purchase.</p>
+    <div id="payoutBeatSlot"></div>
     <div id="gameBody"><p class="empty-state">Checking your game balance…</p></div>
   </div>
 </div></main>
@@ -179,6 +210,24 @@
   <p class="legal">© <span id="yr"></span> WowSuch · powered by WowSuch Pool + WowSuch MPC, whitelabeled by TEA. Bitmain® and Antminer® are trademarks of Bitmain Technologies; WowSuch is an independent retailer and is not affiliated with or endorsed by Bitmain.</p>
 </div></footer>
 
+<!-- ============ VILLAGE CODEX: persistent, always-reachable reference (not a one-time popup) ============ -->
+<div class="vg-codex-overlay aw-hidden" id="codexOverlay">
+  <div class="vg-codex-panel" role="dialog" aria-modal="true" aria-labelledby="codexHeading">
+    <button type="button" class="vg-codex-close" id="codexClose" aria-label="Close Village Codex">✕</button>
+    <h2 id="codexHeading">Village Codex</h2>
+    <p class="vg-codex-intro">What is happening here, in plain terms:</p>
+    <ul class="vg-codex-list">
+      <li class="vg-codex-entry"><b>Entity</b><span>you, before you've claimed anything to hold: a name in the ledger and a spark of your own.</span></li>
+      <li class="vg-codex-entry"><b>Body</b><span>a real machine, working right now, holding your share of what it extracts.</span></li>
+      <li class="vg-codex-entry"><b>Chain</b><span>the order of residents sharing one Body, lined up in the sequence they joined.</span></li>
+      <li class="vg-codex-entry"><b>Keeper</b><span>a resident who watches a Body's real telemetry and earns extra for the duty.</span></li>
+      <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, credited to residents in the chain.</span></li>
+      <li class="vg-codex-entry"><b>Nightly payout</b><span>energy lands once a day; check back each morning.</span></li>
+    </ul>
+    <p class="vg-codex-closing">This phase runs on a game balance only — practice energy, not real money.</p>
+  </div>
+</div>
+
 <button class="chat-fab" id="chatFab" aria-label="Open chat assistant">💬 <span>Ask us</span></button>
 <div class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat assistant">
   <div class="chat-head"><div><b>WowSuch Assistant</b><small>instant answers · humans on tickets</small></div><button id="chatClose" aria-label="Close chat">✕</button></div>
@@ -202,6 +251,18 @@
   if (!W) return;
   function byId(id) { return document.getElementById(id); }
   function esc(v) { return W.esc(v); }
+
+  /* ---------------- VILLAGE CODEX (persistent, always reachable) ---------------- */
+  (function () {
+    var codexOverlay = byId("codexOverlay"), codexBtn = byId("codexBtn"), codexClose = byId("codexClose");
+    if (!codexOverlay || !codexBtn) return;
+    function openCodex() { codexOverlay.classList.remove("aw-hidden"); }
+    function closeCodex() { codexOverlay.classList.add("aw-hidden"); }
+    codexBtn.addEventListener("click", openCodex);
+    codexClose.addEventListener("click", closeCodex);
+    codexOverlay.addEventListener("click", function (e) { if (e.target === codexOverlay) closeCodex(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCodex(); });
+  })();
 
   function loadWallet() {
     try { return JSON.parse(localStorage.getItem("wowsuch_wallet") || "null"); } catch (e) { return null; }
@@ -364,6 +425,33 @@
   }
   function gameMoney(n) { return "◈ " + Number(n).toFixed(2); } // placeholder glyph, matches village.html -- not $VITA, not real currency
 
+  /* ---------------- GUIDED-SEQUENCE STORY BEAT: nightly payout (per-player, same
+     scheme as village.html's purchase/chain-view beats -- dismiss marks it seen;
+     leaving without dismissing lets it resurface next dashboard load, i.e. resumable). */
+  function beatStorageKey(userId, beat) { return "wowsuch_onboard_seen::" + userId + "::" + beat; }
+  function hasSeenBeat(beat) {
+    var s = loadGameSession();
+    if (!s || !s.user_id) return true;
+    return localStorage.getItem(beatStorageKey(s.user_id, beat)) === "1";
+  }
+  function markBeatSeen(beat) {
+    var s = loadGameSession();
+    if (!s || !s.user_id) return;
+    localStorage.setItem(beatStorageKey(s.user_id, beat), "1");
+  }
+  function showBeat(containerEl, beat, title, body) {
+    if (!containerEl || hasSeenBeat(beat)) return;
+    if (containerEl.querySelector('[data-beat="' + beat + '"]')) return;
+    containerEl.insertAdjacentHTML("afterbegin",
+      '<div class="vg-beat" data-beat="' + beat + '"><button type="button" class="vg-beat-close" aria-label="Dismiss">✕</button>' +
+      '<h4>' + esc(title) + '</h4><p>' + esc(body) + '</p></div>');
+    var el = containerEl.querySelector('[data-beat="' + beat + '"]');
+    el.querySelector(".vg-beat-close").addEventListener("click", function () {
+      markBeatSeen(beat);
+      el.remove();
+    });
+  }
+
   var gameStatus = byId("gameStatus"), gameBody = byId("gameBody");
   var BODY_STATUS_LABEL = { active: "active", degraded: "degraded", EOL: "end of life", "no data": "no data" };
   function bodyStatusClass(s) { return s === "active" ? "status live" : s === "no data" ? "status soon" : "status kyc"; }
@@ -396,6 +484,14 @@
       panels +
       '<p class="game-note-light">Commission cap on any resident’s loss: <b>' + Math.round(data.c_max * 100) + '%</b> — a floor, not a promise.</p>' +
       '<p class="game-note-light">' + esc(data.disclaimer) + '</p>';
+
+    // Beat: nightly payout -- fires on the dashboard the first time a payout
+    // has landed (any chain with at least one payout row) for this player.
+    var hasAnyPayout = data.chains.some(function (c) { return c.payouts && c.payouts.length > 0; });
+    if (hasAnyPayout) {
+      showBeat(byId("payoutBeatSlot"), "payout", "Energy landed.",
+        "Your Body's first night's work is in — energy credited to your balance while you slept. Same time, every night, for as long as the chain holds.");
+    }
   }
 
   function loadGameChain() {
