@@ -987,6 +987,12 @@
       byId("resultLine").textContent = "You are now " + result.rune.toUpperCase() + (result.rune_suffix || "") +
         " — position #" + result.chain_position + ", " + Math.round(result.share * 100) + "% of this Body. New balance: " + money(result.balance) + ".";
       byId("resultPanel").classList.remove("aw-hidden");
+      // The purchase response already carries the authoritative new balance, so
+      // paint the header chip from it immediately. Waiting for updateBalance()
+      // below left the chip a full API round-trip behind -- invisible locally,
+      // ~a second against Render, during which the result panel announced the
+      // new balance while the chip above it still showed the old one.
+      byId("balanceLine").textContent = money(result.balance);
       // Beat: purchase / incarnation -- fires right after a player's first successful body purchase.
       showBeat(byId("purchaseBeatSlot"), "purchase", "You've incarnated.",
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
