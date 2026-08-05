@@ -818,11 +818,13 @@
     return m ? m[1] : (b._ord != null ? String(b._ord) : "?");
   }
   function designationOf(b) {
-    // Rebuilt from its parts rather than echoed: a deployed build has emitted
-    // the separator mis-encoded ("Hearth Quarter В· 46"), and a mojibake glyph
-    // on the first screen a visitor sees is not something to pass through.
-    if (b.district_name) return b.district_name + " · " + ordinalOf(b);
-    return b.designation || ("District · " + ordinalOf(b));
+    // The server's designation is authoritative and is used verbatim. Do NOT
+    // re-derive it from district_name + ordinal when the field is present: that
+    // duplicates a server-side naming rule in JS, and the two drift apart the
+    // moment the server rule changes. Rebuild ONLY as a fallback for a payload
+    // that doesn't carry the field yet.
+    if (b.designation) return b.designation;
+    return (b.district_name || "District") + " · " + ordinalOf(b);
   }
   function bodyLabel(b) { return b.name || designationOf(b); }
   function isUnclaimed(b) { return !b.name; }
