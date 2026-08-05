@@ -146,6 +146,11 @@
     clip:rect(0 0 0 0);white-space:nowrap;border:0;}
   .aw-chain-list .you-tag{font-family:var(--mono);font-size:.62rem;font-weight:800;color:#150e02;
     background:var(--gold-on-dark);border-radius:999px;padding:1px 7px;margin-left:8px;}
+  /* Outlined, not filled: "you" stays the loudest mark in the chain. */
+  .aw-chain-list .founder-tag{font-family:var(--mono);font-size:.62rem;font-weight:800;
+    color:var(--gold-on-dark);border:1px solid var(--gold-on-dark);border-radius:999px;
+    padding:0 7px;margin-left:8px;}
+  .aw-chain-list li.is-founder .name{color:#fff;}
 
   .vg-fade-in{animation:vgFade .3s ease-out both;}
   @keyframes vgFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
@@ -391,6 +396,7 @@
           <div class="row"><span>Worst-case floor (per day, for this share)</span><b id="prevFloor">—</b></div>
           <div class="row net"><span>Cost (from your game balance)</span><b id="prevCost">—</b></div>
         </div>
+        <p class="vg-founder aw-hidden" id="prevFounderNote"></p>
         <p class="aw-note" id="prevDisclaimer"></p>
         <button class="btn" id="confirmPurchase" style="margin-top:14px">Confirm purchase</button>
         <p class="vg-error aw-hidden" id="purchaseError"></p>
@@ -1173,7 +1179,7 @@
     var f = founderLine(b, false);
     // An unnamed plot IS its designation, so don't print the same string twice:
     // its second line says what the missing name means instead.
-    var sub = isUnclaimed(b) ? "unclaimed ground — no one has awakened here" : designationOf(b);
+    var sub = isUnclaimed(b) ? "Unclaimed ground — no one has awakened here" : designationOf(b);
     var pop = b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : "";
     return "<b>" + esc(bodyLabel(b)) + "</b>" +
       '<span class="muted">' + esc(sub) + "</span><br>" +
@@ -1199,7 +1205,20 @@
   function selectBody(b) {
     selectedBody = b;
     byId("cardName").textContent = bodyLabel(b);
-    byId("cardSub").textContent = isUnclaimed(b) ? "unclaimed ground — no one has awakened here" : designationOf(b);
+    // An unclaimed plot's card carries the REASON to take it, not just the fact
+    // that it's empty: the first settler names the Body, permanently. The full
+    // promise needs settlers === 0 from the payload -- with the count unknown we
+    // state only what we can see, and a Body that already has a name never gets
+    // the promise even at 0 settlers (its founder left; the name is taken).
+    var sub;
+    if (isUnclaimed(b) && b.settlers === 0) {
+      sub = "Unclaimed ground — no one has awakened here. Be the first, and this Body takes your name.";
+    } else if (isUnclaimed(b)) {
+      sub = "Unclaimed ground — no one has awakened here.";
+    } else {
+      sub = designationOf(b);
+    }
+    byId("cardSub").textContent = sub;
     var f = founderLine(b, false);
     byId("cardFounder").textContent = f ? f.charAt(0).toUpperCase() + f.slice(1) : "";
     byId("cardFounder").classList.toggle("aw-hidden", !f);
@@ -1382,6 +1401,7 @@
   }
 
   async function leaveBody(crumbAct) {
+    abandonBodyLoad(); // any still-running detail fetch must not reopen this view
     enteredBody = null;
     currentBody = null;
     bodyDetailView.classList.add("aw-hidden");
@@ -1400,14 +1420,31 @@
     syncMapChrome();
   }
 
+  /* Loads a Body's detail payload. It does NOT touch which view is on screen --
+     enterBody/leaveBody own that. It used to (the lines were inherited from the
+     old click-straight-into-a-Body openBody), and that was a real race: the two
+     API calls below take longer than the 420ms travel animation against Render,
+     so a player who left before they resolved had the Body view yanked back
+     open underneath them and renderBodyDetail() then threw on a null
+     currentBody. Reproduced at BOTH widths -- the QA lane only caught it at
+     390px because that path was the slower one. The token makes any in-flight
+     load for a Body we have since left (or replaced) a no-op. */
+  var bodyLoadToken = 0;
+  function abandonBodyLoad() { bodyLoadToken += 1; }
+
   async function loadBodyInto(bodyId) {
+    var token = ++bodyLoadToken;
+    var data;
     try {
-      currentBody = await api("/bodies/" + bodyId);
+      data = await api("/bodies/" + bodyId);
     } catch (err) {
+      if (token !== bodyLoadToken) return;
       byId("detailError").textContent = "This Body couldn't be loaded right now. " + String(err.message || err);
       byId("detailError").classList.remove("aw-hidden");
       return;
     }
+    if (token !== bodyLoadToken) return; // the player already left this Body
+    currentBody = data;
     currentBody.is_top_up = false;
     selectedShare = null;
     if (session && session.access_token) {
@@ -1420,9 +1457,8 @@
         var probe = await api("/bodies/" + bodyId + "/preview", { method: "POST", body: { share: 0.01 } });
         currentBody.is_top_up = probe.is_top_up;
       } catch (e) { /* not fatal -- tiers fall back to new-purchase rules */ }
+      if (token !== bodyLoadToken) return;
     }
-    villageListView.classList.add("aw-hidden");
-    bodyDetailView.classList.remove("aw-hidden");
     byId("previewPanel").classList.add("aw-hidden");
     byId("resultPanel").classList.add("aw-hidden");
     renderBodyDetail();
@@ -1475,16 +1511,18 @@
 
   function renderBodyDetail() {
     var b = currentBody;
+    if (!b) return; // nothing loaded (or the player left mid-fetch)
     // An unnamed Body has no display_name; fall back to the plot's designation
     // (from the map row) rather than the anonymous "L9 Body".
     var title = b.display_name || (enteredBody ? bodyLabel(enteredBody) : b.class_code + " Body");
     byId("detailTitle").textContent = title + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
     // The whole naming rework is pointless if the link between a Body's name and
-    // the entity that founded it is invisible. Silent if the backend doesn't send it.
+    // the entity that founded it is invisible -- so this line explains the link
+    // rather than restating the name the heading above already carries.
+    // Silent if the backend doesn't send a founder.
     var founder = b.founder_rune || (enteredBody && enteredBody.founder_rune);
     var fEl = byId("detailFounder");
-    var fName = b.display_name || (enteredBody ? bodyLabel(enteredBody) : "This Body");
-    fEl.textContent = founder ? fName + " — founded by " + String(founder).toLowerCase() : "";
+    fEl.textContent = founder ? "Named for " + String(founder).toLowerCase() + " — the first entity to awaken here." : "";
     fEl.classList.toggle("aw-hidden", !founder);
     var occPct = Math.round((1 - b.share_room) * 100);
     byId("detailOccFill").style.width = occPct + "%";
@@ -1499,11 +1537,21 @@
     // exact key -- /me/dashboard hands back the player's own entity_ids, and the
     // body payload carries the same ids, so no rune guessing (runes collide, and
     // a suffixed duplicate is unresolvable from the client side).
+    // Tagging the founder's row is what makes the naming link unmissable: the
+    // reader sees "#1 JU · founder" under a Body called Juseam and needs no
+    // explanation. The founder is the entity at chain position 1 -- but only tag
+    // it if its rune still matches founder_rune. If the founder has left, the
+    // entity now holding position 1 is somebody else, so tag nothing.
+    var founderRuneLc = founder ? String(founder).toLowerCase() : null;
     byId("detailChainList").innerHTML = b.chain.map(function (e) {
       var rune = e.rune + (e.rune_suffix ? e.rune_suffix : "");
       var mine = !!myEntityIds[e.entity_id];
-      return '<li' + (mine ? ' class="you"' : '') + '><span class="pos">#' + e.chain_position + '</span><span class="name">' +
+      var isFounder = !!founderRuneLc && e.chain_position === 1 &&
+        String(e.rune).toLowerCase() === founderRuneLc;
+      var cls = (mine ? "you" : "") + (isFounder ? (mine ? " is-founder" : "is-founder") : "");
+      return '<li' + (cls ? ' class="' + cls + '"' : '') + '><span class="pos">#' + e.chain_position + '</span><span class="name">' +
         esc(rune.toUpperCase()) + (mine ? '<span class="you-tag">you</span>' : '') +
+        (isFounder ? '<span class="founder-tag">founder</span>' : '') +
         '</span><span class="pct">' + Math.round(e.share * 100) + '%</span></li>';
     }).join("") || '<li style="opacity:.7">No entities yet — you\'d be the first.</li>';
     var canJoinAtAll = b.is_top_up || b.slots_open > 0;
@@ -1547,6 +1595,14 @@
       byId("prevFloor").textContent = money(preview.worst_case_floor_usd) + " / day";
       byId("prevCost").textContent = money(preview.cost);
       byId("prevDisclaimer").textContent = preview.disclaimer;
+      // Founding is the one thing a buyer can't get back later, so say it at the
+      // moment of the decision. Keyed on the authoritative body payload
+      // (active_population) rather than the map row's cached settlers count.
+      var willFound = currentBody.active_population === 0 && !currentBody.display_name;
+      byId("prevFounderNote").textContent = willFound
+        ? "No one has awakened here yet. Buy in and you become its founder — the Body takes its name from your rune, and keeps it for good."
+        : "";
+      byId("prevFounderNote").classList.toggle("aw-hidden", !willFound);
       prevPanel.classList.remove("aw-hidden");
       byId("purchaseError").classList.add("aw-hidden");
     } catch (err) {
