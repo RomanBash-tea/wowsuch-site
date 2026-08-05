@@ -30,6 +30,27 @@
   .vg-onboard-card p{color:var(--ink-soft);font-weight:600;font-size:.88rem;margin-top:6px;}
   .vg-balance-chip{font-family:var(--mono);font-weight:800;color:var(--gold-on-dark);}
 
+  /* ---- the Awakening, played once at account creation (Asana 1217155234707163) ----
+     Moved here from the old standalone awakening.html concept demo: the awakening
+     is not a teaser sitting next to the product, it IS what happens when an
+     account is born. One scene at a time, advanced by the player. */
+  .vg-intro{margin-top:26px;}
+  .vg-scene{display:none;}
+  .vg-scene.active{display:block;}
+  .vg-progress{display:flex;gap:6px;margin-bottom:18px;}
+  .vg-progress i{height:4px;flex:1;border-radius:99px;background:rgba(255,185,46,.22);}
+  .vg-progress i.done{background:var(--gold-on-dark);}
+  .vg-rune{font-family:var(--mono);font-weight:800;color:var(--gold-on-dark);letter-spacing:.08em;}
+  .vg-frog{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+    padding:16px 18px;margin-top:18px;max-width:320px;text-align:center;}
+  .vg-frog .ico{font-size:2.2rem;line-height:1;}
+  .vg-frog h4{font-family:var(--display);color:#fff;font-size:1rem;margin-top:8px;}
+  .vg-frog small{display:block;font-family:var(--mono);font-size:.76rem;color:var(--soft-on-dark);margin-top:4px;}
+  .vg-aside{font-size:.86rem !important;color:var(--soft-on-dark);opacity:.8;font-style:italic;}
+  .vg-actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .vg-replay{display:none;}
+  .vg-replay.on{display:inline-flex;}
+
   /* ---- guided-sequence story beats (dev-inbox: frog-to-miner onboarding + Codex) ---- */
   .vg-beat{border:3px solid var(--gold);border-radius:var(--r-md);background:var(--cream-2);
     padding:14px 18px;margin-bottom:16px;position:relative;color:var(--ink);max-width:56ch;}
@@ -147,17 +168,23 @@
     <span class="name">Wow<b>Such</b><small>Antminer L9 · LTC + DOGE</small></span>
   </a>
   <div class="head-actions">
+    <!-- Internal: only rendered after ?replay=<passcode> matches. Not a public control. -->
+    <button type="button" class="btn sm alt vg-replay" id="replayIntroBtn">▶ Replay intro</button>
     <button type="button" class="btn sm alt" id="codexBtn">📖 Village Codex</button>
     <span class="acct" id="acctChip">—</span>
   </div>
 </div></div>
 
 <main id="top" class="dash-main"><div class="wrap">
-  <span class="eyebrow reveal">much village, very yours</span>
-  <h1 class="reveal">Claim a Body</h1>
-  <p class="reveal" style="font-weight:700;color:var(--ink-soft);max-width:60ch;margin-top:6px">
-    Register, pick a seeded Body from the real fleet, and claim a share with your game balance. No real money moves through this yet.
-  </p>
+  <!-- Addressed to a visitor who hasn't registered yet, so it steps aside while
+       the Awakening is playing -- that sequence should own the screen. -->
+  <div id="pageIntro">
+    <span class="eyebrow reveal">much village, very yours</span>
+    <h1 class="reveal">Claim a Body</h1>
+    <p class="reveal" style="font-weight:700;color:var(--ink-soft);max-width:60ch;margin-top:6px">
+      Register, pick a seeded Body from the real fleet, and claim a share with your game balance. No real money moves through this yet.
+    </p>
+  </div>
 
   <!-- ============ AUTH GATE ============ -->
   <section id="authGate" class="card feature reveal vg-panel">
@@ -175,10 +202,60 @@
     <p style="font-size:.8rem;color:var(--ink-soft);margin-top:14px">WowSuch is in early build. No real money moves through this account yet.</p>
   </section>
 
-  <!-- ============ FIRST-SESSION ONBOARDING (shown once) ============ -->
-  <section id="onboarding" class="aw-hidden" style="margin-top:26px">
-    <div class="aw-choices two" id="onboardCards" style="max-width:900px"></div>
-    <button class="btn" id="onboardDone" style="margin-top:22px">Choose a Body</button>
+  <!-- ============ THE AWAKENING — played once, when the account is born ============ -->
+  <section id="onboarding" class="aw-stage vg-intro aw-hidden">
+    <div class="vg-progress" id="introProgress" aria-hidden="true"></div>
+
+    <div class="vg-scene active" data-scene="0">
+      <span class="step-tag">something stirs</span>
+      <h2>You just became an Entity.</h2>
+      <p>Before there is a Body, there is a name. You left one, and the ledger took it — the first two letters of it are your <b>Rune</b>, <span class="vg-rune" id="introRune">—</span>. That is how the Chain will know you.</p>
+      <p>An Entity is you before you've claimed anything to hold: a line in the ledger and a spark of your own.</p>
+      <div class="vg-actions"><button class="btn" type="button" data-goto="1">What do I have? <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="vg-scene" data-scene="1">
+      <span class="step-tag">step 1 · arrival</span>
+      <h2>You arrive with a pocketful of Energy.</h2>
+      <p>Every Entity wakes holding a starting stock of Energy. Yours reads <b class="vg-balance-chip" id="introBalance">—</b>.</p>
+      <p class="vg-aside">Energy from nowhere in particular. It isn't working for anything yet — it's just sitting in your hands.</p>
+      <p>And that is the whole problem. An Entity with nothing to hold has nothing working for it. A <b>Body</b> is how your Energy stops standing still: a real machine, running right now, holding your share of what it extracts.</p>
+      <p class="aw-note">This phase runs on a game balance — practice energy, not real money. No purchase here moves real LTC, DOGE or anything else.</p>
+      <div class="vg-actions"><button class="btn" type="button" data-goto="2">Find a Body <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="vg-scene" data-scene="2">
+      <span class="step-tag">step 2 · the pull</span>
+      <h2>One Body flickers into view.</h2>
+      <p>Your senses are a day old. The world is a fog of hums and heat, and out of all of it your reach finds exactly one thing: something small, green-lit, sitting alone in an old warehouse — an <b>iPollo V1 Mini SE</b>, 200 MH, nobody's dream Body. Around here they call it <b>the Frog</b>. Are there better Bodies out there? Almost certainly. Can you see them yet? No. You're new. You see the Frog.</p>
+      <div class="vg-frog"><div class="ico">🐸</div><h4>iPollo V1 Mini SE</h4><small>200 MH/s · alone</small></div>
+      <p style="margin-top:18px"><b>Read before you leap.</b> A Body is not a hotel. Once you're in, you stay in — until your share is bought out, or until the Body dies. A buyer may come knocking, or you may put your share up yourself — either way, you are released only when the deal closes. Those are the two doors. There is no third.</p>
+      <p class="aw-note">(Heads up: a real iPollo V1 Mini SE mines a different algorithm entirely — it isn't Scrypt hardware. The Frog is cast against type on purpose, as the one throwaway starter Body nobody wants. Every other Body in the Village, including every Antminer L9, is the real Scrypt LTC + DOGE article.)</p>
+      <div class="vg-actions"><button class="btn" type="button" data-goto="3">Look at what the Frog earns <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="vg-scene" data-scene="3">
+      <span class="step-tag">step 3 · the math</span>
+      <h2>Honest work. It still doesn't pay for itself.</h2>
+      <div class="aw-math">
+        <div class="row"><span>the Frog mines, after the 3% pool fee</span><b>+0.13 / day</b></div>
+        <div class="row"><span>hosting it drinks — 2.78 kWh a day at the flat all-in rate</span><b>−0.22 / day</b></div>
+        <div class="row net"><span>net</span><b>−0.09 / day</b></div>
+      </div>
+      <p>That's the Frog's whole tragedy: honest work, day and night, at the best flat rate in the industry — and it still earns less than it eats. Small Bodies do.</p>
+      <p class="vg-aside">(Nobody, anywhere, switches a Body off out of mercy. Farms curtail when the grid demands it — and book the silence as a loss. The old warehouse allows nothing and demands nothing. The Frog just runs.)</p>
+      <p class="aw-note">Phase-0 placeholder figures at the site's flat all-in hosting rate — illustrative, not calibrated, and not a quote. Every economy number in this build is provisional pending Phase-0 simulation.</p>
+      <div class="vg-actions"><button class="btn" type="button" data-goto="4">There has to be something better <span class="arrow">→</span></button></div>
+    </div>
+
+    <div class="vg-scene" data-scene="4">
+      <span class="step-tag">step 4 · meanwhile</span>
+      <h2>Meanwhile, in a real Body…</h2>
+      <p>South of here stands a Village: a thousand Antminer L9s, warm and wanted, working while you read this. Bodies there don't take one resident each — they take a <b>chain</b>. You don't have to fill a whole Body; you hold a share of one, lined up in the order you joined, and you share what it extracts.</p>
+      <p>Every share earns. The only question is how much of the day's work is yours — and that is the one number you get to choose.</p>
+      <p class="aw-note">A note from a Keeper: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's. Nobody here will tell you otherwise.</p>
+      <div class="vg-actions"><button class="btn" type="button" id="introDone">Choose a Body <span class="arrow">→</span></button></div>
+    </div>
   </section>
 
   <!-- ============ THE VILLAGE (dark stage) ============ -->
@@ -268,7 +345,6 @@
     </div>
     <div><h4>Resources</h4>
       <a href="dashboard.html">Your dashboard</a>
-      <a href="awakening.html">The Awakening (concept demo)</a>
       <a href="vessels.html">Vessels (concept preview)</a>
     </div>
     <div><h4>Company</h4>
@@ -412,11 +488,12 @@
   authToggle.addEventListener("click", function () { setMode(mode === "register" ? "login" : "register"); });
   setMode("register");
 
-  // L4 bridge (dev-inbox #027): a player arriving from awakening.html's
-  // "Incarnate Into a Real Body" CTA carries their demo email over as a
-  // prefill -- convenience only, not an account link (the game-balance
-  // account is a fresh Supabase Auth signup, same as any other).
-  (function prefillEmailFromBridge() {
+  // ?email= prefill. It used to carry a player over from awakening.html's
+  // "Incarnate Into a Real Body" bridge (dev-inbox #027); that page is gone --
+  // the awakening now plays here, at account creation -- but the prefill is
+  // kept because any inbound link can still hand us an address. Convenience
+  // only, never an account link: registration is a normal Supabase Auth signup.
+  (function prefillEmailFromLink() {
     var params = new URLSearchParams(location.search);
     var email = params.get("email");
     if (email) byId("authEmail").value = email;
@@ -446,23 +523,121 @@
     }
   });
 
-  /* ---------------- ONBOARDING ---------------- */
-  var ONBOARD_CARDS = [
-    { title: "You have a line now.", body: "No body yet — just a name in the ledger and a spark of your own. That's an entity: you, before you've claimed anything to hold." },
-    { title: "A body holds what you can't.", body: "A body is a real machine, working right now — extracting energy and holding your share of it. Claim a piece of one, and it starts holding for you too." },
-    { title: "You won't be alone in it.", body: "Most bodies house more than one entity, lined up in a chain. Share a body, and you share what it extracts — in the order you joined." },
-    { title: "Your balance, for now.", body: "What you're spending and earning here is a game balance — practice energy, not real money. Watch how it moves; later, keep watch over your own body's health and earn extra for the trouble." }
-  ];
-  function renderOnboarding() {
-    byId("onboardCards").innerHTML = ONBOARD_CARDS.map(function (c) {
-      return '<div class="aw-choice vg-onboard-card" style="cursor:default"><h4>' + esc(c.title) + '</h4><p>' + esc(c.body) + '</p></div>';
+  /* ---------------- THE AWAKENING: onboarding sequence ----------------
+     Roman's ruling 2026-08-04 (Asana 1217155234707163): the awakening happens
+     when the account is created, not in a concept demo parked next to the
+     product. The old standalone awakening.html is gone; these scenes are what
+     a fresh account sees, once, before it ever reaches the map.
+     Seen-state is keyed per player (like the story beats below), not by a
+     single browser-wide flag, so a second account on the same machine gets its
+     own awakening instead of inheriting the first one's. The legacy global
+     flag is still READ, never written for a known player: it is the bridge for
+     players who onboarded before this shipped, so they aren't sent back
+     through the sequence on their next login. */
+  var introScenes = Array.prototype.slice.call(document.querySelectorAll("#onboarding .vg-scene"));
+  var introIdx = 0;
+
+  function introStorageKey(userId) { return "wowsuch_intro_seen::" + userId; }
+  function hasSeenIntro() {
+    if (!session || !session.user_id) return localStorage.getItem(LS_ONBOARDED) === "1";
+    if (localStorage.getItem(introStorageKey(session.user_id)) === "1") return true;
+    return localStorage.getItem(LS_ONBOARDED) === "1"; // pre-per-user players
+  }
+  function markIntroSeen() {
+    // Never write the browser-wide flag for a known player: doing so made the
+    // NEXT account on this machine inherit "already awakened" and skip the
+    // sequence entirely. Only a session-less viewing falls back to it.
+    if (session && session.user_id) localStorage.setItem(introStorageKey(session.user_id), "1");
+    else localStorage.setItem(LS_ONBOARDED, "1");
+  }
+
+  function renderIntroProgress() {
+    byId("introProgress").innerHTML = introScenes.map(function (_, i) {
+      return '<i class="' + (i <= introIdx ? "done" : "") + '"></i>';
     }).join("");
   }
-  byId("onboardDone").addEventListener("click", function () {
-    localStorage.setItem(LS_ONBOARDED, "1");
+  function showIntroScene(i) {
+    introIdx = Math.max(0, Math.min(introScenes.length - 1, i));
+    introScenes.forEach(function (el, n) { el.classList.toggle("active", n === introIdx); });
+    renderIntroProgress();
+    byId("onboarding").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  // The Rune is cut from the email the player just registered with -- the same
+  // first-two-letters rule the backend uses when it writes the Entity row, so
+  // what they read here is what the chain will show.
+  function deriveRune(email) {
+    var local = String(email || "").split("@")[0].slice(0, 2);
+    while (local.length < 2) local += "x";
+    return local.toUpperCase();
+  }
+  function startIntro() {
+    byId("introRune").textContent = session ? deriveRune(session.email) : "—";
+    byId("introBalance").textContent = "—";
+    authGate.classList.add("aw-hidden");
+    byId("villageStage").classList.add("aw-hidden");
+    byId("pageIntro").classList.add("aw-hidden");
+    byId("onboarding").classList.remove("aw-hidden");
+    showIntroScene(0);
+  }
+  document.querySelectorAll("#onboarding [data-goto]").forEach(function (btn) {
+    btn.addEventListener("click", function () { showIntroScene(parseInt(btn.getAttribute("data-goto"), 10)); });
+  });
+  byId("introDone").addEventListener("click", function () {
+    markIntroSeen();
     byId("onboarding").classList.add("aw-hidden");
-    byId("villageStage").classList.remove("aw-hidden");
-    loadMap();
+    byId("pageIntro").classList.remove("aw-hidden");
+    if (session && session.access_token) {
+      byId("villageStage").classList.remove("aw-hidden");
+      loadMap();
+    } else {
+      authGate.classList.remove("aw-hidden");
+    }
+  });
+
+  /* ---------------- INTERNAL: one-click intro replay (Asana 1217155278044246) ----------------
+     Roman reviews the onboarding constantly while it's being reworked, and
+     re-registering an account by hand each time was the whole friction. This
+     replays the awakening for the CURRENT session from a clean story state,
+     back to back, without creating an account.
+     Not reachable by a public visitor: the control only renders when
+     ?replay=<passcode> hashes to the same digest the internal admin console
+     uses (admin.html) -- one internal secret, never stored in the page. Like
+     that gate it is a client-side stopgap, not real access control; it hides
+     a review convenience, not data. It resets STORY state only -- the account,
+     its balance and its entities are never touched. */
+  var REPLAY_PASS_HASH = "4eb22a7e2d80d101c1861eab2032c933f5a93c63c40718275a08bf7c9dac412c";
+  var SS_REPLAY_UNLOCKED = "wowsuch_intro_replay_unlocked";
+  var STORY_BEATS = ["purchase", "chain_view"];
+
+  function sha256Hex(str) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+        return b.toString(16).padStart(2, "0");
+      }).join("");
+    });
+  }
+  function showReplayControl() {
+    sessionStorage.setItem(SS_REPLAY_UNLOCKED, "1");
+    byId("replayIntroBtn").classList.add("on");
+  }
+  (function unlockReplayControl() {
+    if (sessionStorage.getItem(SS_REPLAY_UNLOCKED) === "1") { byId("replayIntroBtn").classList.add("on"); return; }
+    var pass = new URLSearchParams(location.search).get("replay");
+    if (!pass || !window.crypto || !crypto.subtle) return;
+    sha256Hex(pass).then(function (hex) {
+      if (hex === REPLAY_PASS_HASH) showReplayControl();
+    }).catch(function () { /* no subtle crypto -- control simply stays hidden */ });
+  })();
+  byId("replayIntroBtn").addEventListener("click", function () {
+    if (session && session.user_id) {
+      localStorage.removeItem(introStorageKey(session.user_id));
+      STORY_BEATS.forEach(function (b) { localStorage.removeItem(beatStorageKey(session.user_id, b)); });
+    }
+    localStorage.removeItem(LS_ONBOARDED);
+    bodyDetailView.classList.add("aw-hidden");
+    villageListView.classList.remove("aw-hidden");
+    startIntro();
+    if (session && session.access_token) updateBalance();
   });
 
   /* ---------------- VILLAGE MAP: tiers 0+1 (whole village / mid-zoom), one <canvas> ----------------
@@ -492,6 +667,27 @@
 
   function clampScale(s) { return Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)); }
 
+  // A Body's name is longer than its plot is wide -- at the old fixed 7px into
+  // a 20px cell a name overflowed roughly 2.5x and collided with its
+  // neighbours into unreadable mush. Shrink to fit the plot first, and only
+  // clip with an ellipsis once shrinking would go below legibility. The font
+  // is in world units, so the on-screen size still grows with zoom.
+  var MIN_CELL_FONT = 3.6; // world px; >= 8 device px at the label zoom threshold
+  function drawFitted(text, cx, cy, desiredSize) {
+    var maxW = CELL - 3;
+    var str = String(text);
+    ctx.font = "10px 'IBM Plex Mono', monospace";
+    var wPer = ctx.measureText(str).width / 10; // monospace: width scales linearly with size
+    var size = wPer > 0 ? Math.min(desiredSize, maxW / wPer) : desiredSize;
+    if (size < MIN_CELL_FONT) {
+      size = MIN_CELL_FONT;
+      var fits = Math.max(1, Math.floor(maxW / (wPer * size / str.length)));
+      if (fits < str.length) str = str.slice(0, Math.max(1, fits - 1)) + "…";
+    }
+    ctx.font = size + "px 'IBM Plex Mono', monospace";
+    ctx.fillText(str, cx, cy);
+  }
+
   function drawMap() {
     if (!ctx || !mapData) return;
     ctx.save();
@@ -502,21 +698,6 @@
 
     var showLabels = view.scale >= LABEL_ZOOM_THRESHOLD;
     var showDistrictLabels = view.scale < DISTRICT_LABEL_MAX_SCALE;
-
-    if (showDistrictLabels) {
-      var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
-      ctx.textAlign = "center";
-      ctx.font = Math.max(9, CELL * 0.5) + "px 'IBM Plex Mono', monospace";
-      Object.keys(districtLabelAt).forEach(function (d) {
-        var info = districtLabelAt[d];
-        var cx = info.gx * CELL + dW / 2, cy = info.gy * CELL + dH / 2;
-        ctx.strokeStyle = "rgba(255,185,46,.28)";
-        ctx.lineWidth = 1 / view.scale;
-        ctx.strokeRect(info.gx * CELL, info.gy * CELL, dW, dH);
-        ctx.fillStyle = "rgba(255,216,115,.75)";
-        ctx.fillText(info.name, cx, cy);
-      });
-    }
 
     mapData.bodies.forEach(function (b) {
       var x = b.x * CELL, y = b.y * CELL;
@@ -530,13 +711,37 @@
       if (showLabels) {
         ctx.textAlign = "center";
         ctx.fillStyle = "#fff";
-        ctx.font = Math.max(7, CELL * 0.26) + "px 'IBM Plex Mono', monospace";
-        ctx.fillText(b.name, x + CELL / 2, y + CELL * 0.52);
+        drawFitted(b.name, x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
         ctx.fillStyle = "#FFD873";
-        ctx.font = Math.max(6, CELL * 0.2) + "px 'IBM Plex Mono', monospace";
-        ctx.fillText(b.sold_pct + "%", x + CELL / 2, y + CELL * 0.82);
+        drawFitted(b.sold_pct + "%", x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
       }
     });
+
+    // District names go on TOP of the plots, never under them: drawn first
+    // they were painted over by the 1000 body cells and survived only in the
+    // 2px gaps between plots -- which is what read as stray text bleeding
+    // through the map background (Asana 1217155005521398). The dark halo keeps
+    // them legible over healthy-green and warning-amber cells alike.
+    if (showDistrictLabels) {
+      var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "700 " + Math.max(9, CELL * 0.5) + "px 'IBM Plex Mono', monospace";
+      ctx.lineJoin = "round";
+      Object.keys(districtLabelAt).forEach(function (d) {
+        var info = districtLabelAt[d];
+        var cx = info.gx * CELL + dW / 2, cy = info.gy * CELL + dH / 2;
+        ctx.strokeStyle = "rgba(255,185,46,.45)";
+        ctx.lineWidth = 1 / view.scale;
+        ctx.strokeRect(info.gx * CELL, info.gy * CELL, dW, dH);
+        ctx.strokeStyle = "rgba(10,7,1,.9)";
+        ctx.lineWidth = Math.max(2, CELL * 0.16);
+        ctx.strokeText(info.name, cx, cy);
+        ctx.fillStyle = "#FFD873";
+        ctx.fillText(info.name, cx, cy);
+      });
+      ctx.textBaseline = "alphabetic";
+    }
     ctx.restore();
   }
 
@@ -801,6 +1006,7 @@
     try {
       var b = await api("/me/balance");
       byId("balanceLine").textContent = money(b.balance);
+      byId("introBalance").textContent = money(b.balance); // the awakening quotes the real starting balance
       byId("acctChip").textContent = session.email || "—";
     } catch (err) {
       if (err.status === 401) { clearSession(); location.reload(); }
@@ -809,9 +1015,8 @@
 
   function enterVillage(freshRegistration) {
     authGate.classList.add("aw-hidden");
-    if (freshRegistration || !localStorage.getItem(LS_ONBOARDED)) {
-      renderOnboarding();
-      byId("onboarding").classList.remove("aw-hidden");
+    if (freshRegistration || !hasSeenIntro()) {
+      startIntro();
     } else {
       byId("villageStage").classList.remove("aw-hidden");
       loadMap();

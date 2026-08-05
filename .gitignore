@@ -1,6 +1,7 @@
 _backup_pre_tea_sync_2026-07-20/
 _originals/
 _shots/
+screenshots/
 .playwright-mcp/
 .claude/
 _check.py
