@@ -154,6 +154,13 @@
      selection card becomes a bottom sheet and hover disappears entirely. */
   @media (max-width:640px){
     .vmap-tip{display:none;}
+    /* The legend overlay ate ~30% of a 285px-wide map. Below the map it costs
+       nothing and stays readable. */
+    .vmap-legend{position:static;background:none;padding:0 10px 10px;max-width:none;gap:8px 14px;}
+    /* Same reason as the legend: floating over a 285px map, the zoom stack hid
+       two whole columns of plots. */
+    .vmap-controls{position:static;flex-direction:row;justify-content:flex-end;gap:8px;padding:8px 10px;}
+    .vmap-controls .btn{min-width:34px;padding:6px 10px;}
     .vmap-card{position:fixed;left:0;right:0;bottom:0;width:auto;z-index:150;
       border-width:3px 0 0;border-radius:var(--r-lg) var(--r-lg) 0 0;padding:14px 18px 18px;
       box-shadow:0 -8px 26px rgba(0,0,0,.5);}
@@ -735,10 +742,10 @@
      zoom, including fully zoomed out where a plot is ~7 device px. Three levels
      now, and the current one is always named on screen:
 
-       FLEET     (scale <  LEVEL_DISTRICT_SCALE)  districts are the unit of
+       FLEET     (scale <  levelThreshold())  districts are the unit of
                  interaction; plots are drawn but not enterable; clicking a
                  district flies into it.
-       DISTRICT  (scale >= LEVEL_DISTRICT_SCALE)  plots are big enough to aim
+       DISTRICT  (scale >= levelThreshold())  plots are big enough to aim
                  at: hover highlights, click SELECTS (it does not enter).
        BODY      the detail view, reached only from the selection card's
                  "Enter body" button -- two deliberate acts, never one stray click.
@@ -753,8 +760,12 @@
   // grid fits the 900x560 canvas), so the fleet band is everything below 1.9.
   // At 1.9 a plot is 38 canvas px -- comfortably clickable, and that is exactly
   // where per-plot labels become legible, so the two thresholds are one number.
-  var LEVEL_DISTRICT_SCALE = 1.9;
-  var DISTRICT_ENTER_SCALE = 2.8;  // where a district click lands you
+  // BUT view.scale is in canvas-internal px and the canvas is CSS-scaled down
+  // hard on a phone (900 internal -> ~285 CSS), where 1.9 leaves a plot at ~12
+  // CSS px -- unhittable with a finger. So the threshold is the STRICTER of the
+  // design floor and whatever scale puts a plot at a real touch target.
+  var BASE_DISTRICT_SCALE = 1.9;
+  var MIN_PLOT_SCREEN_PX = 26;
   var BODY_ENTER_SCALE = 7;        // camera target while travelling into a plot
   var TRANSITION_MS = 420;
   var HEALTH_COLOR = { healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B", offline: "#8a8a8a" };
@@ -775,15 +786,43 @@
   var savedCamera = null;  // camera to restore when leaving the body view
   var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
 
-  function currentLevel() { return view.scale >= LEVEL_DISTRICT_SCALE ? "district" : "fleet"; }
+  // Cached, not read per frame: getBoundingClientRect in the render path would
+  // force a layout on every paint.
+  var screenFactor = 1;
+  function refreshScreenFactor() {
+    if (!canvas) return;
+    var rect = canvas.getBoundingClientRect();
+    screenFactor = rect.width ? rect.width / canvas.width : 1;
+  }
+  function levelThreshold() { return Math.max(BASE_DISTRICT_SCALE, MIN_PLOT_SCREEN_PX / (CELL * screenFactor)); }
+  function currentLevel() { return view.scale >= levelThreshold() ? "district" : "fleet"; }
   function clampScale(s) { return Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)); }
+  // Flying into a district fits that district to the canvas -- resolution
+  // independent, and never lands below the level threshold on a small screen.
+  function districtEnterScale() {
+    if (!mapData) return BASE_DISTRICT_SCALE;
+    var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+    var fit = Math.min(canvas.width / (dW * 1.06), canvas.height / (dH * 1.06));
+    return clampScale(Math.max(fit, levelThreshold() * 1.08));
+  }
 
   /* ---- naming: a Body only has a name once someone has settled it ----
      The map contract changed under us: `name` is now string|null and
      `designation` carries the always-present "<District> · <n>" form. Older
      deploys send neither, so both directions degrade. */
+  // ONE source for a plot's number, used by the in-cell label, the tooltip, the
+  // selection card and the Body view alike -- they disagreed while the label
+  // used a client-side ordinal and everything else used the server designation.
+  function ordinalOf(b) {
+    var m = b.designation && String(b.designation).match(/(\d+)\s*$/);
+    return m ? m[1] : (b._ord != null ? String(b._ord) : "?");
+  }
   function designationOf(b) {
-    return b.designation || ((b.district_name || "District") + " · " + (b._ord != null ? b._ord : "?"));
+    // Rebuilt from its parts rather than echoed: a deployed build has emitted
+    // the separator mis-encoded ("Hearth Quarter В· 46"), and a mojibake glyph
+    // on the first screen a visitor sees is not something to pass through.
+    if (b.district_name) return b.district_name + " · " + ordinalOf(b);
+    return b.designation || ("District · " + ordinalOf(b));
   }
   function bodyLabel(b) { return b.name || designationOf(b); }
   function isUnclaimed(b) { return !b.name; }
@@ -884,7 +923,10 @@
       c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
       c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
       c.globalAlpha = 1;
-      if (unclaimed) {
+      // The dashed "unclaimed" outline only earns its keep where a plot is the
+      // thing you're aiming at. At fleet level it turned the whole map into a
+      // dashed grid; the faded fill alone carries the distinction there.
+      if (unclaimed && !fleet) {
         c.strokeStyle = "rgba(255,216,115,.55)";
         c.lineWidth = Math.max(0.6, 1 / view.scale);
         c.setLineDash([2, 2]);
@@ -899,7 +941,7 @@
       if (showLabels) {
         c.textAlign = "center";
         c.fillStyle = unclaimed ? "#FFD873" : "#fff";
-        drawFitted(c, b.name || ("· " + (b._ord != null ? b._ord : "?")), x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
+        drawFitted(c, b.name || ("· " + ordinalOf(b)), x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
         c.fillStyle = "#FFD873";
         drawFitted(c, Math.round(b.sold_pct) + "%", x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
       }
@@ -1043,6 +1085,7 @@
     }
     indexMap();
     await loadOwnedBodies();
+    refreshScreenFactor();
     if (!keepCamera) resetView();
     if (selectedBody) selectedBody = bodyById[selectedBody.id] || null;
     baseCanvas.width = canvas.width; baseCanvas.height = canvas.height;
@@ -1106,7 +1149,7 @@
     if (act === "fleet") { clearSelection(); animateCamera(resetViewTarget(), TRANSITION_MS).then(syncMapChrome); }
     else if (act.indexOf("district:") === 0) {
       var d = districts[act.slice(9)];
-      if (d) animateCamera(districtCamera(d, DISTRICT_ENTER_SCALE), TRANSITION_MS).then(syncMapChrome);
+      if (d) animateCamera(districtCamera(d, districtEnterScale()), TRANSITION_MS).then(syncMapChrome);
     }
   });
 
@@ -1126,10 +1169,14 @@
   }
   function bodyTipHtml(b) {
     var f = founderLine(b, false);
+    // An unnamed plot IS its designation, so don't print the same string twice:
+    // its second line says what the missing name means instead.
+    var sub = isUnclaimed(b) ? "unclaimed ground — no one has awakened here" : designationOf(b);
+    var pop = b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : "";
     return "<b>" + esc(bodyLabel(b)) + "</b>" +
-      '<span class="muted">' + esc(designationOf(b)) + "</span><br>" +
-      (HEALTH_LABEL[b.health] || "Unknown") + " · " + Math.round(b.sold_pct) + "% taken<br>" +
-      (b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : (isUnclaimed(b) ? "unclaimed ground" : "&nbsp;")) +
+      '<span class="muted">' + esc(sub) + "</span><br>" +
+      (HEALTH_LABEL[b.health] || "Unknown") + " · " + Math.round(b.sold_pct) + "% taken" +
+      (pop ? "<br>" + esc(pop) : "") +
       (f ? '<br><span class="muted">' + esc(f) + "</span>" : "");
   }
   function districtTipHtml(d) {
@@ -1150,7 +1197,7 @@
   function selectBody(b) {
     selectedBody = b;
     byId("cardName").textContent = bodyLabel(b);
-    byId("cardSub").textContent = isUnclaimed(b) ? designationOf(b) + " · unclaimed ground" : designationOf(b);
+    byId("cardSub").textContent = isUnclaimed(b) ? "unclaimed ground — no one has awakened here" : designationOf(b);
     var f = founderLine(b, false);
     byId("cardFounder").textContent = f ? f.charAt(0).toUpperCase() + f.slice(1) : "";
     byId("cardFounder").classList.toggle("aw-hidden", !f);
@@ -1248,7 +1295,7 @@
       var pt = canvasPointFromEvent(e);
       if (currentLevel() === "fleet") {
         var d = districtAtCanvasPoint(pt);
-        if (d) { clearHover(); animateCamera(districtCamera(d, DISTRICT_ENTER_SCALE), TRANSITION_MS).then(syncMapChrome); }
+        if (d) { clearHover(); animateCamera(districtCamera(d, districtEnterScale()), TRANSITION_MS).then(syncMapChrome); }
         else clearSelection();
       } else {
         var body = bodyAtCanvasPoint(pt);
@@ -1290,6 +1337,13 @@
     byId("mapReset").addEventListener("click", function () {
       stopCamera(); clearSelection(); clearHover();
       animateCamera(resetViewTarget(), TRANSITION_MS).then(syncMapChrome);
+    });
+    // The canvas is CSS-scaled, so a rotate/resize changes what "big enough to
+    // aim at" means -- and therefore which level the current scale sits in.
+    window.addEventListener("resize", function () {
+      if (!mapData) return;
+      refreshScreenFactor();
+      invalidate(); syncMapChrome();
     });
   })();
 
@@ -1335,7 +1389,7 @@
     if (crumbAct === "fleet") { back = resetViewTarget(); clearSelection(); }
     else if (crumbAct && crumbAct.indexOf("district:") === 0) {
       var d = districts[crumbAct.slice(9)];
-      if (d) back = districtCamera(d, DISTRICT_ENTER_SCALE);
+      if (d) back = districtCamera(d, districtEnterScale());
     }
     mapWrap.style.opacity = "1";
     await animateCamera(back, TRANSITION_MS);
@@ -1419,7 +1473,10 @@
 
   function renderBodyDetail() {
     var b = currentBody;
-    byId("detailTitle").textContent = (b.display_name || b.class_code + " Body") + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
+    // An unnamed Body has no display_name; fall back to the plot's designation
+    // (from the map row) rather than the anonymous "L9 Body".
+    var title = b.display_name || (enteredBody ? bodyLabel(enteredBody) : b.class_code + " Body");
+    byId("detailTitle").textContent = title + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
     // The whole naming rework is pointless if the link between a Body's name and
     // the entity that founded it is invisible. Silent if the backend doesn't send it.
     var founder = b.founder_rune || (enteredBody && enteredBody.founder_rune);
