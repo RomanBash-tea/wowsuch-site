@@ -87,7 +87,7 @@
   .aw-stage p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:56ch;}
   /* ---- village map (dev-inbox/Asana [backend] Village map, replaces the old aw-body-card list) ---- */
   .vmap-wrap{position:relative;margin-top:14px;border:4px solid var(--gold);border-radius:var(--r-lg);
-    overflow:hidden;background:#150e02;}
+    overflow:hidden;background:#150e02;transition:opacity .18s linear;}
   #villageCanvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab;}
   #villageCanvas:active{cursor:grabbing;}
   .vmap-controls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;}
@@ -102,7 +102,62 @@
   .vmap-legend .dot.critical{background:#C0392B;}
   .vmap-legend .dot.offline{background:#8a8a8a;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
-  .vmap-hint{font-size:.82rem;color:var(--ink-soft);font-weight:600;margin-top:8px;}
+  .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px dashed rgba(255,216,115,.8);}
+  .vmap-hint{font-size:.82rem;color:var(--soft-on-dark);font-weight:600;margin-top:8px;max-width:70ch;}
+
+  /* ---- village map: the fleet -> district -> body navigation model ----
+     Roman, 2026-08-04: "the map is not intuitive -- at some point you simply
+     fall into a miner." Entering a Body now takes two deliberate acts (select,
+     then Enter body), and every step of the way is named in a breadcrumb. */
+  .vmap-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .vmap-crumbs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.8rem;font-weight:700;}
+  .vmap-crumbs .sep{color:var(--soft-on-dark);opacity:.55;}
+  .vmap-crumbs .crumb{background:none;border:none;padding:2px 5px;font:inherit;color:var(--gold-on-dark);
+    text-decoration:underline;cursor:pointer;border-radius:5px;}
+  .vmap-crumbs .crumb:hover{background:rgba(255,185,46,.18);}
+  .vmap-crumbs .crumb.here{color:#fff;text-decoration:none;cursor:default;}
+  .vmap-levelchip{font-family:var(--mono);font-size:.66rem;font-weight:800;text-transform:uppercase;
+    letter-spacing:.06em;color:#150e02;background:var(--gold-on-dark);border-radius:999px;padding:3px 10px;}
+
+  .vmap-tip{position:absolute;z-index:6;pointer-events:none;min-width:150px;max-width:230px;
+    background:rgba(14,10,2,.96);border:2px solid var(--gold);border-radius:10px;padding:8px 10px;
+    font-family:var(--mono);font-size:.72rem;line-height:1.45;color:var(--soft-on-dark);
+    box-shadow:0 6px 18px rgba(0,0,0,.45);}
+  .vmap-tip b{display:block;color:#fff;font-size:.8rem;margin-bottom:3px;}
+  .vmap-tip .muted{opacity:.7;}
+
+  .vmap-card{position:absolute;right:10px;bottom:10px;z-index:7;width:252px;
+    background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);padding:14px 14px 13px;}
+  .vmap-card h4{font-family:var(--display);color:#fff;font-size:1rem;margin:0;padding-right:20px;}
+  .vmap-card .sub{display:block;font-family:var(--mono);font-size:.7rem;color:var(--soft-on-dark);margin-top:3px;}
+  .vmap-card .sub.founder{color:var(--gold-on-dark);}
+  .vmap-card dl{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin:11px 0 0;
+    font-family:var(--mono);font-size:.72rem;color:var(--soft-on-dark);font-weight:700;}
+  .vmap-card dt{margin:0;}
+  .vmap-card dd{margin:0;color:#fff;text-align:right;}
+  .vmap-card .btn{margin-top:12px;width:100%;text-align:center;justify-content:center;}
+  .vmap-card-close{position:absolute;top:7px;right:9px;background:none;border:none;color:var(--soft-on-dark);
+    font-weight:800;font-size:.95rem;cursor:pointer;line-height:1;padding:2px 5px;}
+  .vmap-card-close:hover{color:#fff;}
+
+  .vg-founder{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--gold-on-dark);margin-top:6px;}
+  .vg-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+  .aw-chain-list .you-tag{font-family:var(--mono);font-size:.62rem;font-weight:800;color:#150e02;
+    background:var(--gold-on-dark);border-radius:999px;padding:1px 7px;margin-left:8px;}
+
+  .vg-fade-in{animation:vgFade .3s ease-out both;}
+  @keyframes vgFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){ .vg-fade-in{animation:none;} .vmap-wrap{transition:none;} }
+  /* On a phone the tooltip would sit under the finger and cover the map, so the
+     selection card becomes a bottom sheet and hover disappears entirely. */
+  @media (max-width:640px){
+    .vmap-tip{display:none;}
+    .vmap-card{position:fixed;left:0;right:0;bottom:0;width:auto;z-index:150;
+      border-width:3px 0 0;border-radius:var(--r-lg) var(--r-lg) 0 0;padding:14px 18px 18px;
+      box-shadow:0 -8px 26px rgba(0,0,0,.5);}
+  }
   .vg-telemetry{border:2px solid var(--gold);border-radius:var(--r-sm);background:#2A1B06;
     padding:12px 14px;margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
   .vg-telemetry .t-lab{display:block;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
@@ -265,14 +320,32 @@
     <p>Practice energy, not real money — watch how it moves. <button type="button" class="aw-wallet-link" id="logoutLink">Log out</button></p>
 
     <div id="villageListView">
+      <h1 class="vg-sr-only">The Village</h1>
       <h3 style="margin-top:22px">The Village</h3>
-      <p>All 1000 seeded Bodies, laid out district by district — colored by health, ringed in gold where you hold a share. Scroll/pinch to zoom, drag to pan, click a plot to open it.</p>
-      <div class="vmap-wrap">
+      <p>All 1000 seeded Bodies, laid out district by district — colored by health, ringed in gold where you hold a share.</p>
+      <div class="vmap-bar">
+        <nav class="vmap-crumbs" id="mapCrumbs" aria-label="Village location"></nav>
+        <span class="vmap-levelchip" id="mapLevelChip">Fleet view</span>
+      </div>
+      <div class="vmap-wrap" id="mapWrap">
         <canvas id="villageCanvas" width="900" height="560" role="img" aria-label="Map of the Village — 1000 Bodies grouped into districts"></canvas>
         <div class="vmap-controls">
           <button type="button" class="btn sm alt" id="mapZoomIn" aria-label="Zoom in">+</button>
           <button type="button" class="btn sm alt" id="mapZoomOut" aria-label="Zoom out">−</button>
-          <button type="button" class="btn sm alt" id="mapReset" aria-label="Reset view">⤾</button>
+          <button type="button" class="btn sm alt" id="mapReset" aria-label="Back to the whole Village">⤾</button>
+        </div>
+        <div class="vmap-tip aw-hidden" id="mapTip" aria-hidden="true"></div>
+        <div class="vmap-card aw-hidden" id="mapCard" role="group" aria-label="Selected Body">
+          <button type="button" class="vmap-card-close" id="mapCardClose" aria-label="Clear selection">✕</button>
+          <h4 id="cardName">—</h4>
+          <span class="sub" id="cardSub"></span>
+          <span class="sub founder aw-hidden" id="cardFounder"></span>
+          <dl>
+            <dt>Health</dt><dd id="cardHealth">—</dd>
+            <dt>Taken</dt><dd id="cardSold">—</dd>
+            <dt>Entities</dt><dd id="cardSettlers">—</dd>
+          </dl>
+          <button type="button" class="btn" id="cardEnter">Enter body <span class="arrow">→</span></button>
         </div>
         <div class="vmap-legend">
           <span><i class="dot healthy"></i>healthy</span>
@@ -280,14 +353,19 @@
           <span><i class="dot critical"></i>critical</span>
           <span><i class="dot offline"></i>offline</span>
           <span><i class="dot owned"></i>yours</span>
+          <span><i class="dot unclaimed"></i>unclaimed</span>
         </div>
       </div>
+      <p class="vmap-hint" id="mapHint"></p>
       <p class="vmap-hint" id="mapLoadingNote">Loading the village…</p>
     </div>
 
     <div id="bodyDetailView" class="aw-hidden">
-      <button type="button" class="btn sm alt" id="backToList" style="margin-top:22px">← Back to the Village</button>
+      <div class="vmap-bar"><button type="button" class="btn alt" id="backToList">← Back to the Village</button></div>
+      <nav class="vmap-crumbs" id="detailCrumbs" aria-label="Village location" style="margin-top:12px"></nav>
       <h3 id="detailTitle" style="margin-top:14px"></h3>
+      <p class="vg-founder aw-hidden" id="detailFounder"></p>
+      <p class="vg-error aw-hidden" id="detailError" style="color:#FF9C8F"></p>
       <div class="aw-occ-bar"><div class="aw-occ-fill" id="detailOccFill" style="width:0%"></div></div>
       <div class="vg-telemetry aw-hidden" id="detailTelemetry"></div>
       <div id="chainViewBeatSlot"></div>
@@ -427,7 +505,13 @@
   byId("codexBtn").addEventListener("click", openCodex);
   byId("codexClose").addEventListener("click", closeCodex);
   codexOverlay.addEventListener("click", function (e) { if (e.target === codexOverlay) closeCodex(); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCodex(); });
+  // Escape unwinds ONE layer per press. This handler is registered first, so it
+  // marks the event when it actually consumed it; the map's handler stands down.
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || codexOverlay.classList.contains("aw-hidden")) return;
+    closeCodex();
+    e.vgEscapeHandled = true;
+  });
 
   function loadSession() {
     try { return JSON.parse(localStorage.getItem(LS_SESSION) || "null"); } catch (e) { return null; }
@@ -440,6 +524,7 @@
   var selectedShare = null;
   var mapData = null;       // { bodies: [...], grid: {width,height}, district_size: {...} }
   var ownedBodyIds = {};    // body_id -> true, from /me/dashboard, for the ownership ring
+  var myEntityIds = {};     // entity_id -> true, from /me/dashboard, so the player can find themselves in a chain
   var mapNeedsRefresh = false; // set after a purchase so the map re-fetches once, not on every frame
 
   async function api(path, opts) {
@@ -585,11 +670,13 @@
   byId("introDone").addEventListener("click", function () {
     markIntroSeen();
     byId("onboarding").classList.add("aw-hidden");
-    byId("pageIntro").classList.remove("aw-hidden");
     if (session && session.access_token) {
+      // Registration-stage copy stays hidden for a signed-in player: it invites
+      // them to register and pick a Body they are already standing on.
       byId("villageStage").classList.remove("aw-hidden");
       loadMap();
     } else {
+      byId("pageIntro").classList.remove("aw-hidden");
       authGate.classList.remove("aw-hidden");
     }
   });
@@ -634,219 +721,637 @@
       STORY_BEATS.forEach(function (b) { localStorage.removeItem(beatStorageKey(session.user_id, b)); });
     }
     localStorage.removeItem(LS_ONBOARDED);
+    enteredBody = null;
     bodyDetailView.classList.add("aw-hidden");
     villageListView.classList.remove("aw-hidden");
+    mapWrap.style.opacity = "1";
     startIntro();
     if (session && session.access_token) updateBalance();
   });
 
-  /* ---------------- VILLAGE MAP: tiers 0+1 (whole village / mid-zoom), one <canvas> ----------------
-     A single canvas rendered at zoom-dependent detail avoids the "1000
-     unvirtualized DOM nodes will jank" problem the task spec calls out --
-     not just at the whole-village tier, at every zoom level. Tier 2 (click
-     a Body) reuses the existing bodyDetailView via openBody(), unchanged. */
+  /* ================= VILLAGE MAP: a three-level navigation model =================
+     Roman, 2026-08-04: "the map is not intuitive -- at some point you simply
+     fall into a miner." The old map opened a Body on ANY single click, at ANY
+     zoom, including fully zoomed out where a plot is ~7 device px. Three levels
+     now, and the current one is always named on screen:
+
+       FLEET     (scale <  LEVEL_DISTRICT_SCALE)  districts are the unit of
+                 interaction; plots are drawn but not enterable; clicking a
+                 district flies into it.
+       DISTRICT  (scale >= LEVEL_DISTRICT_SCALE)  plots are big enough to aim
+                 at: hover highlights, click SELECTS (it does not enter).
+       BODY      the detail view, reached only from the selection card's
+                 "Enter body" button -- two deliberate acts, never one stray click.
+
+     Rendering: the 1000 plots are painted into an offscreen base canvas that is
+     only rebuilt when the camera or the data changes. Hover/selection composite
+     on top of that bitmap, so a mousemove costs one drawImage plus two strokes
+     instead of a 1000-plot loop. */
   var CELL = 20; // logical px per grid cell at scale 1
   var MIN_SCALE = 0.5, MAX_SCALE = 10;
-  var LABEL_ZOOM_THRESHOLD = 2.3;   // mid-zoom tier: draw name + sold% per cell
-  var DISTRICT_LABEL_MAX_SCALE = 1.2; // whole-village tier: draw district names instead
+  // Against CELL=20 and the 0.5-10 clamp: reset lands at ~1.12 (the whole 40x25
+  // grid fits the 900x560 canvas), so the fleet band is everything below 1.9.
+  // At 1.9 a plot is 38 canvas px -- comfortably clickable, and that is exactly
+  // where per-plot labels become legible, so the two thresholds are one number.
+  var LEVEL_DISTRICT_SCALE = 1.9;
+  var DISTRICT_ENTER_SCALE = 2.8;  // where a district click lands you
+  var BODY_ENTER_SCALE = 7;        // camera target while travelling into a plot
+  var TRANSITION_MS = 420;
   var HEALTH_COLOR = { healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B", offline: "#8a8a8a" };
+  var HEALTH_LABEL = { healthy: "Healthy", warning: "Warning", critical: "Critical", offline: "Offline" };
 
   var canvas = byId("villageCanvas");
   var ctx = canvas ? canvas.getContext("2d") : null;
+  var baseCanvas = document.createElement("canvas");
+  baseCanvas.width = canvas ? canvas.width : 1;
+  baseCanvas.height = canvas ? canvas.height : 1;
+  var baseCtx = baseCanvas.getContext("2d");
   var view = { scale: 1, offsetX: 0, offsetY: 0 };
-  var cellIndex = {}; // "x,y" -> body, built once per map load for O(1) click lookup
-  var districtLabelAt = {}; // district id -> {name, gx, gy} (top-left grid cell of that district)
+  var cellIndex = {};      // "x,y" -> body, O(1) hit test
+  var bodyById = {};       // body id -> map row, for restoring a selection
+  var districts = {};      // district id -> {name, gx, gy, count, settled, soldSum, health:{}}
+  var hoverBody = null, hoverDistrict = null, selectedBody = null;
+  var enteredBody = null;  // the map row whose detail view is open
+  var savedCamera = null;  // camera to restore when leaving the body view
+  var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches);
 
-  function resetView() {
-    if (!mapData) return;
-    var gridPxW = mapData.grid.width * CELL, gridPxH = mapData.grid.height * CELL;
-    view.scale = Math.min(canvas.width / gridPxW, canvas.height / gridPxH, 1.4);
-    view.offsetX = (canvas.width - gridPxW * view.scale) / 2;
-    view.offsetY = (canvas.height - gridPxH * view.scale) / 2;
-  }
-
+  function currentLevel() { return view.scale >= LEVEL_DISTRICT_SCALE ? "district" : "fleet"; }
   function clampScale(s) { return Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)); }
 
-  // A Body's name is longer than its plot is wide -- at the old fixed 7px into
-  // a 20px cell a name overflowed roughly 2.5x and collided with its
-  // neighbours into unreadable mush. Shrink to fit the plot first, and only
-  // clip with an ellipsis once shrinking would go below legibility. The font
-  // is in world units, so the on-screen size still grows with zoom.
-  var MIN_CELL_FONT = 3.6; // world px; >= 8 device px at the label zoom threshold
-  function drawFitted(text, cx, cy, desiredSize) {
+  /* ---- naming: a Body only has a name once someone has settled it ----
+     The map contract changed under us: `name` is now string|null and
+     `designation` carries the always-present "<District> · <n>" form. Older
+     deploys send neither, so both directions degrade. */
+  function designationOf(b) {
+    return b.designation || ((b.district_name || "District") + " · " + (b._ord != null ? b._ord : "?"));
+  }
+  function bodyLabel(b) { return b.name || designationOf(b); }
+  function isUnclaimed(b) { return !b.name; }
+  function founderLine(b, withName) {
+    if (!b || !b.founder_rune) return "";
+    var who = String(b.founder_rune).toLowerCase();
+    return withName ? bodyLabel(b) + " — founded by " + who : "founded by " + who;
+  }
+
+  function resetViewTarget() {
+    var gridPxW = mapData.grid.width * CELL, gridPxH = mapData.grid.height * CELL;
+    var s = Math.min(canvas.width / gridPxW, canvas.height / gridPxH, 1.4);
+    return { scale: s, offsetX: (canvas.width - gridPxW * s) / 2, offsetY: (canvas.height - gridPxH * s) / 2 };
+  }
+  function resetView() {
+    if (!mapData) return;
+    var t = resetViewTarget();
+    view.scale = t.scale; view.offsetX = t.offsetX; view.offsetY = t.offsetY;
+  }
+  // Camera that puts a world point in the middle of the canvas at scale s.
+  function cameraFocus(wx, wy, s) {
+    return { scale: s, offsetX: canvas.width / 2 - wx * s, offsetY: canvas.height / 2 - wy * s };
+  }
+  function bodyCamera(b, s) { return cameraFocus(b.x * CELL + CELL / 2, b.y * CELL + CELL / 2, s); }
+  function districtCamera(d, s) {
+    var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+    return cameraFocus(d.gx * CELL + dW / 2, d.gy * CELL + dH / 2, s);
+  }
+
+  /* ---- camera tween; `prefers-reduced-motion` jumps straight to the target ---- */
+  var camAnim = null;
+  function stopCamera() { camAnim = null; }
+  function animateCamera(target, ms) {
+    return new Promise(function (resolve) {
+      if (reduceMotion || !ms) {
+        view.scale = target.scale; view.offsetX = target.offsetX; view.offsetY = target.offsetY;
+        invalidate(); resolve(); return;
+      }
+      var from = { scale: view.scale, offsetX: view.offsetX, offsetY: view.offsetY };
+      var t0 = performance.now();
+      camAnim = function step(now) {
+        if (camAnim !== step) { resolve(); return; } // superseded or cancelled by the user
+        var p = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+        view.scale = from.scale + (target.scale - from.scale) * e;
+        view.offsetX = from.offsetX + (target.offsetX - from.offsetX) * e;
+        view.offsetY = from.offsetY + (target.offsetY - from.offsetY) * e;
+        invalidate();
+        if (p < 1) requestAnimationFrame(camAnim); else { camAnim = null; resolve(); }
+      };
+      requestAnimationFrame(camAnim);
+    });
+  }
+
+  /* ---- text that fits inside a 20px plot ----
+     A Body's name is longer than its plot is wide -- at a fixed 7px into a 20px
+     cell a name overflowed roughly 2.5x and collided with its neighbours into
+     unreadable mush. Shrink to fit first, clip with an ellipsis only once
+     shrinking would go below legibility. The font is in world units, so the
+     on-screen size still grows with zoom. */
+  var MIN_CELL_FONT = 3.6;
+  function drawFitted(c, text, cx, cy, desiredSize) {
     var maxW = CELL - 3;
     var str = String(text);
-    ctx.font = "10px 'IBM Plex Mono', monospace";
-    var wPer = ctx.measureText(str).width / 10; // monospace: width scales linearly with size
+    c.font = "10px 'IBM Plex Mono', monospace";
+    var wPer = c.measureText(str).width / 10; // monospace: width scales linearly with size
     var size = wPer > 0 ? Math.min(desiredSize, maxW / wPer) : desiredSize;
     if (size < MIN_CELL_FONT) {
       size = MIN_CELL_FONT;
       var fits = Math.max(1, Math.floor(maxW / (wPer * size / str.length)));
       if (fits < str.length) str = str.slice(0, Math.max(1, fits - 1)) + "…";
     }
-    ctx.font = size + "px 'IBM Plex Mono', monospace";
-    ctx.fillText(str, cx, cy);
+    c.font = size + "px 'IBM Plex Mono', monospace";
+    c.fillText(str, cx, cy);
   }
 
-  function drawMap() {
-    if (!ctx || !mapData) return;
-    ctx.save();
-    ctx.fillStyle = "#150e02";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(view.offsetX, view.offsetY);
-    ctx.scale(view.scale, view.scale);
+  /* ---- base layer: every plot + the fleet-level district blocks ---- */
+  function renderBase() {
+    var c = baseCtx;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.fillStyle = "#150e02";
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    if (!mapData) return;
+    c.save();
+    c.translate(view.offsetX, view.offsetY);
+    c.scale(view.scale, view.scale);
 
-    var showLabels = view.scale >= LABEL_ZOOM_THRESHOLD;
-    var showDistrictLabels = view.scale < DISTRICT_LABEL_MAX_SCALE;
+    var fleet = currentLevel() === "fleet";
+    var showLabels = !fleet;
+    // Cull to the viewport so a deep zoom doesn't pay for 1000 plots it can't show.
+    var wx0 = (-view.offsetX) / view.scale - CELL, wy0 = (-view.offsetY) / view.scale - CELL;
+    var wx1 = (canvas.width - view.offsetX) / view.scale + CELL, wy1 = (canvas.height - view.offsetY) / view.scale + CELL;
 
     mapData.bodies.forEach(function (b) {
       var x = b.x * CELL, y = b.y * CELL;
-      ctx.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
-      ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+      if (x > wx1 || y > wy1 || x + CELL < wx0 || y + CELL < wy0) return;
+      var unclaimed = isUnclaimed(b);
+      c.globalAlpha = unclaimed ? 0.42 : 1; // unclaimed ground reads as faded, not broken
+      c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
+      c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+      c.globalAlpha = 1;
+      if (unclaimed) {
+        c.strokeStyle = "rgba(255,216,115,.55)";
+        c.lineWidth = Math.max(0.6, 1 / view.scale);
+        c.setLineDash([2, 2]);
+        c.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
+        c.setLineDash([]);
+      }
       if (ownedBodyIds[b.id]) {
-        ctx.strokeStyle = "#FFB92E";
-        ctx.lineWidth = Math.max(1.5, 2 / view.scale);
-        ctx.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
+        c.strokeStyle = "#FFB92E";
+        c.lineWidth = Math.max(1.5, 2 / view.scale);
+        c.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
       }
       if (showLabels) {
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#fff";
-        drawFitted(b.name, x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
-        ctx.fillStyle = "#FFD873";
-        drawFitted(b.sold_pct + "%", x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
+        c.textAlign = "center";
+        c.fillStyle = unclaimed ? "#FFD873" : "#fff";
+        drawFitted(c, b.name || ("· " + (b._ord != null ? b._ord : "?")), x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
+        c.fillStyle = "#FFD873";
+        drawFitted(c, Math.round(b.sold_pct) + "%", x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
       }
     });
 
-    // District names go on TOP of the plots, never under them: drawn first
-    // they were painted over by the 1000 body cells and survived only in the
-    // 2px gaps between plots -- which is what read as stray text bleeding
-    // through the map background (Asana 1217155005521398). The dark halo keeps
-    // them legible over healthy-green and warning-amber cells alike.
-    if (showDistrictLabels) {
-      var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = "700 " + Math.max(9, CELL * 0.5) + "px 'IBM Plex Mono', monospace";
-      ctx.lineJoin = "round";
-      Object.keys(districtLabelAt).forEach(function (d) {
-        var info = districtLabelAt[d];
-        var cx = info.gx * CELL + dW / 2, cy = info.gy * CELL + dH / 2;
-        ctx.strokeStyle = "rgba(255,185,46,.45)";
-        ctx.lineWidth = 1 / view.scale;
-        ctx.strokeRect(info.gx * CELL, info.gy * CELL, dW, dH);
-        ctx.strokeStyle = "rgba(10,7,1,.9)";
-        ctx.lineWidth = Math.max(2, CELL * 0.16);
-        ctx.strokeText(info.name, cx, cy);
-        ctx.fillStyle = "#FFD873";
-        ctx.fillText(info.name, cx, cy);
-      });
-      ctx.textBaseline = "alphabetic";
+    // District blocks go on TOP of the plots, never under them: drawn first they
+    // were painted over by the 1000 body cells and survived only in the 2px gaps
+    // between plots, which read as stray text bleeding through the background
+    // (Asana 1217155005521398). At fleet level the block IS the interactive unit,
+    // so it also carries a settled meter -- how much of that district is taken.
+    if (fleet) drawDistrictBlocks(c);
+    c.restore();
+  }
+
+  function drawDistrictBlocks(c) {
+    var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.lineJoin = "round";
+    Object.keys(districts).forEach(function (id) {
+      var d = districts[id];
+      var x = d.gx * CELL, y = d.gy * CELL, cx = x + dW / 2, cy = y + dH / 2;
+      c.strokeStyle = "rgba(255,185,46,.5)";
+      c.lineWidth = 1.5 / view.scale;
+      c.strokeRect(x, y, dW, dH);
+
+      c.font = "700 " + Math.max(9, CELL * 0.5) + "px 'IBM Plex Mono', monospace";
+      c.strokeStyle = "rgba(10,7,1,.92)";
+      c.lineWidth = Math.max(2, CELL * 0.16);
+      c.strokeText(d.name, cx, cy - CELL * 0.28);
+      c.fillStyle = "#FFD873";
+      c.fillText(d.name, cx, cy - CELL * 0.28);
+
+      // Settled meter + a one-glance health verdict: how settled and how well
+      // this district is, without having to read 50 individual plots.
+      var mw = dW * 0.5, mh = Math.max(3, CELL * 0.16), mx = cx - mw / 2, my = cy + CELL * 0.18;
+      c.fillStyle = "rgba(10,7,1,.75)";
+      c.fillRect(mx - 1, my - 1, mw + 2, mh + 2);
+      c.fillStyle = "rgba(255,255,255,.18)";
+      c.fillRect(mx, my, mw, mh);
+      c.fillStyle = "#FFB92E";
+      c.fillRect(mx, my, mw * Math.min(1, d.settled / d.count), mh);
+
+      var unwell = (d.health.warning || 0) + (d.health.critical || 0) + (d.health.offline || 0);
+      var sub = d.settled + "/" + d.count + " settled · " + (unwell ? unwell + " unwell" : "all healthy");
+      c.font = "700 " + Math.max(7, CELL * 0.3) + "px 'IBM Plex Mono', monospace";
+      c.strokeStyle = "rgba(10,7,1,.92)";
+      c.lineWidth = Math.max(1.4, CELL * 0.1);
+      c.strokeText(sub, cx, my + mh + CELL * 0.34);
+      c.fillStyle = "#EBD9AE";
+      c.fillText(sub, cx, my + mh + CELL * 0.34);
+    });
+    c.textBaseline = "alphabetic";
+  }
+
+  /* ---- composite layer: base bitmap + hover + selection ---- */
+  var baseDirty = true, rafId = 0;
+  function invalidate() { baseDirty = true; requestPaint(); }
+  function requestPaint() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(function () { rafId = 0; paint(); });
+  }
+  function paint() {
+    if (!ctx) return;
+    if (baseDirty) { renderBase(); baseDirty = false; }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(baseCanvas, 0, 0);
+    if (!mapData) return;
+    ctx.save();
+    ctx.translate(view.offsetX, view.offsetY);
+    ctx.scale(view.scale, view.scale);
+    var dW = mapData.district_size.w * CELL, dH = mapData.district_size.h * CELL;
+    if (hoverDistrict) {
+      ctx.fillStyle = "rgba(255,185,46,.14)";
+      ctx.fillRect(hoverDistrict.gx * CELL, hoverDistrict.gy * CELL, dW, dH);
+      ctx.strokeStyle = "#FFD873";
+      ctx.lineWidth = 3 / view.scale;
+      ctx.strokeRect(hoverDistrict.gx * CELL, hoverDistrict.gy * CELL, dW, dH);
+    }
+    if (hoverBody && (!selectedBody || hoverBody.id !== selectedBody.id)) {
+      ctx.strokeStyle = "#FFF3D0";
+      ctx.lineWidth = 2.4 / view.scale;
+      ctx.strokeRect(hoverBody.x * CELL + 0.5, hoverBody.y * CELL + 0.5, CELL - 1, CELL - 1);
+    }
+    if (selectedBody) {
+      var sx = selectedBody.x * CELL, sy = selectedBody.y * CELL;
+      ctx.strokeStyle = "#FFB92E";
+      ctx.lineWidth = 3.5 / view.scale;
+      ctx.strokeRect(sx - 1, sy - 1, CELL + 2, CELL + 2);
+      ctx.strokeStyle = "rgba(255,185,46,.35)";
+      ctx.lineWidth = 8 / view.scale;
+      ctx.strokeRect(sx - 3, sy - 3, CELL + 6, CELL + 6);
     }
     ctx.restore();
   }
+  function drawMap() { invalidate(); }
 
+  /* ---- indexing ---- */
   function indexMap() {
-    cellIndex = {};
-    districtLabelAt = {};
+    cellIndex = {}; bodyById = {}; districts = {};
+    var ds = mapData.district_size;
     mapData.bodies.forEach(function (b) {
       cellIndex[b.x + "," + b.y] = b;
-      if (!(b.district in districtLabelAt)) {
-        // top-left cell of this district's block, from its own grid position
-        var dW = mapData.district_size.w, dH = mapData.district_size.h;
-        var col = b.district % mapData.district_size.cols;
-        var row = Math.floor(b.district / mapData.district_size.cols);
-        districtLabelAt[b.district] = { name: b.district_name, gx: col * dW, gy: row * dH };
+      bodyById[b.id] = b;
+      var d = districts[b.district];
+      if (!d) {
+        d = districts[b.district] = {
+          id: b.district, name: b.district_name || ("District " + b.district),
+          gx: (b.district % ds.cols) * ds.w, gy: Math.floor(b.district / ds.cols) * ds.h,
+          count: 0, settled: 0, soldSum: 0, health: {}
+        };
       }
+      d.count += 1;
+      b._ord = d.count; // ordinal inside the district -- the designation fallback
+      d.soldSum += Number(b.sold_pct) || 0;
+      if (b.name || Number(b.sold_pct) > 0) d.settled += 1;
+      d.health[b.health] = (d.health[b.health] || 0) + 1;
     });
   }
 
   async function loadOwnedBodies() {
     ownedBodyIds = {};
+    myEntityIds = {};
     if (!session || !session.access_token) return;
     try {
       var dash = await api("/me/dashboard");
-      (dash.chains || []).forEach(function (c) { ownedBodyIds[c.body_id] = true; });
-    } catch (e) { /* not fatal -- ownership ring just won't show */ }
+      (dash.chains || []).forEach(function (c) {
+        ownedBodyIds[c.body_id] = true;
+        if (c.entity_id) myEntityIds[c.entity_id] = true;
+      });
+    } catch (e) { /* not fatal -- ownership ring and the "you" row just won't show */ }
   }
 
-  async function loadMap() {
+  async function loadMap(keepCamera) {
     byId("mapLoadingNote").textContent = "Loading the village…";
-    mapData = await api("/map");
+    try {
+      mapData = await api("/map");
+    } catch (err) {
+      byId("mapLoadingNote").textContent = "The Village map couldn't be loaded right now. Try again in a moment.";
+      return;
+    }
     indexMap();
     await loadOwnedBodies();
-    resetView();
-    drawMap();
+    if (!keepCamera) resetView();
+    if (selectedBody) selectedBody = bodyById[selectedBody.id] || null;
+    baseCanvas.width = canvas.width; baseCanvas.height = canvas.height;
+    invalidate();
+    syncMapChrome();
     byId("mapLoadingNote").textContent = "";
   }
 
-  function canvasPointFromEvent(e) {
+  /* ---- hit testing ---- */
+  function canvasPointFromClient(clientX, clientY) {
     var rect = canvas.getBoundingClientRect();
-    var scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+    return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
+  }
+  function canvasPointFromEvent(e) { return canvasPointFromClient(e.clientX, e.clientY); }
+  function gridAtCanvasPoint(pt) {
+    var wx = (pt.x - view.offsetX) / view.scale, wy = (pt.y - view.offsetY) / view.scale;
+    return { gx: Math.floor(wx / CELL), gy: Math.floor(wy / CELL) };
+  }
+  function bodyAtCanvasPoint(pt) { var g = gridAtCanvasPoint(pt); return cellIndex[g.gx + "," + g.gy]; }
+  function districtAtCanvasPoint(pt) {
+    if (!mapData) return null;
+    var g = gridAtCanvasPoint(pt), ds = mapData.district_size;
+    if (g.gx < 0 || g.gy < 0 || g.gx >= mapData.grid.width || g.gy >= mapData.grid.height) return null;
+    return districts[Math.floor(g.gy / ds.h) * ds.cols + Math.floor(g.gx / ds.w)] || null;
+  }
+  function centerDistrict() {
+    return districtAtCanvasPoint({ x: canvas.width / 2, y: canvas.height / 2 });
   }
 
-  function bodyAtCanvasPoint(pt) {
-    var wx = (pt.x - view.offsetX) / view.scale, wy = (pt.y - view.offsetY) / view.scale;
-    var gx = Math.floor(wx / CELL), gy = Math.floor(wy / CELL);
-    return cellIndex[gx + "," + gy];
+  /* ---- breadcrumb, level chip and hint: the current level is always on screen ---- */
+  function crumbBtn(label, act, here) {
+    return '<button type="button" class="crumb' + (here ? " here" : "") + '"' +
+      (here ? ' aria-current="true" disabled' : ' data-act="' + act + '"') + '>' + esc(label) + '</button>';
   }
+  function renderCrumbs() {
+    var inBody = !!enteredBody;
+    var lvl = currentLevel();
+    var d = inBody ? districts[enteredBody.district] : (lvl === "district" ? centerDistrict() : null);
+    var parts = [crumbBtn("Village", "fleet", !inBody && lvl === "fleet")];
+    if (d) parts.push(crumbBtn(d.name, "district:" + d.id, !inBody && lvl === "district"));
+    if (inBody) parts.push(crumbBtn(bodyLabel(enteredBody), "body", true));
+    var html = parts.join('<span class="sep">›</span>');
+    byId("mapCrumbs").innerHTML = html;
+    byId("detailCrumbs").innerHTML = html;
+  }
+  var HINTS = {
+    fleet: "Drag to pan, scroll or pinch to zoom. Click a district to fly into it — individual Bodies open from the closer view.",
+    district: "Hover a plot to inspect it, click to select it. Entering a Body is a separate step: press “Enter body” on the card."
+  };
+  function syncMapChrome() {
+    var lvl = currentLevel();
+    byId("mapLevelChip").textContent = enteredBody ? "Body view" : (lvl === "fleet" ? "Fleet view" : "District view");
+    byId("mapHint").textContent = HINTS[lvl];
+    renderCrumbs();
+  }
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".vmap-crumbs .crumb[data-act]") : null;
+    if (!btn) return;
+    var act = btn.getAttribute("data-act");
+    if (enteredBody) { leaveBody(act); return; }
+    if (act === "fleet") { clearSelection(); animateCamera(resetViewTarget(), TRANSITION_MS).then(syncMapChrome); }
+    else if (act.indexOf("district:") === 0) {
+      var d = districts[act.slice(9)];
+      if (d) animateCamera(districtCamera(d, DISTRICT_ENTER_SCALE), TRANSITION_MS).then(syncMapChrome);
+    }
+  });
+
+  /* ---- hover tooltip (desktop) ---- */
+  var mapTip = byId("mapTip"), mapWrap = byId("mapWrap");
+  function hideTip() { mapTip.classList.add("aw-hidden"); }
+  function showTip(html, clientX, clientY) {
+    mapTip.innerHTML = html;
+    mapTip.classList.remove("aw-hidden");
+    var wr = mapWrap.getBoundingClientRect();
+    var x = clientX - wr.left + 16, y = clientY - wr.top + 16;
+    var tw = mapTip.offsetWidth, th = mapTip.offsetHeight;
+    if (x + tw > wr.width - 6) x = clientX - wr.left - tw - 14;
+    if (y + th > wr.height - 6) y = clientY - wr.top - th - 14;
+    mapTip.style.left = Math.max(6, x) + "px";
+    mapTip.style.top = Math.max(6, y) + "px";
+  }
+  function bodyTipHtml(b) {
+    var f = founderLine(b, false);
+    return "<b>" + esc(bodyLabel(b)) + "</b>" +
+      '<span class="muted">' + esc(designationOf(b)) + "</span><br>" +
+      (HEALTH_LABEL[b.health] || "Unknown") + " · " + Math.round(b.sold_pct) + "% taken<br>" +
+      (b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : (isUnclaimed(b) ? "unclaimed ground" : "&nbsp;")) +
+      (f ? '<br><span class="muted">' + esc(f) + "</span>" : "");
+  }
+  function districtTipHtml(d) {
+    var mix = ["healthy", "warning", "critical", "offline"].filter(function (k) { return d.health[k]; })
+      .map(function (k) { return d.health[k] + " " + k; }).join(" · ");
+    return "<b>" + esc(d.name) + "</b>" + d.count + " Bodies · " + Math.round(d.soldSum / d.count) + "% settled<br>" +
+      '<span class="muted">' + esc(mix) + "</span><br>Click to fly in";
+  }
+
+  /* ---- selection: click selects, only the card enters ---- */
+  var mapCard = byId("mapCard");
+  function clearSelection() {
+    if (!selectedBody) { mapCard.classList.add("aw-hidden"); return; }
+    selectedBody = null;
+    mapCard.classList.add("aw-hidden");
+    requestPaint();
+  }
+  function selectBody(b) {
+    selectedBody = b;
+    byId("cardName").textContent = bodyLabel(b);
+    byId("cardSub").textContent = isUnclaimed(b) ? designationOf(b) + " · unclaimed ground" : designationOf(b);
+    var f = founderLine(b, false);
+    byId("cardFounder").textContent = f ? f.charAt(0).toUpperCase() + f.slice(1) : "";
+    byId("cardFounder").classList.toggle("aw-hidden", !f);
+    byId("cardHealth").textContent = HEALTH_LABEL[b.health] || "—";
+    byId("cardSold").textContent = Math.round(b.sold_pct) + "%";
+    byId("cardSettlers").textContent = b.settlers != null ? String(b.settlers) : "—";
+    mapCard.classList.remove("aw-hidden");
+    requestPaint();
+  }
+  byId("mapCardClose").addEventListener("click", clearSelection);
+  byId("cardEnter").addEventListener("click", function () { if (selectedBody) enterBody(selectedBody); });
 
   (function setupMapInteraction() {
     if (!canvas) return;
-    var dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+    var dragging = false, dragDist = 0, lastX = 0, lastY = 0;
+    var pointers = {}, pointerCount = 0, pinch = null;
+
+    function setHover(body, district, e) {
+      var changed = (hoverBody || null) !== (body || null) || (hoverDistrict || null) !== (district || null);
+      hoverBody = body || null; hoverDistrict = district || null;
+      canvas.style.cursor = dragging ? "grabbing" : ((body || district) ? "pointer" : "grab");
+      if (body) showTip(bodyTipHtml(body), e.clientX, e.clientY);
+      else if (district) showTip(districtTipHtml(district), e.clientX, e.clientY);
+      else hideTip();
+      if (changed) requestPaint();
+    }
+    function clearHover() {
+      if (hoverBody || hoverDistrict) { hoverBody = null; hoverDistrict = null; requestPaint(); }
+      hideTip();
+      canvas.style.cursor = "grab";
+    }
 
     canvas.addEventListener("pointerdown", function (e) {
-      dragging = true; dragMoved = false;
-      lastX = e.clientX; lastY = e.clientY;
+      stopCamera();
+      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      pointerCount += 1;
       canvas.setPointerCapture(e.pointerId);
-    });
-    canvas.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
-      var dx = e.clientX - lastX, dy = e.clientY - lastY;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragMoved = true;
-      var rect = canvas.getBoundingClientRect();
-      var scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-      view.offsetX += dx * scaleX; view.offsetY += dy * scaleY;
-      lastX = e.clientX; lastY = e.clientY;
-      drawMap();
-    });
-    canvas.addEventListener("pointerup", function (e) {
-      dragging = false;
-      if (!dragMoved && mapData) {
-        var body = bodyAtCanvasPoint(canvasPointFromEvent(e));
-        if (body) openBody(body.id);
+      if (pointerCount === 2) {
+        dragging = false;
+        var ids = Object.keys(pointers), a = pointers[ids[0]], b = pointers[ids[1]];
+        var mid = canvasPointFromClient((a.x + b.x) / 2, (a.y + b.y) / 2);
+        pinch = {
+          dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, scale: view.scale,
+          world: { x: (mid.x - view.offsetX) / view.scale, y: (mid.y - view.offsetY) / view.scale }
+        };
+        clearHover();
+        return;
       }
+      dragging = true; dragDist = 0;
+      lastX = e.clientX; lastY = e.clientY;
+      canvas.style.cursor = "grabbing";
     });
+
+    canvas.addEventListener("pointermove", function (e) {
+      if (pointers[e.pointerId]) { pointers[e.pointerId].x = e.clientX; pointers[e.pointerId].y = e.clientY; }
+      if (pinch && pointerCount >= 2) {
+        var ids = Object.keys(pointers), a = pointers[ids[0]], b = pointers[ids[1]];
+        var d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        var mid = canvasPointFromClient((a.x + b.x) / 2, (a.y + b.y) / 2);
+        view.scale = clampScale(pinch.scale * (d / pinch.dist));
+        view.offsetX = mid.x - pinch.world.x * view.scale;
+        view.offsetY = mid.y - pinch.world.y * view.scale;
+        invalidate(); syncMapChrome();
+        return;
+      }
+      if (dragging) {
+        var dx = e.clientX - lastX, dy = e.clientY - lastY;
+        dragDist += Math.abs(dx) + Math.abs(dy);
+        var rect = canvas.getBoundingClientRect();
+        view.offsetX += dx * (canvas.width / rect.width);
+        view.offsetY += dy * (canvas.height / rect.height);
+        lastX = e.clientX; lastY = e.clientY;
+        invalidate();
+        if (dragDist > 6) { hideTip(); syncMapChrome(); }
+        return;
+      }
+      if (e.pointerType === "touch" || !mapData) return; // no hover state on touch
+      var pt = canvasPointFromEvent(e);
+      if (currentLevel() === "fleet") setHover(null, districtAtCanvasPoint(pt), e);
+      else setHover(bodyAtCanvasPoint(pt), null, e);
+    });
+
+    function endPointer(e) {
+      if (pointers[e.pointerId]) { delete pointers[e.pointerId]; pointerCount = Math.max(0, pointerCount - 1); }
+      if (pointerCount < 2) pinch = null;
+    }
+    canvas.addEventListener("pointerup", function (e) {
+      var wasDragging = dragging, moved = dragDist > 6;
+      dragging = false;
+      canvas.style.cursor = "grab";
+      endPointer(e);
+      if (!wasDragging || moved || !mapData) { syncMapChrome(); return; }
+      // A click is a SELECT, never an entry. At fleet level it flies into the
+      // district instead -- individual plots are simply too small to aim at there.
+      var pt = canvasPointFromEvent(e);
+      if (currentLevel() === "fleet") {
+        var d = districtAtCanvasPoint(pt);
+        if (d) { clearHover(); animateCamera(districtCamera(d, DISTRICT_ENTER_SCALE), TRANSITION_MS).then(syncMapChrome); }
+        else clearSelection();
+      } else {
+        var body = bodyAtCanvasPoint(pt);
+        if (body) selectBody(body); else clearSelection();
+      }
+      syncMapChrome();
+    });
+    canvas.addEventListener("pointercancel", function (e) { dragging = false; endPointer(e); });
+    canvas.addEventListener("pointerleave", clearHover);
+
     canvas.addEventListener("wheel", function (e) {
       e.preventDefault();
       if (!mapData) return;
+      stopCamera();
       var pt = canvasPointFromEvent(e);
       var worldX = (pt.x - view.offsetX) / view.scale, worldY = (pt.y - view.offsetY) / view.scale;
       var factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
       view.scale = clampScale(view.scale * factor);
       view.offsetX = pt.x - worldX * view.scale;
       view.offsetY = pt.y - worldY * view.scale;
-      drawMap();
+      invalidate();
+      // Crossing a level threshold changes what the cursor is pointing at.
+      if (currentLevel() === "fleet") setHover(null, districtAtCanvasPoint(pt), e);
+      else setHover(bodyAtCanvasPoint(pt), null, e);
+      syncMapChrome();
     }, { passive: false });
 
     function zoomAtCenter(factor) {
+      stopCamera();
       var cx = canvas.width / 2, cy = canvas.height / 2;
       var worldX = (cx - view.offsetX) / view.scale, worldY = (cy - view.offsetY) / view.scale;
       view.scale = clampScale(view.scale * factor);
       view.offsetX = cx - worldX * view.scale;
       view.offsetY = cy - worldY * view.scale;
-      drawMap();
+      invalidate(); syncMapChrome();
     }
-    byId("mapZoomIn").addEventListener("click", function () { zoomAtCenter(1.4); });
-    byId("mapZoomOut").addEventListener("click", function () { zoomAtCenter(1 / 1.4); });
-    byId("mapReset").addEventListener("click", function () { resetView(); drawMap(); });
+    byId("mapZoomIn").addEventListener("click", function () { zoomAtCenter(1.5); });
+    byId("mapZoomOut").addEventListener("click", function () { zoomAtCenter(1 / 1.5); });
+    byId("mapReset").addEventListener("click", function () {
+      stopCamera(); clearSelection(); clearHover();
+      animateCamera(resetViewTarget(), TRANSITION_MS).then(syncMapChrome);
+    });
   })();
 
   /* ---------------- VILLAGE: body detail + Inspector ---------------- */
   var villageListView = byId("villageListView"), bodyDetailView = byId("bodyDetailView");
 
-  async function openBody(bodyId) {
-    currentBody = await api("/bodies/" + bodyId);
+  /* ---- travelling into a Body, and back out again ----
+     "Enter body" is the ONLY way in. The camera flies at the selected plot
+     while the map fades, then the detail view fades in; leaving reverses it and
+     puts the camera, the zoom level and the selection back exactly where they
+     were. prefers-reduced-motion skips straight to the view either way. */
+  async function enterBody(mapRow) {
+    if (!mapRow || enteredBody) return; // a double-click must not stack two transitions
+    stopCamera();
+    savedCamera = { scale: view.scale, offsetX: view.offsetX, offsetY: view.offsetY };
+    enteredBody = mapRow;
+    var fetching = loadBodyInto(mapRow.id); // start the network while the camera flies
+    hideTip();
+    byId("detailTitle").textContent = bodyLabel(mapRow);
+    byId("detailFounder").classList.add("aw-hidden");
+    byId("detailError").classList.add("aw-hidden");
+    mapCard.classList.add("aw-hidden");
+    if (!reduceMotion) {
+      mapWrap.style.opacity = "0";
+      await animateCamera(bodyCamera(mapRow, BODY_ENTER_SCALE), TRANSITION_MS);
+    }
+    villageListView.classList.add("aw-hidden");
+    bodyDetailView.classList.remove("aw-hidden");
+    bodyDetailView.classList.remove("vg-fade-in");
+    void bodyDetailView.offsetWidth; // restart the fade on a repeat entry
+    bodyDetailView.classList.add("vg-fade-in");
+    syncMapChrome();
+    await fetching;
+  }
+
+  async function leaveBody(crumbAct) {
+    enteredBody = null;
+    currentBody = null;
+    bodyDetailView.classList.add("aw-hidden");
+    villageListView.classList.remove("aw-hidden");
+    if (mapNeedsRefresh) { mapNeedsRefresh = false; await loadMap(true); }
+    var back = savedCamera || resetViewTarget();
+    if (crumbAct === "fleet") { back = resetViewTarget(); clearSelection(); }
+    else if (crumbAct && crumbAct.indexOf("district:") === 0) {
+      var d = districts[crumbAct.slice(9)];
+      if (d) back = districtCamera(d, DISTRICT_ENTER_SCALE);
+    }
+    mapWrap.style.opacity = "1";
+    await animateCamera(back, TRANSITION_MS);
+    savedCamera = null;
+    if (selectedBody) selectBody(bodyById[selectedBody.id] || selectedBody); // restore the card too
+    syncMapChrome();
+  }
+
+  async function loadBodyInto(bodyId) {
+    try {
+      currentBody = await api("/bodies/" + bodyId);
+    } catch (err) {
+      byId("detailError").textContent = "This Body couldn't be loaded right now. " + String(err.message || err);
+      byId("detailError").classList.remove("aw-hidden");
+      return;
+    }
     currentBody.is_top_up = false;
     selectedShare = null;
     if (session && session.access_token) {
@@ -904,16 +1409,24 @@
       slot.classList.remove("aw-hidden");
     }
   }
-  byId("backToList").addEventListener("click", function () {
-    bodyDetailView.classList.add("aw-hidden");
-    villageListView.classList.remove("aw-hidden");
-    currentBody = null;
-    if (mapNeedsRefresh) { mapNeedsRefresh = false; loadMap(); }
+  byId("backToList").addEventListener("click", function () { leaveBody(); });
+  // Esc unwinds one layer at a time: Codex, then the Body view, then a selection.
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || e.vgEscapeHandled) return;
+    if (enteredBody) leaveBody();
+    else if (selectedBody) clearSelection();
   });
 
   function renderBodyDetail() {
     var b = currentBody;
     byId("detailTitle").textContent = (b.display_name || b.class_code + " Body") + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
+    // The whole naming rework is pointless if the link between a Body's name and
+    // the entity that founded it is invisible. Silent if the backend doesn't send it.
+    var founder = b.founder_rune || (enteredBody && enteredBody.founder_rune);
+    var fEl = byId("detailFounder");
+    var fName = b.display_name || (enteredBody ? bodyLabel(enteredBody) : "This Body");
+    fEl.textContent = founder ? fName + " — founded by " + String(founder).toLowerCase() : "";
+    fEl.classList.toggle("aw-hidden", !founder);
     var occPct = Math.round((1 - b.share_room) * 100);
     byId("detailOccFill").style.width = occPct + "%";
     // Beat: first chain view -- fires the first time a player views the
@@ -923,9 +1436,15 @@
       showBeat(byId("chainViewBeatSlot"), "chain_view", "Meet your chain.",
         "These are the residents sharing this Body with you, lined up in the order they joined. Look after the chain, and it looks after you.");
     }
+    // The player has to be able to find THEMSELVES in the chain. entity_id is the
+    // exact key -- /me/dashboard hands back the player's own entity_ids, and the
+    // body payload carries the same ids, so no rune guessing (runes collide, and
+    // a suffixed duplicate is unresolvable from the client side).
     byId("detailChainList").innerHTML = b.chain.map(function (e) {
       var rune = e.rune + (e.rune_suffix ? e.rune_suffix : "");
-      return '<li><span class="pos">#' + e.chain_position + '</span><span class="name">' + esc(rune.toUpperCase()) +
+      var mine = !!myEntityIds[e.entity_id];
+      return '<li' + (mine ? ' class="you"' : '') + '><span class="pos">#' + e.chain_position + '</span><span class="name">' +
+        esc(rune.toUpperCase()) + (mine ? '<span class="you-tag">you</span>' : '') +
         '</span><span class="pct">' + Math.round(e.share * 100) + '%</span></li>';
     }).join("") || '<li style="opacity:.7">No entities yet — you\'d be the first.</li>';
     var canJoinAtAll = b.is_top_up || b.slots_open > 0;
@@ -998,7 +1517,11 @@
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
       mapNeedsRefresh = true; // this body's sold_pct (and possibly the ownership ring) just changed
       await updateBalance();
-      currentBody = await api("/bodies/" + currentBody.body_id);
+      var reloadId = currentBody.body_id;
+      // Re-pull the player's entity ids first, so the chain below immediately
+      // shows the row they just bought marked "you" instead of on the next visit.
+      await loadOwnedBodies();
+      currentBody = await api("/bodies/" + reloadId);
       currentBody.is_top_up = true; // this purchase just gave the player an active entity here
       renderBodyDetail();
     } catch (err) {
@@ -1021,6 +1544,9 @@
 
   function enterVillage(freshRegistration) {
     authGate.classList.add("aw-hidden");
+    // #pageIntro is registration-stage copy ("Register, pick a seeded Body...").
+    // A logged-in player was being shown it above their own map on every return.
+    byId("pageIntro").classList.add("aw-hidden");
     if (freshRegistration || !hasSeenIntro()) {
       startIntro();
     } else {
