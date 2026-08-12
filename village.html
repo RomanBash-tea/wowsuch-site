@@ -103,6 +103,9 @@
   .vmap-legend .dot.offline{background:#8a8a8a;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
   .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px dashed rgba(255,216,115,.8);}
+  /* Outlined, not filled, and cool against the warm map: room is a fact about a
+     Body that is independent of its health colour, so the two never share a hue. */
+  .vmap-legend .dot.room{background:transparent;border:2px solid #5AD2F4;}
   .vmap-hint{font-size:.82rem;color:var(--soft-on-dark);font-weight:600;margin-top:8px;max-width:70ch;}
 
   /* ---- village map: the fleet -> district -> body navigation model ----
@@ -119,6 +122,19 @@
   .vmap-crumbs .crumb.here{color:#fff;text-decoration:none;cursor:default;}
   .vmap-levelchip{font-family:var(--mono);font-size:.66rem;font-weight:800;text-transform:uppercase;
     letter-spacing:.06em;color:#150e02;background:var(--gold-on-dark);border-radius:999px;padding:3px 10px;}
+  /* Room filter: the same chip affordance as a breadcrumb crumb, so the map bar
+     reads as one strip of controls rather than two unrelated widgets. */
+  .vmap-filter{display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.8rem;font-weight:700;}
+  .vmap-filter .fchip{background:none;border:1px solid transparent;padding:2px 8px;font:inherit;
+    color:var(--gold-on-dark);text-decoration:underline;cursor:pointer;border-radius:5px;}
+  .vmap-filter .fchip:hover{background:rgba(255,185,46,.18);}
+  .vmap-filter .fchip[aria-pressed="true"]{color:#fff;text-decoration:none;
+    background:rgba(255,185,46,.14);border-color:var(--gold-on-dark);cursor:default;}
+  /* No payload indexed yet (or /map failed): there are no counts to state and
+     nothing to filter, so the chips stop offering to do either. */
+  .vmap-filter .fchip[disabled]{opacity:.45;cursor:default;text-decoration:none;
+    background:none;border-color:transparent;}
 
   .vmap-tip{position:absolute;z-index:6;pointer-events:none;min-width:150px;max-width:230px;
     background:rgba(14,10,2,.96);border:2px solid var(--gold);border-radius:10px;padding:8px 10px;
@@ -136,6 +152,9 @@
     font-family:var(--mono);font-size:.72rem;color:var(--soft-on-dark);font-weight:700;}
   .vmap-card dt{margin:0;}
   .vmap-card dd{margin:0;color:#fff;text-align:right;}
+  /* Second dd of the "Taken" row: spans both columns so it sits directly under
+     the percentage it puts into words. */
+  .vmap-card dd.room-line{grid-column:1 / -1;text-align:left;color:var(--gold-on-dark);font-size:.68rem;}
   .vmap-card .btn{margin-top:12px;width:100%;text-align:center;justify-content:center;}
   .vmap-card-close{position:absolute;top:7px;right:9px;background:none;border:none;color:var(--soft-on-dark);
     font-weight:800;font-size:.95rem;cursor:pointer;line-height:1;padding:2px 5px;}
@@ -162,6 +181,10 @@
     /* The legend overlay ate ~30% of a 285px-wide map. Below the map it costs
        nothing and stays readable. */
     .vmap-legend{position:static;background:none;padding:0 10px 10px;max-width:none;gap:8px 14px;}
+    /* A phone is exactly where scanning 1000 Bodies by hand is worst, so the
+       chips shrink and wrap onto their own row -- they never disappear. */
+    .vmap-filter{width:100%;font-size:.74rem;gap:3px;}
+    .vmap-filter .fchip{padding:2px 6px;}
     /* Same reason as the legend: floating over a 285px map, the zoom stack hid
        two whole columns of plots. */
     .vmap-controls{position:static;flex-direction:row;justify-content:flex-end;gap:8px;padding:8px 10px;}
@@ -338,6 +361,12 @@
       <div class="vmap-bar">
         <nav class="vmap-crumbs" id="mapCrumbs" aria-label="Village location"></nav>
         <span class="vmap-levelchip" id="mapLevelChip">Fleet view</span>
+        <div class="vmap-filter" id="mapFilterChips" role="group" aria-label="Which Bodies to highlight">
+          <button type="button" class="fchip" data-filter="all" aria-pressed="true">All Bodies</button>
+          <button type="button" class="fchip" data-filter="room" aria-pressed="false">Has room</button>
+          <button type="button" class="fchip" data-filter="empty" aria-pressed="false">Empty ground</button>
+        </div>
+        <span class="vmap-levelchip" id="mapFilterCount" aria-live="polite"></span>
       </div>
       <div class="vmap-wrap" id="mapWrap">
         <canvas id="villageCanvas" width="900" height="560" role="img" aria-label="Map of the Village — 1000 Bodies grouped into districts"></canvas>
@@ -354,7 +383,7 @@
           <span class="sub founder aw-hidden" id="cardFounder"></span>
           <dl>
             <dt>Health</dt><dd id="cardHealth">—</dd>
-            <dt>Taken</dt><dd id="cardSold">—</dd>
+            <dt>Taken</dt><dd id="cardSold">—</dd><dd class="room-line" id="cardRoom"></dd>
             <dt>Entities</dt><dd id="cardSettlers">—</dd>
           </dl>
           <button type="button" class="btn" id="cardEnter">Enter body <span class="arrow">→</span></button>
@@ -366,6 +395,7 @@
           <span><i class="dot offline"></i>offline</span>
           <span><i class="dot owned"></i>yours</span>
           <span><i class="dot unclaimed"></i>unclaimed</span>
+          <span class="aw-hidden" id="legendRoom"><i class="dot room"></i><span id="legendRoomLabel">has room</span></span>
         </div>
       </div>
       <p class="vmap-hint" id="mapHint"></p>
@@ -776,6 +806,16 @@
   var TRANSITION_MS = 420;
   var HEALTH_COLOR = { healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B", offline: "#8a8a8a" };
   var HEALTH_LABEL = { healthy: "Healthy", warning: "Warning", critical: "Critical", offline: "Offline" };
+  // Room outline: cool cyan, deliberately outside HEALTH_COLOR and away from the
+  // owned-Body gold #FFB92E, so health and room stay two separable readings of
+  // the same plot.
+  var ROOM_OUTLINE = "#5AD2F4";
+  // Dim factor for a Body the active filter does not point at, MULTIPLIED into
+  // whatever alpha that Body already draws with. The floor keeps the faintest
+  // combination (unclaimed AND filtered out) on the canvas: the filter emphasises,
+  // it never removes ground from the map.
+  var FILTER_DIM = 0.34;
+  var FILTER_DIM_FLOOR = 0.15;
 
   var canvas = byId("villageCanvas");
   var ctx = canvas ? canvas.getContext("2d") : null;
@@ -786,7 +826,11 @@
   var view = { scale: 1, offsetX: 0, offsetY: 0 };
   var cellIndex = {};      // "x,y" -> body, O(1) hit test
   var bodyById = {};       // body id -> map row, for restoring a selection
-  var districts = {};      // district id -> {name, gx, gy, count, settled, soldSum, health:{}}
+  var districts = {};      // district id -> {name, gx, gy, count, settled, soldSum, room, empty, health:{}}
+  var mapFilter = "all";   // "all" | "room" | "empty" -- a view over mapData, never a query
+  var mapCounts = { all: 0, room: 0, empty: 0, roomUnknown: 0 }; // village-wide totals, recomputed in indexMap()
+  var mapCountsKnown = false;  // stays false until a /map payload has actually been indexed:
+                               // an un-had count must never render as the number 0
   var hoverBody = null, hoverDistrict = null, selectedBody = null;
   var enteredBody = null;  // the map row whose detail view is open
   var savedCamera = null;  // camera to restore when leaving the body view
@@ -834,6 +878,32 @@
   }
   function bodyLabel(b) { return b.name || designationOf(b); }
   function isUnclaimed(b) { return !b.name; }
+  /* ---- how much of a Body is taken: ONE reading behind every surface ----
+     The card, the tooltip, the in-cell label, the room outline and the counts all
+     read the percentage through soldPct(). They used to split: the text printed
+     Math.round(sold_pct) while the room test compared the UNROUNDED value, so a
+     Body at 99.7 printed "Taken 100%" with "Room to settle" directly under it and
+     took the room outline on the map. The number that is shown is now the number
+     that is tested, everywhere.
+     A missing or non-numeric sold_pct is UNKNOWN, never zero: coercing it to 0
+     would make a renamed or dropped payload field read as "every Body has room".
+     Unknown returns null and each surface degrades visibly -- "—", or silence --
+     instead of stating a percentage it does not have. */
+  function soldPct(b) {
+    if (!b || b.sold_pct == null) return null;
+    var n = Number(b.sold_pct);
+    return isFinite(n) ? Math.round(n) : null;
+  }
+  function soldPctText(b) { var p = soldPct(b); return p == null ? "—" : p + "%"; }
+  // true / false / null when unknown. The server rounds sold_pct to one decimal and
+  // the printed integer rounds that again, so a residual sliver reads as 100 and the
+  // Body counts as full -- the right answer for a discovery control.
+  function hasRoom(b) { var p = soldPct(b); return p == null ? null : p < 100; }
+  function matchesFilter(b) {
+    if (mapFilter === "room") return hasRoom(b) === true; // unknown never claims room
+    if (mapFilter === "empty") return isUnclaimed(b);
+    return true;
+  }
   function founderLine(b, withName) {
     if (!b || !b.founder_rune) return "";
     var who = String(b.founder_rune).toLowerCase();
@@ -927,10 +997,16 @@
       var x = b.x * CELL, y = b.y * CELL;
       if (x > wx1 || y > wy1 || x + CELL < wx0 || y + CELL < wy0) return;
       var unclaimed = isUnclaimed(b);
-      c.globalAlpha = unclaimed ? 0.42 : 1; // unclaimed ground reads as faded, not broken
+      // The filter dim MULTIPLIES the unclaimed fade instead of replacing it. If it
+      // assigned its own alpha, a filtered-out unclaimed plot would land on the same
+      // opacity as a highlighted one and the filter would look broken exactly where
+      // it matters most. With "All Bodies" active dim is 1 and nothing changes.
+      var matches = matchesFilter(b);
+      var dim = matches ? 1 : FILTER_DIM;
+      c.globalAlpha = Math.max(FILTER_DIM_FLOOR, (unclaimed ? 0.42 : 1) * dim);
       c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
       c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
-      c.globalAlpha = 1;
+      c.globalAlpha = dim; // outline, ring and labels fade with the plot they belong to
       // The dashed "unclaimed" outline only earns its keep where a plot is the
       // thing you're aiming at. At fleet level it turned the whole map into a
       // dashed grid; the faded fill alone carries the distinction there.
@@ -940,6 +1016,17 @@
         c.setLineDash([2, 2]);
         c.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
         c.setLineDash([]);
+      }
+      // One thin outline on the plots the filter points at -- the fill still
+      // carries health, the gold ring still carries ownership, and this rides on
+      // the outer edge so an owned Body keeps both marks.
+      // Gated on the match itself, not on `dim === 1`: keying the outline off a
+      // float comparison against a rendering constant is only correct while
+      // FILTER_DIM happens not to be 1.
+      if (mapFilter !== "all" && matches) {
+        c.strokeStyle = ROOM_OUTLINE;
+        c.lineWidth = Math.max(1, 1.6 / view.scale);
+        c.strokeRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1);
       }
       if (ownedBodyIds[b.id]) {
         c.strokeStyle = "#FFB92E";
@@ -951,9 +1038,10 @@
         c.fillStyle = unclaimed ? "#FFD873" : "#fff";
         drawFitted(c, b.name || ("· " + ordinalOf(b)), x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
         c.fillStyle = "#FFD873";
-        drawFitted(c, Math.round(b.sold_pct) + "%", x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
+        drawFitted(c, soldPctText(b), x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
       }
     });
+    c.globalAlpha = 1; // the last plot's dim must not leak into the district blocks
 
     // District blocks go on TOP of the plots, never under them: drawn first they
     // were painted over by the 1000 body cells and survived only in the 2px gaps
@@ -1001,6 +1089,19 @@
       c.strokeText(sub, cx, my + mh + CELL * 0.34);
       c.fillStyle = "#EBD9AE";
       c.fillText(sub, cx, my + mh + CELL * 0.34);
+
+      // With a filter active the block states this district's own number, in the
+      // same weight as the settled line. The count comes from indexMap(), so it is
+      // the whole district and not the part of it currently on screen.
+      if (mapFilter !== "all") {
+        // "—" rather than a number when the payload carries no usable sold_pct:
+        // the district must not state a room count it does not have either.
+        var fsub = mapFilter === "room"
+          ? (mapCounts.roomUnknown ? "—" : (d.room || 0)) + " with room"
+          : (d.empty || 0) + " empty";
+        c.strokeText(fsub, cx, my + mh + CELL * 0.72);
+        c.fillText(fsub, cx, my + mh + CELL * 0.72);
+      }
     });
     c.textBaseline = "alphabetic";
   }
@@ -1050,6 +1151,9 @@
   /* ---- indexing ---- */
   function indexMap() {
     cellIndex = {}; bodyById = {}; districts = {};
+    // Counted here, ONCE per payload, and never in renderBase(): that loop culls
+    // to the viewport, so a count taken there would change as the player pans.
+    mapCounts = { all: 0, room: 0, empty: 0, roomUnknown: 0 };
     var ds = mapData.district_size;
     mapData.bodies.forEach(function (b) {
       cellIndex[b.x + "," + b.y] = b;
@@ -1059,7 +1163,7 @@
         d = districts[b.district] = {
           id: b.district, name: b.district_name || ("District " + b.district),
           gx: (b.district % ds.cols) * ds.w, gy: Math.floor(b.district / ds.cols) * ds.h,
-          count: 0, settled: 0, soldSum: 0, health: {}
+          count: 0, settled: 0, soldSum: 0, room: 0, empty: 0, health: {}
         };
       }
       d.count += 1;
@@ -1067,7 +1171,16 @@
       d.soldSum += Number(b.sold_pct) || 0;
       if (b.name || Number(b.sold_pct) > 0) d.settled += 1;
       d.health[b.health] = (d.health[b.health] || 0) + 1;
+      mapCounts.all += 1;
+      // A Body whose sold_pct is unknown is counted as neither having nor lacking
+      // room; it is tallied separately so the control can say so instead of
+      // quietly reporting a total that is missing rows.
+      var room = hasRoom(b);
+      if (room === true) { d.room += 1; mapCounts.room += 1; }
+      else if (room == null) { mapCounts.roomUnknown += 1; }
+      if (isUnclaimed(b)) { d.empty += 1; mapCounts.empty += 1; }
     });
+    mapCountsKnown = true;
   }
 
   async function loadOwnedBodies() {
@@ -1089,9 +1202,16 @@
       mapData = await api("/map");
     } catch (err) {
       byId("mapLoadingNote").textContent = "The Village map couldn't be loaded right now. Try again in a moment.";
+      // Returning without this left the count pill blank forever on a first-load
+      // failure while the chips stayed live over mapCounts' initial zeroes -- a
+      // click then asserted "0 with room", i.e. that no Body in the Village has
+      // room. On a FAILED RELOAD the previous counts still describe the map that
+      // is still drawn, so mapCountsKnown is deliberately not cleared here.
+      syncFilterChrome();
       return;
     }
     indexMap();
+    syncFilterChrome(); // the active filter survives a reload; its counts must not
     await loadOwnedBodies();
     refreshScreenFactor();
     if (!keepCamera) resetView();
@@ -1149,6 +1269,50 @@
     byId("mapHint").textContent = HINTS[lvl];
     renderCrumbs();
   }
+
+  /* ---- room filter: a view over the payload already in memory ----
+     Every field this reads (sold_pct, settlers via the name/claim test) arrives
+     with /map, which is fetched once per visit and cached server-side for 60s.
+     Toggling therefore costs zero requests: it changes what is drawn, nothing
+     else -- not the camera, not the zoom level, not the selection, not mapData. */
+  var FILTER_COUNT_SUFFIX = { all: " Bodies", room: " with room", empty: " empty" };
+  // The cyan outline is not one fixed meaning: under "Has room" it marks Bodies
+  // with room, under "Empty ground" it marks unclaimed ground, and under
+  // "All Bodies" renderBase draws no outline at all. The legend entry therefore
+  // names the mark that is actually on the canvas, or is not shown.
+  var FILTER_LEGEND_LABEL = { room: "has room", empty: "empty ground" };
+  function filterCountText() {
+    // A count we do not have must not render as a number. An empty pill and a
+    // confident "0 with room" are both worse than saying we do not know yet.
+    if (!mapCountsKnown) return "—";
+    if (mapFilter === "room" && mapCounts.roomUnknown) return "—";
+    return (mapCounts[mapFilter] || 0) + FILTER_COUNT_SUFFIX[mapFilter];
+  }
+  function syncFilterChrome() {
+    var chips = byId("mapFilterChips");
+    if (!chips) return;
+    Array.prototype.forEach.call(chips.querySelectorAll(".fchip"), function (btn) {
+      btn.setAttribute("aria-pressed", btn.getAttribute("data-filter") === mapFilter ? "true" : "false");
+      btn.disabled = !mapCountsKnown; // nothing indexed: no counts to offer, no map to filter
+    });
+    byId("mapFilterCount").textContent = filterCountText();
+    var legend = byId("legendRoom");
+    if (legend) {
+      var label = FILTER_LEGEND_LABEL[mapFilter];
+      legend.classList.toggle("aw-hidden", !label);
+      if (label) byId("legendRoomLabel").textContent = label;
+    }
+  }
+  byId("mapFilterChips") && byId("mapFilterChips").addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".fchip") : null;
+    if (!btn) return;
+    var f = btn.getAttribute("data-filter");
+    if (!f || f === mapFilter) return;
+    mapFilter = f;
+    syncFilterChrome();
+    invalidate(); // rebuild the base bitmap on the next frame; never paint() directly
+  });
+  syncFilterChrome(); // paint the "not known yet" state before the first /map lands
   document.addEventListener("click", function (e) {
     var btn = e.target.closest ? e.target.closest(".vmap-crumbs .crumb[data-act]") : null;
     if (!btn) return;
@@ -1181,9 +1345,13 @@
     // its second line says what the missing name means instead.
     var sub = isUnclaimed(b) ? "Unclaimed ground — no one has awakened here" : designationOf(b);
     var pop = b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : "";
+    // Same reading as the card and the room outline (soldPct), so a plot can never
+    // be outlined as having room while its own tooltip says 100% taken. With no
+    // usable sold_pct the clause is simply absent rather than printing NaN.
+    var taken = soldPct(b);
     return "<b>" + esc(bodyLabel(b)) + "</b>" +
       '<span class="muted">' + esc(sub) + "</span><br>" +
-      (HEALTH_LABEL[b.health] || "Unknown") + " · " + Math.round(b.sold_pct) + "% taken" +
+      (HEALTH_LABEL[b.health] || "Unknown") + (taken == null ? "" : " · " + taken + "% taken") +
       (pop ? "<br>" + esc(pop) : "") +
       (f ? '<br><span class="muted">' + esc(f) + "</span>" : "");
   }
@@ -1223,7 +1391,13 @@
     byId("cardFounder").textContent = f ? f.charAt(0).toUpperCase() + f.slice(1) : "";
     byId("cardFounder").classList.toggle("aw-hidden", !f);
     byId("cardHealth").textContent = HEALTH_LABEL[b.health] || "—";
-    byId("cardSold").textContent = Math.round(b.sold_pct) + "%";
+    byId("cardSold").textContent = soldPctText(b);
+    // Says what the percentage directly above it means, so the player does not do
+    // the arithmetic -- read from the SAME number, so "Taken 100%" can never sit
+    // over "Room to settle". Unknown percentage: the line stays empty rather than
+    // guessing either way.
+    var room = hasRoom(b);
+    byId("cardRoom").textContent = room == null ? "" : (room ? "Room to settle" : "Fully settled");
     byId("cardSettlers").textContent = b.settlers != null ? String(b.settlers) : "—";
     mapCard.classList.remove("aw-hidden");
     requestPaint();
