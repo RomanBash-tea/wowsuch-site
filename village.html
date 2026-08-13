@@ -892,13 +892,66 @@
   function soldPct(b) {
     if (!b || b.sold_pct == null) return null;
     var n = Number(b.sold_pct);
-    return isFinite(n) ? Math.round(n) : null;
+    if (!isFinite(n)) return null;
+    var p = Math.round(n);
+    /* Display rounding must never claim a Body is fully taken when the backend
+       says a new settler can still join. A Body at 99.8% sold with four of six
+       seats filled ships closed_to_new=false, and printing "Taken 100%" beside
+       "Room to settle" is a contradiction manufactured entirely by Math.round.
+       The honest repair is to show 99, not to withhold the room -- withholding
+       it is what this used to do, and it hid a genuinely open Body. */
+    if (p >= 100 && b.closed_to_new === false) p = 99;
+    return p;
   }
   function soldPctText(b) { var p = soldPct(b); return p == null ? "—" : p + "%"; }
-  // true / false / null when unknown. The server rounds sold_pct to one decimal and
-  // the printed integer rounds that again, so a residual sliver reads as 100 and the
-  // Body counts as full -- the right answer for a discovery control.
-  function hasRoom(b) { var p = soldPct(b); return p == null ? null : p < 100; }
+  /* ---- can a NEW settler still join? ONE server-side answer ----
+     Room has TWO independent gates and this page used to test only one of them.
+     A chain fills up long before its share sells: 72 of the 1000 Bodies hold six
+     of six settlers while a mean 59% of them is still unsold, and every one of
+     those was drawn with the room outline, counted in "with room" and offered
+     for a click that the purchase RPC then hard-rejects.
+     `closed_to_new` (GET /map, dev-inbox 047) is the single authority: computed
+     on the backend from the same expression GET /bodies and the purchase RPC
+     enforce, so the map, the Body view and the purchase can no longer return
+     three different answers for one Body. Do NOT re-derive it here from
+     settlers/capacity -- re-deriving room from whichever fields happened to be
+     in the payload is exactly the bug.
+     This reads `closed_to_new` and NOTHING ELSE. It used to run a percentage
+     test underneath, to stop a Body rendering "Taken 100%" over "Room to
+     settle" -- but that put a second, weaker gate in front of the authority and
+     the second gate won. Live case, 2026-08-13: a Body at four of six settlers
+     and 99.8% sold ships closed_to_new=false, soldPct() rounds 99.8 to 100, and
+     the card printed "4 of 6" beside "Fully settled" while the room chip
+     excluded it. The display contradiction was real; withholding the room was
+     the wrong end to fix it at, and it hid an open Body. soldPct() now refuses
+     to round up to 100 for a Body the backend calls open, so the contradiction
+     is gone at its source and this stays a single-authority read.
+     Unknown stays unknown. A payload with no boolean `closed_to_new` -- an
+     older backend, a renamed field -- yields null, never false: a dropped field
+     must never make every Body read as having room. The "room" chip treats null
+     as "does not claim room", so the control degrades to claiming NOTHING
+     rather than claiming everything. */
+  function hasRoom(b) {
+    if (!b || typeof b.closed_to_new !== "boolean") return null;
+    return !b.closed_to_new;
+  }
+  // WHY a closed Body is closed, in player language. Never the word "capacity"
+  // (outside the approved lexicon), and never phrased as a cost: an empty seat
+  // costs the chain nothing (O-11), so this states a fact about the Body and
+  // nothing about anyone's loss.
+  // Which gate actually closed it. The headcount is checked FIRST because it is
+  // exact integers, where the share reading is a rounded display number -- the
+  // same rounding that used to make a 99.8% Body with two free seats read as
+  // "Fully settled". The share test stays as the fallback so a row we marked
+  // closed from a purchase 409, without ever observing a headcount, still gets
+  // a true sentence: a body_full 409 IS the headcount gate, so "The chain is
+  // full" is the right answer there too.
+  function fullReason(b) {
+    if (b && typeof b.settlers === "number" && typeof b.capacity === "number" &&
+        b.settlers >= b.capacity) return "The chain is full";
+    var p = soldPct(b);
+    return (p != null && p >= 100) ? "Fully settled" : "The chain is full";
+  }
   function matchesFilter(b) {
     if (mapFilter === "room") return hasRoom(b) === true; // unknown never claims room
     if (mapFilter === "empty") return isUnclaimed(b);
@@ -1344,11 +1397,21 @@
     // An unnamed plot IS its designation, so don't print the same string twice:
     // its second line says what the missing name means instead.
     var sub = isUnclaimed(b) ? "Unclaimed ground — no one has awakened here" : designationOf(b);
-    var pop = b.settlers != null ? b.settlers + (b.settlers === 1 ? " entity" : " entities") : "";
-    // Same reading as the card and the room outline (soldPct), so a plot can never
-    // be outlined as having room while its own tooltip says 100% taken. With no
-    // usable sold_pct the clause is simply absent rather than printing NaN.
+    // "4 of 6 entities", not a bare "4": a headcount says nothing without the
+    // number of seats beside it, and shipping one without the other is precisely
+    // how this surface came to advertise full chains as open.
+    var pop = "";
+    if (b.settlers != null) {
+      pop = b.capacity != null
+        ? b.settlers + " of " + b.capacity + " entities"
+        : b.settlers + (b.settlers === 1 ? " entity" : " entities");
+    }
+    // Same reading as the card and the room outline (hasRoom), so a plot can never
+    // be outlined as having room while its own tooltip says the chain is full.
+    // With no usable sold_pct the clause is simply absent rather than printing NaN.
     var taken = soldPct(b);
+    var room = hasRoom(b);
+    if (pop && room === false) pop += " · " + fullReason(b).toLowerCase();
     return "<b>" + esc(bodyLabel(b)) + "</b>" +
       '<span class="muted">' + esc(sub) + "</span><br>" +
       (HEALTH_LABEL[b.health] || "Unknown") + (taken == null ? "" : " · " + taken + "% taken") +
@@ -1392,13 +1455,16 @@
     byId("cardFounder").classList.toggle("aw-hidden", !f);
     byId("cardHealth").textContent = HEALTH_LABEL[b.health] || "—";
     byId("cardSold").textContent = soldPctText(b);
-    // Says what the percentage directly above it means, so the player does not do
-    // the arithmetic -- read from the SAME number, so "Taken 100%" can never sit
-    // over "Room to settle". Unknown percentage: the line stays empty rather than
-    // guessing either way.
+    // Says what the two numbers around it mean, so the player does not do the
+    // arithmetic -- read through hasRoom(), so "Taken 100%" can never sit over
+    // "Room to settle", and neither can "6 of 6" below it. When the Body is
+    // closed the line says WHICH gate closed it, because "Taken 7%" over a
+    // closed Body is otherwise unreadable. Unknown: the line stays empty rather
+    // than guessing either way.
     var room = hasRoom(b);
-    byId("cardRoom").textContent = room == null ? "" : (room ? "Room to settle" : "Fully settled");
-    byId("cardSettlers").textContent = b.settlers != null ? String(b.settlers) : "—";
+    byId("cardRoom").textContent = room == null ? "" : (room ? "Room to settle" : fullReason(b));
+    byId("cardSettlers").textContent = b.settlers == null ? "—"
+      : (b.capacity != null ? b.settlers + " of " + b.capacity : String(b.settlers));
     mapCard.classList.remove("aw-hidden");
     requestPaint();
   }
@@ -1786,6 +1852,63 @@
     }
   }
 
+  /* ---- the last seat went while the player was deciding ----
+     Preview is a courtesy; the purchase RPC is the gate. Only the RPC takes a
+     row lock, so an approved preview can go stale between the two calls and the
+     confirm comes back 409 "this body's chain is already full". That is normal
+     under concurrency, not an error to hide -- but it must not dead-end on a red
+     line either. Recover in place: re-read the Body (authoritative, uncached),
+     which re-renders the existing at-capacity note and withdraws the share
+     tiers, and carry the same fact back to the map row this page already holds
+     so the outline, the card and the counts stop advertising it.
+     The map row is patched locally rather than re-fetched: GET /map is served
+     from ONE shared 60s server-side cache, and a cache-buster would fragment
+     exactly the entry that design protects. */
+  var FULL_CHAIN_DETAIL = "chain is already full"; // the RPC's own 409 detail, via _rpc_error_status
+  function isFullChainError(err) {
+    // Matched on the message as well as the status, so the OTHER 409 this
+    // endpoint can raise (an inactive Body) is not misreported as a full chain.
+    return err && err.status === 409 &&
+      String(err.message || "").indexOf(FULL_CHAIN_DETAIL) !== -1;
+  }
+  async function recoverFromFullChain(bodyId) {
+    var fresh = null;
+    try { fresh = await api("/bodies/" + bodyId); } catch (e) { /* the error line already stands */ }
+    if (currentBody && currentBody.body_id === bodyId) {
+      /* Disarming the picker must NOT depend on the refetch above succeeding.
+         The RPC has already told us this chain is full -- that is why we are
+         here -- so a second request can enrich the view but is not needed to
+         know the answer. When this block sat inside `if (fresh)`, a follow-up
+         that timed out (Render cold start, a flaky connection) left
+         `selectedShare` set and the confirm button live directly above a red
+         "chain is already full" line, and the click handler's opening
+         `if (!selectedShare) return;` meant clicking it re-fired the identical
+         failing request. That dead-end loop is precisely what this function
+         exists to prevent. */
+      if (fresh) currentBody = fresh;
+      // The RPC refused, so this player is definitively not a resident here --
+      // a top-up is never gated by headcount and could not have raised this.
+      currentBody.is_top_up = false;
+      // Without a fresh copy, say locally what the 409 already proved, so
+      // renderBodyDetail() draws the at-capacity state rather than the stale
+      // pre-failure one: `canJoinAtAll` is `is_top_up || slots_open > 0`, so
+      // these two fields alone withdraw the tiers and show the full note.
+      if (!fresh) currentBody.slots_open = 0;
+      selectedShare = null;
+      byId("previewPanel").classList.add("aw-hidden");
+      renderBodyDetail();
+    }
+    var row = bodyById[bodyId];
+    if (!row) return;
+    row.closed_to_new = true; // the RPC just proved it, ahead of /map's next window
+    if (fresh && typeof fresh.active_population === "number") row.settlers = fresh.active_population;
+    if (fresh && typeof fresh.capacity === "number") row.capacity = fresh.capacity;
+    indexMap();          // village-wide and per-district counts must drop this Body too
+    syncFilterChrome();
+    if (selectedBody && selectedBody.id === bodyId) selectBody(bodyById[bodyId] || selectedBody);
+    invalidate();
+  }
+
   byId("confirmPurchase").addEventListener("click", async function () {
     if (!selectedShare) return;
     var errEl = byId("purchaseError");
@@ -1816,6 +1939,7 @@
     } catch (err) {
       errEl.textContent = String(err.message || err);
       errEl.classList.remove("aw-hidden");
+      if (currentBody && isFullChainError(err)) await recoverFromFullChain(currentBody.body_id);
     }
   });
 
