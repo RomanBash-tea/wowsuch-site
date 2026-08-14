@@ -583,13 +583,50 @@
       // an identical /bodies/{id} URL instead of the just-updated row.
       cache: "no-store"
     });
+    /* A body that arrived and will not parse is NOT the same fact as no body at
+       all, and resp.json() rejects identically for both. Swallowing that
+       rejection let a SUCCESSFUL call return null -- "it worked" delivered to
+       the caller as "there is no data" -- and the purchase path then
+       dereferenced the null and painted a committed purchase as a raw
+       TypeError (dev-inbox 053). Read the body once as text and decide
+       explicitly: empty -> null, exactly as before; non-empty and unparseable
+       -> throw. The empty branch has to stay correct even though no endpoint
+       returns a bodyless 2xx today, because the next one added must not be able
+       to reintroduce this from the other side. */
+    var raw = null, bodyUnreadable = false;
+    try {
+      raw = await resp.text();
+    } catch (e) {
+      // The connection dropped while the body was being consumed: the status
+      // line arrived, the body never did. Same class of failure as a body that
+      // will not parse, and it must surface as the same readable error rather
+      // than as a bare network exception.
+      bodyUnreadable = true;
+    }
     var data = null;
-    try { data = await resp.json(); } catch (e) { /* no body */ }
+    if (!bodyUnreadable && raw !== null && raw.trim() !== "") {
+      try { data = JSON.parse(raw); } catch (e) { bodyUnreadable = true; }
+    }
     if (!resp.ok) {
+      // Unchanged on purpose. On an error response the status is the more
+      // useful of the two facts, and an unparseable error body (a proxy's HTML
+      // page, a truncated detail) must keep reporting it -- isFullChainError()
+      // and updateBalance()'s 401 branch both read err.status.
       var detail = data && data.detail;
       var err = new Error(typeof detail === "string" ? detail : (resp.status + " " + resp.statusText));
       err.status = resp.status;
       throw err;
+    }
+    if (bodyUnreadable) {
+      // 2xx: the call SUCCEEDED server-side and only the answer was lost. Never
+      // return null from here. err.status stays the real 2xx, so
+      // isFullChainError() (409 only) is false for it and updateBalance()'s
+      // 401 branch cannot fire on it; err.bodyUnreadable is the marker a caller
+      // checks when "the request may have changed something" matters.
+      var lost = new Error("The reply from the game arrived incomplete, so this page can't show the result. Reload the page to see the current state.");
+      lost.status = resp.status;
+      lost.bodyUnreadable = true;
+      throw lost;
     }
     return data;
   }
@@ -2020,6 +2057,47 @@
     invalidate();
   }
 
+  /* ---- the purchase committed but its answer never arrived ----
+     dev-inbox 053. A 2xx from POST /purchase means purchase_body_share() ran to
+     completion: the balance was debited and the entity created or grown, and
+     only the reply was lost on the way back. Two things must therefore not
+     happen. The player must not be told it failed -- the money is gone and the
+     entity exists, so a failure line is simply false. And Confirm must not be
+     left armed underneath that line: the RPC's existing-entity branch
+     (game/migrations/005_purchase_flow.sql:144-146) takes a second call as a
+     deliberate top-up, not as a repeat of the first, so the retry charges again
+     and the response reads as one larger purchase rather than as two.
+     Disarm FIRST, before any await, because the click handler's opening
+     `if (!selectedShare) return;` is the whole of the guard. Then DISCOVER what
+     landed instead of inferring it: /me/balance is authoritative and
+     independent of the lost reply, and GET /bodies/{id} carries the chain, so
+     the client can read its own entity back rather than guess at it. */
+  async function recoverFromLostPurchaseReply(bodyId) {
+    selectedShare = null;
+    byId("previewPanel").classList.add("aw-hidden");
+    byId("purchaseError").classList.add("aw-hidden");
+    byId("resultLine").textContent = "Your purchase went through — only the confirmation didn't reach us. The balance above is current; reload the page to see your entity in this Body.";
+    byId("resultPanel").classList.remove("aw-hidden");
+    mapNeedsRefresh = true; // this body's sold share changed, exactly as on the intact path
+    await updateBalance();  // authoritative, and it swallows its own failures
+    await loadOwnedBodies(); // repopulates myEntityIds, so "you" is findable in the chain below
+    if (!bodyId) return;
+    var fresh = null;
+    try { fresh = await api("/bodies/" + bodyId); } catch (e) { /* the line above already stands */ }
+    if (!fresh || !currentBody || currentBody.body_id !== bodyId) return;
+    currentBody = fresh;
+    currentBody.is_top_up = true; // the purchase just gave this player an active entity here
+    renderBodyDetail();
+    var mine = (fresh.chain || []).filter(function (e) { return myEntityIds[e.entity_id]; })[0];
+    // /me/dashboard is best-effort and this runs inside the click handler's own
+    // catch, so anything missing leaves the honest line above rather than
+    // throwing out of a recovery path with nowhere left to report to.
+    if (!mine || !mine.rune) return;
+    byId("resultLine").textContent = "Your purchase went through — the confirmation didn't reach us, so we read it back. You are " +
+      mine.rune.toUpperCase() + (mine.rune_suffix || "") + " — position #" + mine.chain_position +
+      ", " + Math.round(mine.share * 100) + "% of this Body.";
+  }
+
   byId("confirmPurchase").addEventListener("click", async function () {
     if (!selectedShare) return;
     var errEl = byId("purchaseError");
@@ -2048,6 +2126,14 @@
       currentBody.is_top_up = true; // this purchase just gave the player an active entity here
       renderBodyDetail();
     } catch (err) {
+      /* Checked before the error line is painted, because this branch is the
+         one case in this handler where "the call threw" does not mean "the
+         purchase failed". api() only sets bodyUnreadable on a 2xx, so reaching
+         here with it set proves the RPC committed. The same is true if the
+         throw came from the post-purchase re-read a few lines above -- the
+         purchase is committed either way, and recovering re-reads state that is
+         already stale by then, so it is the right response to both. */
+      if (err && err.bodyUnreadable) { await recoverFromLostPurchaseReply(currentBody && currentBody.body_id); return; }
       errEl.textContent = String(err.message || err);
       errEl.classList.remove("aw-hidden");
       if (currentBody && isFullChainError(err)) await recoverFromFullChain(currentBody.body_id);
