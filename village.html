@@ -870,6 +870,11 @@
     healthy: "Healthy", warning: "Warning", critical: "Critical",
     resting: "Resting", offline: "Offline", unknown: "Unknown"
   };
+  // The canonical order for anywhere that enumerates states -- best to worst,
+  // then the two that are not a verdict about the hardware at all. A literal
+  // list at each call site is how the district tooltip came to sum four of six
+  // against a total of six; there should be exactly one place to add a state.
+  var HEALTH_ORDER = ["healthy", "warning", "critical", "resting", "offline", "unknown"];
   // Room outline: cool cyan, deliberately outside HEALTH_COLOR and away from the
   // owned-Body gold #FFB92E, so health and room stay two separable readings of
   // the same plot.
@@ -1609,7 +1614,18 @@
     if (isReservedDistrict(d)) {
       return "<b>" + esc(d.name) + "</b>" + '<span class="muted">' + esc(RESERVED_LABEL) + "</span>";
     }
-    var mix = ["healthy", "warning", "critical", "offline"].filter(function (k) { return d.health[k]; })
+    // ALL SIX states, not four (dev-inbox 074). This line prints a composition
+    // against `d.count` immediately beside it, so any state it omits is a
+    // silent undercount with nothing to notice: a 50-Body district of 30
+    // resting + 10 healthy + 10 warning read "10 healthy · 10 warning" under
+    // "50 Bodies", dropping 30 without a word.
+    //
+    // NOT the same decision as `unwell` above, and the difference is the point.
+    // `unwell` deliberately counts only warning + critical + offline, because it
+    // answers "how many are in trouble" and neither a planned pause nor an
+    // unobserved Body is trouble. THIS answers "what is this district made of",
+    // where every Body has to be accounted for.
+    var mix = HEALTH_ORDER.filter(function (k) { return d.health[k]; })
       .map(function (k) { return d.health[k] + " " + k; }).join(" · ");
     return "<b>" + esc(d.name) + "</b>" + d.count + " Bodies · " + Math.round(d.soldSum / d.count) + "% settled<br>" +
       '<span class="muted">' + esc(mix) + "</span><br>Click to fly in";
