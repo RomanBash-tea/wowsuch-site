@@ -100,7 +100,12 @@
   .vmap-legend .dot.healthy{background:#3AA655;}
   .vmap-legend .dot.warning{background:#E9A23B;}
   .vmap-legend .dot.critical{background:#C0392B;}
+  /* dev-inbox 074. Kept in step with HEALTH_COLOR by hand -- the legend is CSS and the
+     canvas is JS, so nothing enforces the pairing; changing one without the other
+     produces a legend that quietly lies about what a colour means. */
+  .vmap-legend .dot.resting{background:#7B5EA7;}
   .vmap-legend .dot.offline{background:#8a8a8a;}
+  .vmap-legend .dot.unknown{background:#5B6B78;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
   .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px dashed rgba(255,216,115,.8);}
   /* Outlined, not filled, and cool against the warm map: room is a fact about a
@@ -392,7 +397,9 @@
           <span><i class="dot healthy"></i>healthy</span>
           <span><i class="dot warning"></i>warning</span>
           <span><i class="dot critical"></i>critical</span>
+          <span><i class="dot resting"></i>resting</span>
           <span><i class="dot offline"></i>offline</span>
+          <span><i class="dot unknown"></i>unknown</span>
           <span><i class="dot owned"></i>yours</span>
           <span><i class="dot unclaimed"></i>unclaimed</span>
           <span class="aw-hidden" id="legendRoom"><i class="dot room"></i><span id="legendRoomLabel">has room</span></span>
@@ -841,8 +848,28 @@
   var MIN_PLOT_SCREEN_PX = 26;
   var BODY_ENTER_SCALE = 7;        // camera target while travelling into a plot
   var TRANSITION_MS = 420;
-  var HEALTH_COLOR = { healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B", offline: "#8a8a8a" };
-  var HEALTH_LABEL = { healthy: "Healthy", warning: "Warning", critical: "Critical", offline: "Offline" };
+  // Six states since dev-inbox 074, not four. `resting` and `unknown` are new and
+  // they are NOT shades of "broken":
+  //   resting  -- a PLANNED pause (the unit is asleep or curtailed). Violet, because it
+  //               must not read as any temperature of alarm; a parked unit misread as
+  //               an outage is the single most repeated false alarm in this house.
+  //   unknown  -- we do not currently know. Distinct from `offline`, which asserts the
+  //               Body is DOWN. Slate blue-grey: legible, clearly not green, and clearly
+  //               not the neutral grey `offline` owns.
+  //
+  // THE FALLBACKS BELOW ARE WHY THIS EDIT IS A REQUIRED BOX AND NOT A COSMETIC
+  // FOLLOW-UP. Every consumer of these two maps has an `||` fallback, so an un-updated
+  // map throws nothing and logs nothing -- a `resting` Body simply renders grey and
+  // labelled "Unknown", indistinguishable from a Body we have no data for. There is no
+  // `undefined` for a reviewer to spot. Check the two new states POSITIVELY.
+  var HEALTH_COLOR = {
+    healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B",
+    resting: "#7B5EA7", offline: "#8a8a8a", unknown: "#5B6B78"
+  };
+  var HEALTH_LABEL = {
+    healthy: "Healthy", warning: "Warning", critical: "Critical",
+    resting: "Resting", offline: "Offline", unknown: "Unknown"
+  };
   // Room outline: cool cyan, deliberately outside HEALTH_COLOR and away from the
   // owned-Body gold #FFB92E, so health and room stay two separable readings of
   // the same plot.
@@ -1130,7 +1157,11 @@
       var matches = matchesFilter(b);
       var dim = matches ? 1 : FILTER_DIM;
       c.globalAlpha = Math.max(FILTER_DIM_FLOOR, (unclaimed ? 0.42 : 1) * dim);
-      c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.offline;
+      // Falls back to `unknown`, not to `offline` (dev-inbox 074). A state this file
+      // does not recognise is precisely something we do not know -- painting it as
+      // "Foreman says this unit is down" would be the map inventing an assertion the
+      // backend never made.
+      c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.unknown;
       c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
       c.globalAlpha = dim; // outline, ring and labels fade with the plot they belong to
       // The dashed "unclaimed" outline only earns its keep where a plot is the
@@ -1249,6 +1280,17 @@
       c.fillStyle = "#FFB92E";
       c.fillRect(mx, my, mw * Math.min(1, d.settled / d.count), mh);
 
+      // DELIBERATELY STILL warning + critical + offline (dev-inbox 074, box 21b).
+      // Neither `resting` nor `unknown` joins this roll-up. A planned pause is not a
+      // fault, and "we have not looked" is not a fault either -- counting either one
+      // would reinstate exactly the false-alarm class this redesign removes, one level
+      // up at the district summary.
+      //
+      // KNOWN RESIDUAL, recorded rather than quietly fixed here: a district whose
+      // Bodies are ALL `unknown` still prints "all healthy", because this line counts
+      // faults rather than checking how many Bodies are actually known. That wording
+      // belongs to the status-vocabulary rename (Asana 1217276864686957), not to this
+      // ticket, and changing it here would pre-empt a decision that card owns.
       var unwell = (d.health.warning || 0) + (d.health.critical || 0) + (d.health.offline || 0);
       var sub = d.settled + "/" + d.count + " settled · " + (unwell ? unwell + " unwell" : "all healthy");
       c.font = "700 " + Math.max(7, CELL * 0.3) + "px 'IBM Plex Mono', monospace";
