@@ -129,7 +129,7 @@
   .vmap-legend .dot.offline{background:#8a8a8a;}
   .vmap-legend .dot.unknown{background:#5B6B78;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
-  .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px dashed rgba(255,216,115,.8);}
+  .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px solid rgba(255,216,115,.8);}
   .vmap-hint{font-size:.82rem;color:var(--soft-on-dark);font-weight:600;margin-top:8px;max-width:70ch;}
 
   /* ---- village map: the fleet -> district -> body navigation model ----
@@ -1211,15 +1211,20 @@
       c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.unknown;
       c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
       c.globalAlpha = dim; // outline, ring and labels fade with the plot they belong to
-      // The dashed "unclaimed" outline only earns its keep where a plot is the
-      // thing you're aiming at. At fleet level it turned the whole map into a
-      // dashed grid; the faded fill alone carries the distinction there.
+      // The "unclaimed" outline only earns its keep where a plot is the thing
+      // you're aiming at. At fleet level it turned the whole map into a grid of
+      // outlines; the faded fill alone carries the distinction there.
+      //
+      // dev-inbox 080: SOLID, not dashed. A dashed border is the convention for a
+      // placeholder -- something absent or not yet loaded -- and an unclaimed plot
+      // is neither: it is a real Antminer L9, running, with real telemetry in the
+      // fill behind this line. The solid stroke says "a plot you can take", which
+      // is what it is. Alpha .55 -> .85 so the edge survives the 0.42 fill fade.
       if (unclaimed && !fleet) {
-        c.strokeStyle = "rgba(255,216,115,.55)";
-        c.lineWidth = Math.max(0.6, 1 / view.scale);
-        c.setLineDash([2, 2]);
+        c.strokeStyle = "rgba(255,216,115,.85)";
+        c.lineWidth = Math.max(0.6, 1.4 / view.scale);
+        c.setLineDash([]); // explicit: another branch may have left a pattern set
         c.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
-        c.setLineDash([]);
       }
       // dev-inbox 079: an active filter marks the TILES and never the grid.
       // A cyan outline used to ride the outer edge of every matching plot. At
@@ -1237,10 +1242,31 @@
       }
       if (showLabels) {
         c.textAlign = "center";
-        c.fillStyle = unclaimed ? "#FFD873" : "#fff";
-        drawFitted(c, b.name || ("· " + ordinalOf(b)), x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
-        c.fillStyle = "#FFD873";
-        drawFitted(c, soldPctText(b), x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
+        if (unclaimed) {
+          // dev-inbox 080: ONE centred "+" instead of a bullet-number and a "0%".
+          // Both marks it replaces were information-free. The number was a bare
+          // ordinal nobody can act on, and it is not lost -- the hover tooltip and
+          // the selection card both still carry it. The "0%" was mathematically
+          // always zero here, because naming and the first purchase happen in one
+          // transaction, so an unclaimed plot can never show anything else. What
+          // is left is the health fill, which is real, and a mark that reads as
+          // "take this one".
+          //
+          // `drawFitted` draws on the CURRENT baseline, and in this loop that is
+          // the default "alphabetic" -- which is why the two labels below aim at
+          // 52% and 82% rather than at a centre. A single glyph has to be centred
+          // on both axes, so switch to "middle" for this one call and put it back;
+          // leaving it set would silently move the claimed branch's two labels.
+          c.fillStyle = "#FFD873";
+          c.textBaseline = "middle";
+          drawFitted(c, "+", x + CELL / 2, y + CELL / 2, CELL * 0.34);
+          c.textBaseline = "alphabetic";
+        } else {
+          c.fillStyle = "#fff";
+          drawFitted(c, b.name, x + CELL / 2, y + CELL * 0.52, CELL * 0.26);
+          c.fillStyle = "#FFD873";
+          drawFitted(c, soldPctText(b), x + CELL / 2, y + CELL * 0.82, CELL * 0.2);
+        }
       }
     });
     c.globalAlpha = 1; // the last plot's dim must not leak into the district blocks
