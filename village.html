@@ -1916,9 +1916,21 @@
     board_temp_max_c: "Board temp", uptime_seconds: "Uptime", last_seen: "Last seen"
   };
   function fmtUptime(sec) {
-    if (!sec) return "—";
-    var h = Math.floor(sec / 3600), d = Math.floor(h / 24);
-    return d > 0 ? d + "d " + (h % 24) + "h" : h + "h";
+    // Foreman's `uptime` is an elapsed-seconds counter running on the unit --
+    // not an availability figure and not the age of the Body (dev-inbox 071).
+    // What ZEROES it is not established: the counter has gone to near-zero
+    // fleet-wide twice in three days with production undisturbed, and whether
+    // that is a real restart, a vendor-side reset, or our own sync is dev-inbox
+    // 071 §2 P0. Do not label this "since last restart" until that answers.
+    // 0 is Foreman's "no reading" for a unit that is not reporting, not a real
+    // zero, so it renders as unknown. Minutes are shown below an hour: flooring
+    // to whole hours printed "0h" for a unit that had been hashing 52 minutes.
+    if (sec == null || sec === 0) return "—";
+    var s = Math.floor(sec);
+    var d = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60;
+    if (d > 0) return d + "d " + h + "h";
+    if (h > 0) return h + "h " + m + "m";
+    return m + "m";
   }
   function fmtLastSeen(ts) {
     if (!ts) return "—";
