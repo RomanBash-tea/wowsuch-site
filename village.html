@@ -90,8 +90,30 @@
     overflow:hidden;background:#150e02;transition:opacity .18s linear;}
   #villageCanvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab;}
   #villageCanvas:active{cursor:grabbing;}
-  .vmap-controls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;}
+  /* z-index 6 keeps the zoom stack ABOVE the loading overlay (5) while leaving
+     today's loaded stacking exactly as it was: the tooltip is also 6 but later
+     in the DOM, and the selection card is 7, so both still win over it. */
+  .vmap-controls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px;z-index:6;}
   .vmap-controls .btn{padding:6px 10px;line-height:1;min-width:34px;}
+  /* A control that does nothing is half of what makes an unloaded map read as a
+     broken one (dev-inbox 076). Present, and visibly dead, until Bodies land. */
+  .vmap-controls .btn[disabled]{opacity:.4;cursor:default;}
+  /* ---- map loading / failure state (dev-inbox 076) ----
+     Opaque, and inside the SAME container as the map, so the footprint never
+     changes and the layout cannot jump when the payload arrives. It paints no
+     placeholder plots on purpose: a skeleton grid of dots here would be
+     indistinguishable from real fleet state, which is a worse lie than a wait. */
+  .vmap-loading{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+    background:#150e02;padding:18px;text-align:center;}
+  .vmap-loading-inner{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .vmap-pulse{width:56px;height:56px;border-radius:50%;flex:none;
+    background:radial-gradient(circle,rgba(255,185,46,.60) 0%,rgba(255,185,46,.12) 58%,transparent 70%);
+    animation:vmapPulse 1.7s ease-in-out infinite;}
+  @keyframes vmapPulse{0%,100%{transform:scale(.70);opacity:.45;}50%{transform:scale(1);opacity:1;}}
+  @media (prefers-reduced-motion:reduce){ .vmap-pulse{animation:none;} }
+  .vmap-loading-line{font-family:var(--mono);font-size:1rem;font-weight:800;
+    color:var(--gold-on-dark);margin:0;max-width:44ch;}
+  .vmap-loading-sub{font-size:.86rem;font-weight:600;color:var(--soft-on-dark);margin:0;max-width:46ch;}
   .vmap-legend{position:absolute;bottom:8px;left:10px;display:flex;gap:12px;flex-wrap:wrap;
     background:rgba(20,14,4,.72);padding:6px 10px;border-radius:8px;max-width:calc(100% - 20px);}
   .vmap-legend span{font-family:var(--mono);font-size:.72rem;color:var(--soft-on-dark);
@@ -371,10 +393,18 @@
       </div>
       <div class="vmap-wrap" id="mapWrap">
         <canvas id="villageCanvas" width="900" height="560" role="img" aria-label="Map of the Village — 1000 Bodies grouped into districts"></canvas>
+        <div class="vmap-loading" id="mapLoading" role="status" aria-live="polite">
+          <div class="vmap-loading-inner">
+            <div class="vmap-pulse" id="mapPulse" aria-hidden="true"></div>
+            <p class="vmap-loading-line" id="mapLoadingLine">Loading the village…</p>
+            <p class="vmap-loading-sub aw-hidden" id="mapLoadingSlow">First visit after a quiet spell can take up to half a minute — the Village is waking.</p>
+            <button type="button" class="btn sm alt aw-hidden" id="mapRetry">Try again</button>
+          </div>
+        </div>
         <div class="vmap-controls">
-          <button type="button" class="btn sm alt" id="mapZoomIn" aria-label="Zoom in">+</button>
-          <button type="button" class="btn sm alt" id="mapZoomOut" aria-label="Zoom out">−</button>
-          <button type="button" class="btn sm alt" id="mapReset" aria-label="Back to the whole Village">⤾</button>
+          <button type="button" class="btn sm alt" id="mapZoomIn" aria-label="Zoom in" disabled>+</button>
+          <button type="button" class="btn sm alt" id="mapZoomOut" aria-label="Zoom out" disabled>−</button>
+          <button type="button" class="btn sm alt" id="mapReset" aria-label="Back to the whole Village" disabled>⤾</button>
         </div>
         <div class="vmap-tip aw-hidden" id="mapTip" aria-hidden="true"></div>
         <div class="vmap-card aw-hidden" id="mapCard" role="group" aria-label="Selected Body">
@@ -401,7 +431,13 @@
         </div>
       </div>
       <p class="vmap-hint" id="mapHint"></p>
-      <p class="vmap-hint" id="mapLoadingNote">Loading the village…</p>
+      <!-- dev-inbox 076: the "Loading the village…" line moved INTO the map
+           container, where it is the primary thing on screen instead of a
+           caption under a finished-looking empty village. This line survives for
+           the one case the overlay must not take: a RELOAD that fails while a
+           real map is already painted, where covering the map would hide a true
+           picture to report a failed refresh. -->
+      <p class="vmap-hint aw-hidden" id="mapLoadingNote"></p>
     </div>
 
     <div id="bodyDetailView" class="aw-hidden">
@@ -583,7 +619,12 @@
       // Balance/body-detail state changes on every purchase; without this a
       // browser can (and, tested live, does) serve a stale cached GET for
       // an identical /bodies/{id} URL instead of the just-updated row.
-      cache: "no-store"
+      cache: "no-store",
+      // dev-inbox 076: lets a caller put a wall clock on a request and have the
+      // request actually CANCELLED when it expires, rather than racing a timer
+      // against a fetch that keeps running unwatched. Undefined for every
+      // caller that does not ask, which is all of them but loadMap().
+      signal: opts.signal
     });
     /* A body that arrived and will not parse is NOT the same fact as no body at
        all, and resp.json() rejects identically for both. Swallowing that
@@ -1426,12 +1467,79 @@
     } catch (e) { /* not fatal -- ownership ring and the "you" row just won't show */ }
   }
 
+  /* ---- map loading / failure state (dev-inbox 076) --------------------------
+     Roman, walking the funnel 2026-08-19, read the pre-load screen as a broken
+     product rather than a loading one: a finished-looking empty village, gold
+     frame, live zoom buttons and live filter chips, with only a small caption
+     underneath admitting it was still loading. On the free tier a cold start
+     can hold that for ~30 seconds, so it can be a first-time visitor's whole
+     first impression. Nothing here is allowed to present an empty village as a
+     loaded one, and nothing here paints fake Bodies to fill the wait.
+
+     Both timings are PLACEHOLDERS, not product-committed numbers (076 §5).
+     MAP_SLOW_MS sits just past the point where a wait stops reading as a hiccup;
+     MAP_TIMEOUT_MS sits well past the ~30 s cold start the loading copy itself
+     promises, so the timeout can only fire on a wait the copy did not cover. */
+  var MAP_SLOW_MS = 10000;
+  var MAP_TIMEOUT_MS = 45000;
+  // The one string with a retry attached. Verbatim from 076 §3 -- not to be
+  // rephrased, here or anywhere it is reused.
+  var MAP_FAILURE_COPY = "The Village did not answer. Give it a moment, then try again.";
+  var mapSlowTimer = null;
+  var mapPainted = false; // a /map payload has been drawn at least once this visit
+
+  function setMapControlsEnabled(on) {
+    ["mapZoomIn", "mapZoomOut", "mapReset"].forEach(function (id) {
+      var b = byId(id);
+      if (b) b.disabled = !on;
+    });
+  }
+  function showMapLoading() {
+    clearTimeout(mapSlowTimer);
+    byId("mapLoading").classList.remove("aw-hidden");
+    byId("mapPulse").classList.remove("aw-hidden");
+    byId("mapLoadingLine").textContent = "Loading the village…";
+    byId("mapLoadingSlow").classList.add("aw-hidden");
+    byId("mapRetry").classList.add("aw-hidden");
+    setMapControlsEnabled(false);
+    mapSlowTimer = setTimeout(function () {
+      byId("mapLoadingSlow").classList.remove("aw-hidden");
+    }, MAP_SLOW_MS);
+  }
+  function showMapFailure() {
+    clearTimeout(mapSlowTimer);
+    byId("mapLoading").classList.remove("aw-hidden");
+    byId("mapPulse").classList.add("aw-hidden"); // a pulse under a failure reads as still-trying
+    byId("mapLoadingLine").textContent = MAP_FAILURE_COPY;
+    byId("mapLoadingSlow").classList.add("aw-hidden");
+    byId("mapRetry").classList.remove("aw-hidden");
+    setMapControlsEnabled(false);
+  }
+  function hideMapLoading() {
+    clearTimeout(mapSlowTimer);
+    byId("mapLoading").classList.add("aw-hidden");
+    setMapControlsEnabled(true);
+  }
+  // No keepCamera: a retry only ever runs where nothing was painted, so there is
+  // no camera to preserve and the fresh map must land on the reset view.
+  byId("mapRetry") && byId("mapRetry").addEventListener("click", function () { loadMap(); });
+
   async function loadMap(keepCamera) {
-    byId("mapLoadingNote").textContent = "Loading the village…";
+    // Only the never-painted case gets the overlay. A refresh that fails after a
+    // real map is on screen must not cover a true picture to report a failed
+    // reload -- that one keeps the line under the map.
+    if (!mapPainted) showMapLoading();
+    var ctl = (typeof AbortController === "function") ? new AbortController() : null;
+    var timeout = setTimeout(function () { if (ctl) ctl.abort(); }, MAP_TIMEOUT_MS);
     try {
-      mapData = await api("/map");
+      mapData = await api("/map", { signal: ctl ? ctl.signal : undefined });
     } catch (err) {
-      byId("mapLoadingNote").textContent = "The Village map couldn't be loaded right now. Try again in a moment.";
+      if (mapPainted) {
+        byId("mapLoadingNote").textContent = MAP_FAILURE_COPY;
+        byId("mapLoadingNote").classList.remove("aw-hidden");
+      } else {
+        showMapFailure();
+      }
       // Returning without this left the count pill blank forever on a first-load
       // failure while the chips stayed live over mapCounts' initial zeroes -- a
       // click then asserted "0 with room", i.e. that no Body in the Village has
@@ -1439,7 +1547,13 @@
       // is still drawn, so mapCountsKnown is deliberately not cleared here.
       syncFilterChrome();
       return;
+    } finally {
+      // Runs on the early return above too, so a failed load never leaves a
+      // live abort timer behind to fire into the next attempt.
+      clearTimeout(timeout);
     }
+    byId("mapLoadingNote").textContent = "";
+    byId("mapLoadingNote").classList.add("aw-hidden");
     indexMap();
     syncFilterChrome(); // the active filter survives a reload; its counts must not
     await loadOwnedBodies();
@@ -1449,7 +1563,12 @@
     baseCanvas.width = canvas.width; baseCanvas.height = canvas.height;
     invalidate();
     syncMapChrome();
-    byId("mapLoadingNote").textContent = "";
+    mapPainted = true;
+    // invalidate() paints on the NEXT animation frame. Dropping the overlay here
+    // would uncover the canvas for one frame before anything is drawn on it --
+    // the exact empty-village flash this task exists to remove. This callback is
+    // queued after paint's, so both land in the same frame.
+    requestAnimationFrame(hideMapLoading);
   }
 
   /* ---- hit testing ---- */
