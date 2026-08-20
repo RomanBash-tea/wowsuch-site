@@ -431,6 +431,26 @@
   }
   function gameMoney(n) { return "◈ " + Number(n).toFixed(2); } // placeholder glyph, matches village.html -- not $VITA, not real currency
 
+  /* ---- dev-inbox #049 (S4): signed rendering, payout-history ROWS ONLY ----
+     A night can now pay a loss, so a row's sign is load-bearing. gameMoney() is
+     deliberately left alone: the Entity total and the spendable balance stay
+     unsigned and keep their current rendering.
+       - rounds to a non-zero positive -> leading "+"
+       - rounds to a non-zero negative -> leading "-"
+       - rounds to zero                -> "◈ 0.00", NO sign. 25 of the live
+         Entities hold a 0.0100 share, so their loss on the first negative night
+         is -0.0012; without this branch toFixed(2) prints "-0.00", which reads
+         as a rendering fault rather than as a small loss.
+     The sign is judged on the ROUNDED value, never the raw one, so what is shown
+     and what is signed can never disagree. ASCII hyphen-minus U+002D throughout
+     (toFixed already emits it) -- not U+2212. */
+  function roundedMoney(n) { return parseFloat(Number(n).toFixed(2)); }
+  function payoutRowMoney(n) {
+    var s = Number(n).toFixed(2), v = parseFloat(s);
+    if (v === 0) return "◈ 0.00";          // catches "0.00" and "-0.00" alike
+    return "◈ " + (v > 0 ? "+" + s : s);
+  }
+
   /* ---------------- GUIDED-SEQUENCE STORY BEAT: nightly payout (per-player, same
      scheme as village.html's purchase/chain-view beats -- dismiss marks it seen;
      leaving without dismissing lets it resurface next dashboard load, i.e. resumable). */
@@ -471,18 +491,36 @@
     }
     gameStatus.className = "status live"; gameStatus.innerHTML = '<span class="d"></span> live';
     var panels = data.chains.map(function (c) {
-      var rows = c.payouts.length
-        ? c.payouts.map(function (p) {
-            return '<div class="row"><span>' + esc(p.period) + '</span><b>' + gameMoney(p.income_k) + '</b></div>';
+      var payouts = c.payouts || [];
+      var rows = payouts.length
+        ? payouts.map(function (p) {
+            return '<div class="row"><span>' + esc(p.period) + '</span><b>' + payoutRowMoney(p.income_k) + '</b></div>';
           }).join("")
         : '<div class="row"><span>No payouts yet</span><b>—</b></div>';
+      /* dev-inbox #049 (S2): the count is the number of rows ACTUALLY rendered,
+         so the server-side 30-period lookback can no longer produce a silent
+         mismatch between the column and the total, and the header stays honest
+         if _DASHBOARD_PAYOUT_LOOKBACK ever changes. Empty history keeps the
+         existing "No payouts yet" path and an uncounted header. */
+      var historyHeader = payouts.length
+        ? "Payout history — last " + payouts.length + " night" + (payouts.length === 1 ? "" : "s") + ", most recent first:"
+        : "Payout history:";
+      /* dev-inbox #049 (S3): the reconciliation note appears only when the
+         contradiction is actually on screen -- otherwise it is noise on a card
+         that has never seen a loss. The second clause is not redundant: an
+         Entity whose losses fell outside the rendered window still shows a
+         floored zero total above positive rows, i.e. the same contradiction
+         with its cause off-screen. */
+      var showReserveNote = payouts.some(function (p) { return roundedMoney(p.income_k) < 0; }) ||
+        (payouts.length > 0 && Number(c.game_balance) === 0);
       return '<div class="aw-panel">' +
         '<h3>' + esc(c.display_name || c.class_code + ' Body') +
         '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span></h3>' +
         '<div class="chain-pos-row"><span class="pos">Position #' + c.chain_position + '</span><span>' + Math.round(c.share * 100) + '% share</span></div>' +
-        '<div class="aw-math"><div class="row"><span>earned so far (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div></div>' +
-        '<p class="aw-note">Payout history (most recent first):</p>' +
+        '<div class="aw-math"><div class="row"><span>Reserve held (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div></div>' +
+        '<p class="aw-note">' + esc(historyHeader) + '</p>' +
         '<div class="aw-math">' + rows + '</div>' +
+        (showReserveNote ? '<p class="aw-note">A night can end below zero. When it does, it comes out of this Entity\'s reserve, and the reserve stops at zero — never below, and never a debt. That is why the nights above do not add up to the reserve.</p>' : "") +
         (c.body_status === "no data" ? '<p class="aw-note">No telemetry available for this Body right now.</p>' : "") +
         '</div>';
     }).join("");
@@ -492,10 +530,16 @@
       '<p class="game-note-light">Commission cap on any resident’s loss: <b>' + Math.round(data.c_max * 100) + '%</b> — a floor, not a promise.</p>' +
       '<p class="game-note-light">' + esc(data.disclaimer) + '</p>';
 
-    // Beat: nightly payout -- fires on the dashboard the first time a payout
-    // has landed (any chain with at least one payout row) for this player.
-    var hasAnyPayout = data.chains.some(function (c) { return c.payouts && c.payouts.length > 0; });
-    if (hasAnyPayout) {
+    // Beat: nightly payout -- fires on the dashboard the first time a payout has
+    // actually CREDITED this player. dev-inbox #049 (S5): the condition was "any
+    // payout row, sign ignored", and the beat's copy asserts energy was credited.
+    // On a loss night the player is debited, so a history of losses only must not
+    // fire it; the beat waits for the first row that rounds to a non-zero
+    // positive. The beat's text is unchanged and still ships as-is.
+    var hasPositivePayout = data.chains.some(function (c) {
+      return (c.payouts || []).some(function (p) { return roundedMoney(p.income_k) > 0; });
+    });
+    if (hasPositivePayout) {
       showBeat(byId("payoutBeatSlot"), "payout", "Energy landed.",
         "Your Body's first night's work is in — energy credited to your balance while you slept. Same time, every night, for as long as the chain holds.");
     }
