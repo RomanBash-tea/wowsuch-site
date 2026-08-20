@@ -429,7 +429,7 @@
   function loadGameSession() {
     try { return JSON.parse(localStorage.getItem(LS_GAME_SESSION) || "null"); } catch (e) { return null; }
   }
-  function gameMoney(n) { return "◈ " + Number(n).toFixed(2); } // placeholder glyph, matches village.html -- not $VITA, not real currency
+  function gameMoney(n) { return "$" + Number(n).toFixed(2); } // dev-inbox 062: matches village.html's money() -- game-balance amounts are USD-denominated, render as dollars
 
   /* ---- dev-inbox #049 (S4): signed rendering, payout-history ROWS ONLY ----
      A night can now pay a loss, so a row's sign is load-bearing. gameMoney() is
@@ -437,18 +437,25 @@
      unsigned and keep their current rendering.
        - rounds to a non-zero positive -> leading "+"
        - rounds to a non-zero negative -> leading "-"
-       - rounds to zero                -> "◈ 0.00", NO sign. 25 of the live
+       - rounds to zero                -> "$0.00", NO sign. 25 of the live
          Entities hold a 0.0100 share, so their loss on the first negative night
          is -0.0012; without this branch toFixed(2) prints "-0.00", which reads
          as a rendering fault rather than as a small loss.
      The sign is judged on the ROUNDED value, never the raw one, so what is shown
      and what is signed can never disagree. ASCII hyphen-minus U+002D throughout
-     (toFixed already emits it) -- not U+2212. */
+     (toFixed already emits it) -- not U+2212.
+     dev-inbox 062: the unit is now a dollar sign, and the sign sits AHEAD of it
+     ("+$1.23" / "-$1.23"), matching the presentation 062 fixes for the static
+     Awakening figures. The sign is still decided on the rounded value v and the
+     zero branch still emits no sign at all -- only where the symbol sits moved.
+     The magnitude is sliced off the already-rounded string rather than recomputed
+     from v, so the digits shown can never drift from the digits signed. */
   function roundedMoney(n) { return parseFloat(Number(n).toFixed(2)); }
   function payoutRowMoney(n) {
     var s = Number(n).toFixed(2), v = parseFloat(s);
-    if (v === 0) return "◈ 0.00";          // catches "0.00" and "-0.00" alike
-    return "◈ " + (v > 0 ? "+" + s : s);
+    if (v === 0) return "$0.00";           // catches "0.00" and "-0.00" alike
+    var mag = s.charAt(0) === "-" ? s.slice(1) : s;   // "-1.23" -> "1.23"
+    return (v > 0 ? "+$" : "-$") + mag;
   }
 
   /* ---------------- GUIDED-SEQUENCE STORY BEAT: nightly payout (per-player, same
