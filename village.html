@@ -1050,7 +1050,12 @@
   }
   function founderLine(b, withName) {
     if (!b || !b.founder_rune) return "";
-    var who = String(b.founder_rune).toLowerCase();
+    // UPPER, once, everywhere: the handle IS the Body's name (dev-inbox 065),
+    // and a two-letter lower-case word reads as a typo. The selection card
+    // capitalises the first character of this whole string, so "founded by DA"
+    // renders there as "Founded by DA" -- correct, and that call site is
+    // deliberately left alone.
+    var who = String(b.founder_rune).toUpperCase();
     return withName ? bodyLabel(b) + " — founded by " + who : "founded by " + who;
   }
 
@@ -1973,13 +1978,16 @@
     // (from the map row) rather than the anonymous "L9 Body".
     var title = b.display_name || (enteredBody ? bodyLabel(enteredBody) : b.class_code + " Body");
     byId("detailTitle").textContent = title + " — " + b.class_code + " — " + b.active_population + "/" + b.capacity + " entities";
-    // The whole naming rework is pointless if the link between a Body's name and
-    // the entity that founded it is invisible -- so this line explains the link
-    // rather than restating the name the heading above already carries.
+    // Once the name IS the handle there is no derivation to explain, so this
+    // line no longer prints the heading again in another case (dev-inbox 065).
+    // What it still says is the one thing the heading does not: that the handle
+    // belongs to the Body's FOUNDER rather than to whoever happens to be listed
+    // first. No handle appears in it, so no casing question arises and it stays
+    // true if the founder later leaves.
     // Silent if the backend doesn't send a founder.
     var founder = b.founder_rune || (enteredBody && enteredBody.founder_rune);
     var fEl = byId("detailFounder");
-    fEl.textContent = founder ? "Named for " + String(founder).toLowerCase() + " — the first entity to awaken here." : "";
+    fEl.textContent = founder ? "The first entity to awaken here." : "";
     fEl.classList.toggle("aw-hidden", !founder);
     var occPct = Math.round((1 - b.share_room) * 100);
     byId("detailOccFill").style.width = occPct + "%";
