@@ -108,9 +108,6 @@
   .vmap-legend .dot.unknown{background:#5B6B78;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
   .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px dashed rgba(255,216,115,.8);}
-  /* Outlined, not filled, and cool against the warm map: room is a fact about a
-     Body that is independent of its health colour, so the two never share a hue. */
-  .vmap-legend .dot.room{background:transparent;border:2px solid #5AD2F4;}
   .vmap-hint{font-size:.82rem;color:var(--soft-on-dark);font-weight:600;margin-top:8px;max-width:70ch;}
 
   /* ---- village map: the fleet -> district -> body navigation model ----
@@ -401,7 +398,6 @@
           <span><i class="dot unknown"></i>unknown</span>
           <span><i class="dot owned"></i>yours</span>
           <span><i class="dot unclaimed"></i>unclaimed</span>
-          <span class="aw-hidden" id="legendRoom"><i class="dot room"></i><span id="legendRoomLabel">has room</span></span>
         </div>
       </div>
       <p class="vmap-hint" id="mapHint"></p>
@@ -874,15 +870,16 @@
   // list at each call site is how the district tooltip came to sum four of six
   // against a total of six; there should be exactly one place to add a state.
   var HEALTH_ORDER = ["healthy", "warning", "critical", "resting", "offline", "unknown"];
-  // Room outline: cool cyan, deliberately outside HEALTH_COLOR and away from the
-  // owned-Body gold #FFB92E, so health and room stay two separable readings of
-  // the same plot.
-  var ROOM_OUTLINE = "#5AD2F4";
   // Dim factor for a Body the active filter does not point at, MULTIPLIED into
   // whatever alpha that Body already draws with. The floor keeps the faintest
   // combination (unclaimed AND filtered out) on the canvas: the filter emphasises,
   // it never removes ground from the map.
-  var FILTER_DIM = 0.34;
+  // dev-inbox 079: this dim is now the filter's ONLY mark, so it has to carry
+  // the reading on its own -- 0.34 was tuned as a supporting fade under a cyan
+  // outline that no longer exists. 0.20 keeps a filtered-out plot legible as
+  // ground while making the gap to a full-strength match unmistakable at a
+  // glance, and stays clear of the 0.15 floor an unclaimed non-match lands on.
+  var FILTER_DIM = 0.20;
   var FILTER_DIM_FLOOR = 0.15;
   /* ---- reserved ground (dev-inbox/044 §7) ----------------------------------
      Two districts are held back from settlement, and GET /map says which in a
@@ -1183,17 +1180,15 @@
         c.strokeRect(x + 1.5, y + 1.5, CELL - 3, CELL - 3);
         c.setLineDash([]);
       }
-      // One thin outline on the plots the filter points at -- the fill still
-      // carries health, the gold ring still carries ownership, and this rides on
-      // the outer edge so an owned Body keeps both marks.
-      // Gated on the match itself, not on `dim === 1`: keying the outline off a
-      // float comparison against a rendering constant is only correct while
-      // FILTER_DIM happens not to be 1.
-      if (mapFilter !== "all" && matches) {
-        c.strokeStyle = ROOM_OUTLINE;
-        c.lineWidth = Math.max(1, 1.6 / view.scale);
-        c.strokeRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1);
-      }
+      // dev-inbox 079: an active filter marks the TILES and never the grid.
+      // A cyan outline used to ride the outer edge of every matching plot. At
+      // the fill levels this map actually has -- ~900 of 1000 Bodies match "Has
+      // room" -- those outlines fused across the 2px inter-plot gaps into a
+      // solid cyan lattice, so the filter appeared to colour the spacing rather
+      // than say anything about a plot. Marking almost everything marks nothing.
+      // The whole signal now rides on the dim above: matches keep their normal
+      // rendering, non-matches fade, and the eye reads the exceptions. Same
+      // polarity for every filter, "Empty ground" included.
       if (ownedBodyIds[b.id]) {
         c.strokeStyle = "#FFB92E";
         c.lineWidth = Math.max(1.5, 2 / view.scale);
@@ -1521,11 +1516,11 @@
      Toggling therefore costs zero requests: it changes what is drawn, nothing
      else -- not the camera, not the zoom level, not the selection, not mapData. */
   var FILTER_COUNT_SUFFIX = { all: " Bodies", room: " with room", empty: " empty" };
-  // The cyan outline is not one fixed meaning: under "Has room" it marks Bodies
-  // with room, under "Empty ground" it marks unclaimed ground, and under
-  // "All Bodies" renderBase draws no outline at all. The legend entry therefore
-  // names the mark that is actually on the canvas, or is not shown.
-  var FILTER_LEGEND_LABEL = { room: "has room", empty: "empty ground" };
+  // dev-inbox 079 removed the cyan outline the filter used to draw, so the
+  // legend entry that named it went with it: a legend must name a mark that is
+  // actually on the canvas, and after 079 the filter's only mark is the fade on
+  // the plots it does NOT point at. The count chip beside the chips carries the
+  // reading in words; no new legend copy is invented here for the dim.
   function filterCountText() {
     // A count we do not have must not render as a number. An empty pill and a
     // confident "0 with room" are both worse than saying we do not know yet.
@@ -1541,12 +1536,6 @@
       btn.disabled = !mapCountsKnown; // nothing indexed: no counts to offer, no map to filter
     });
     byId("mapFilterCount").textContent = filterCountText();
-    var legend = byId("legendRoom");
-    if (legend) {
-      var label = FILTER_LEGEND_LABEL[mapFilter];
-      legend.classList.toggle("aw-hidden", !label);
-      if (label) byId("legendRoomLabel").textContent = label;
-    }
   }
   byId("mapFilterChips") && byId("mapFilterChips").addEventListener("click", function (e) {
     var btn = e.target.closest ? e.target.closest(".fchip") : null;
