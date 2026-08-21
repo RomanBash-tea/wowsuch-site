@@ -365,7 +365,7 @@
       <span class="step-tag">step 4 · meanwhile</span>
       <h2>Meanwhile, in a real Body…</h2>
       <p>South of here stands a Village: a thousand Antminer L9s, warm and wanted, working while you read this. Bodies there don't take one resident each — they take a <b>chain</b>. You don't have to fill a whole Body; you hold a share of one, lined up in the order you joined, and you share what it extracts.</p>
-      <p>Every share earns. The only question is how much of the day's work is yours — and that is the one number you get to choose.</p>
+      <p>A share doesn't promise a profit. It gives you a fixed slice of whatever the Body extracts that day — and on a bad day, of what it costs. How big that slice is, is the one number you get to choose.</p>
       <p class="aw-note">A note from a Keeper: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's. Nobody here will tell you otherwise.</p>
       <div class="vg-actions"><button class="btn" type="button" id="introDone">Choose a Body <span class="arrow">→</span></button></div>
     </div>
@@ -544,6 +544,30 @@
   function byId(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s); return d.innerHTML; }
   function money(n) { return "$" + Number(n).toFixed(2); } // dev-inbox 062: game-balance amounts are USD-denominated end to end (nightly payout reads net_usd) -- render as dollars, not a placeholder glyph
+
+  /* ---- dev-inbox 084: signed rendering for the ONE amount on this page that can
+     be negative ----
+     "Worst-case floor (per day, for this share)" comes from worst_case_floor_usd,
+     which is a min() over a series that contains the loss nights -- so it is
+     negative ALREADY, before the 2026-08-22 stretch begins. money() is left alone
+     on purpose: its other callers (cost, balance) are non-negative by
+     construction, and widening it would put a sign on amounts that never carry
+     one. Same three rules as dashboard.html's payoutRowMoney(), so the two pages
+     cannot drift apart:
+       - the sign is judged on the ROUNDED value, never the raw one, so what is
+         shown and what is signed can never disagree;
+       - a rounded zero prints "$0.00" with NO sign -- a 0.0100 share's floor is
+         about -0.0012, which toFixed(2) would otherwise render "$-0.00" and read
+         as a rendering fault rather than a small loss;
+       - the sign sits ahead of the unit ("-$0.09", not "$-0.09").
+     The magnitude is sliced off the already-rounded string rather than recomputed,
+     so the digits shown can never drift from the digits signed. */
+  function signedMoney(n) {
+    var s = Number(n).toFixed(2), v = parseFloat(s);
+    if (v === 0) return "$0.00";            // catches "0.00" and "-0.00" alike
+    var mag = s.charAt(0) === "-" ? s.slice(1) : s;   // "-1.23" -> "1.23"
+    return (v > 0 ? "+$" : "-$") + mag;
+  }
 
   /* ---------------- GUIDED-SEQUENCE STORY BEATS ----------------
      Beat 1 (signup) is the existing ONBOARD_CARDS flow above -- shown
@@ -2191,7 +2215,7 @@
     try {
       var preview = await api("/bodies/" + currentBody.body_id + "/preview", { method: "POST", body: { share: frac } });
       byId("prevPosition").textContent = "#" + preview.fixed_chain_position + (preview.is_top_up ? " (already yours)" : "");
-      byId("prevFloor").textContent = money(preview.worst_case_floor_usd) + " / day";
+      byId("prevFloor").textContent = signedMoney(preview.worst_case_floor_usd) + " / day";  // dev-inbox 084: can be negative, and is today
       byId("prevCost").textContent = money(preview.cost);
       byId("prevDisclaimer").textContent = preview.disclaimer;
       // Founding is the one thing a buyer can't get back later, so say it at the

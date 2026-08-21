@@ -534,7 +534,16 @@
     gameBody.innerHTML =
       '<p style="font-weight:700">Game balance (spendable): <span class="game-balance-chip">' + gameMoney(data.balance) + '</span></p>' +
       panels +
-      '<p class="game-note-light">Commission cap on any resident’s loss: <b>' + Math.round(data.c_max * 100) + '%</b> — a floor, not a promise.</p>' +
+      /* dev-inbox 084: this line used to announce a percentage ceiling on a
+         resident's loss with no qualifier attached. It sits directly under the
+         payout rows, so from 2026-08-22 a player reads it beside an actual loss
+         and takes it to mean the LOSS itself is capped. It is not.
+         payout.py:105-113 pays pure pro-rata
+         when body_output <= 0 -- was_capped=False, no commission collected at all
+         -- so c_max is not violated on a loss night, it is vacuous, and the
+         resident absorbs the whole pro-rata share. The cap is real on a night the
+         Body earns; the sentence now says which night it is talking about. */
+      '<p class="game-note-light">Commission never takes more than <b>' + Math.round(data.c_max * 100) + '%</b> of your pro-rata share on a night the Body earns. On a night it doesn’t, no commission is taken — the chain carries the shortfall pro rata. A floor, not a promise.</p>' +
       '<p class="game-note-light">' + esc(data.disclaimer) + '</p>';
 
     // Beat: nightly payout -- fires on the dashboard the first time a payout has
