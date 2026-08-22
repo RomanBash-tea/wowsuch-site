@@ -222,6 +222,29 @@
   .vg-telemetry .t-lab{display:block;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
     letter-spacing:.03em;color:var(--soft-on-dark);}
   .vg-telemetry .t-val{display:block;font-family:var(--mono);font-weight:700;color:#fff;font-size:.9rem;margin-top:2px;}
+
+  /* ---- dev-inbox 091: the escape arc ----------------------------------
+     THE BURN STRIP READS AS A COUNTDOWN, NOT AS A BALANCE (078 §D: "the
+     countdown is the lore" -- a number that moves every night argues better
+     than any paragraph). So `days left` is the largest thing in the strip and
+     the other two support it, rather than three equal-weight stat tiles. */
+  .vg-burn{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
+           padding:16px 18px;margin-top:16px;}
+  .vg-burn .lead{display:block;font-family:var(--display);color:#fff;font-size:1.05rem;margin-bottom:12px;}
+  .vg-burn .nums{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;}
+  .vg-burn .lbl{display:block;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+                letter-spacing:.08em;color:var(--soft-on-dark);}
+  .vg-burn .val{display:block;font-family:var(--mono);font-weight:700;color:#fff;font-size:1rem;margin-top:3px;}
+  .vg-burn .days .val{font-size:1.9rem;line-height:1.1;color:var(--gold-on-dark);}
+  .vg-burn .foot{color:var(--soft-on-dark);font-weight:600;font-size:.83rem;margin-top:14px;max-width:70ch;}
+  .vg-burn .aw-note{margin-top:8px;}
+  /* The gate cue: one line, gold-edged, sitting where the share picker would be.
+     091 §3 -- the map SELLS what is locked, so nothing here greys out, blurs or
+     hides ground; only the purchase action is gated. */
+  .vg-gate{border:2px dashed var(--gold);border-radius:var(--r-sm);background:#2A1B06;
+           padding:14px 16px;margin-top:18px;color:#fff;font-weight:700;}
+  .vg-gate button{margin-top:12px;}
+  @media(max-width:640px){ .vg-burn .days .val{font-size:1.5rem;} }
   .aw-occ-bar{height:8px;border-radius:99px;background:var(--night);border:1px solid var(--gold);
     margin-top:10px;overflow:hidden;}
   .aw-occ-fill{height:100%;background:var(--gold-on-dark);}
@@ -358,6 +381,17 @@
       <p>That's the Frog's whole tragedy: honest work, day and night — and it still earns less than it eats. Small Bodies do.</p>
       <p class="vg-aside">(Nobody, anywhere, switches a Body off out of mercy. Farms curtail when the grid demands it — and book the silence as a loss. The old warehouse allows nothing and demands nothing. The Frog just runs.)</p>
       <p class="aw-note">Phase-0 placeholder figures at the site's flat all-in hosting rate — illustrative, not calibrated, and not a quote. Every economy number in this build is provisional pending Phase-0 simulation.</p>
+      <!-- dev-inbox 092 §1, verbatim. The two aw-notes are NOT duplicates and must
+           not be merged: the one above is worded around the site's flat all-in
+           HOSTING rate, which is precisely what the burn deliberately is not.
+           Folding them together re-attaches the burn to a hosting cost, the one
+           framing 078 §C forbids. {burn_daily} and {days_remaining} are filled from
+           the server at render time -- never a literal, not even here, because the
+           Awakening is the one place a constant would look correct and is also the
+           place a later reader would copy the phrasing out of (092 §0). -->
+      <p><b>This is where you start, not where you stay.</b> The Frog is a dead end by construction. It isn't having a bad week and it isn't waiting for a better one — a 200 MH machine alone in an old warehouse is the best it will ever be, and next year it will be the same machine doing the same arithmetic. Nothing you learn, and nothing you do for it, moves that number.</p>
+      <p>Your own Energy, meanwhile, is on a clock. That part is a rule of this game and not something the Frog does to you: Energy you hold outside a Body goes down by <b id="introBurnDaily">—</b> a day — <b id="introBurnDays">—</b> days from where you are standing right now. The table above is the machine's arithmetic. The clock is yours.</p>
+      <p class="aw-note">Phase-0 placeholder figures — illustrative, not calibrated, and not a quote. Every economy number in this build is provisional pending Phase-0 simulation.</p>
       <div class="vg-actions"><button class="btn" type="button" data-goto="4">There has to be something better <span class="arrow">→</span></button></div>
     </div>
 
@@ -367,7 +401,10 @@
       <p>South of here stands a Village: a thousand Antminer L9s, warm and wanted, working while you read this. Bodies there don't take one resident each — they take a <b>chain</b>. You don't have to fill a whole Body; you hold a share of one, lined up in the order you joined, and you share what it extracts.</p>
       <p>A share doesn't promise a profit. It gives you a fixed slice of whatever the Body extracts that day — and on a bad day, of what it costs. How big that slice is, is the one number you get to choose.</p>
       <p class="aw-note">A note from a Keeper: at today's coin prices and the flat all-in rate, even an L9 eats a touch more than it mines. The Village lives anyway — it always has — on tomorrow's price, not today's. Nobody here will tell you otherwise.</p>
-      <div class="vg-actions"><button class="btn" type="button" id="introDone">Choose a Body <span class="arrow">→</span></button></div>
+      <!-- dev-inbox 092 §2, verbatim. The id, the classes and the arrow span are
+           unchanged; only the words move. The CTA now names the arc the player is
+           actually entering rather than an action the Enter-Body lock will refuse. -->
+      <div class="vg-actions"><button class="btn" type="button" id="introDone">Get out of the Frog <span class="arrow">→</span></button></div>
     </div>
   </section>
 
@@ -376,6 +413,97 @@
     <span class="step-tag">YOUR GAME BALANCE</span>
     <h2><span class="vg-balance-chip" id="balanceLine">—</span></h2>
     <p>Practice energy, not real money — watch how it moves. <button type="button" class="aw-wallet-link" id="logoutLink">Log out</button></p>
+
+    <!-- ============ dev-inbox 091: the escape arc =========================
+         Four surfaces, all of them ABOVE the map and none of them covering it.
+         078 §G: the map is visible, browsable and purchase-gated — it sells what
+         is locked. So nothing here is an interstitial, a blur or a lock screen;
+         a player mid-arc can still walk the Village, open any Body and read its
+         telemetry, which is exactly what step 2 of the quest requires.
+
+         Every player-facing string below is dev-inbox 092, verbatim. This spec
+         wires and styles; it does not write and does not rephrase.
+         ==================================================================== -->
+
+    <!-- The burn strip (091 §2). Every number comes from GET /me/escape; nothing
+         here is computed in the page. A days-remaining figure derived in
+         JavaScript from a locally guessed rate would be a second source of truth
+         for the one number this whole mechanic exists to make felt, and it would
+         disagree with the server on exactly the nights that matter. -->
+    <div class="vg-burn aw-hidden" id="burnStrip">
+      <span class="lead">Your Energy is on a clock.</span>
+      <div class="nums">
+        <div><span class="lbl">energy left</span><span class="val" id="burnBalance">—</span></div>
+        <div><span class="lbl">burn per day</span><span class="val" id="burnDaily">—</span></div>
+        <div class="days"><span class="lbl">days left</span><span class="val" id="burnDays">—</span></div>
+      </div>
+      <p class="foot">A rule of this game, not the Frog's arithmetic: Energy you hold outside a Body goes down every day. Nothing you can do to the Frog changes that.</p>
+      <p class="aw-note">Phase-0 placeholder figures — illustrative, not calibrated, and not a quote. Every economy number in this build is provisional pending Phase-0 simulation.</p>
+    </div>
+
+    <!-- Dormancy (092 §5). Shown when the balance is 0 and no Body is held.
+         Exactly ONE exit, and it is the button at the end — no auto-revive, no
+         second door, never terminal (078 §E, Roman's ruling 2026-08-22). -->
+    <section class="aw-panel aw-hidden" id="dormantScreen" style="margin-top:18px">
+      <span class="step-tag">dormant</span>
+      <h2>Your Energy ran out.</h2>
+      <p>You held no Body, so nothing was working for you, and the clock did what clocks do. The Frog was never going to fix that — on its very best day it was a 200 MH machine alone in an old warehouse.</p>
+      <p>Your Entity is dormant, not gone. Your Rune still stands in the ledger and the Village is still yours to walk: open any Body, read what it did today, take as long as you like. You simply cannot take a share of one until there is Energy in your hands again.</p>
+      <p>There is one way to get it, and this is it.</p>
+      <div class="vg-actions"><button class="btn" type="button" id="dormantDeposit">Add Energy <span class="arrow">→</span></button></div>
+    </section>
+
+    <!-- The escape quest (091 §1 / 092 §7). Three steps over surfaces that
+         already exist — no endpoint was added for it. One scene is visible at a
+         time; the panel tracks which. -->
+    <section class="aw-panel aw-hidden" id="escapeQuest" style="margin-top:18px">
+      <div class="vg-scene active" data-quest="1">
+        <span class="step-tag">step 1 · your own numbers</span>
+        <h2>Read what you are holding.</h2>
+        <p>Open your Energy line: what you have, what it loses a day, and how many days that leaves you. It is three numbers and it takes ten seconds — and it is the only part of this the Frog cannot argue with.</p>
+        <div class="vg-actions"><button class="btn" type="button" id="questStep1">Open my Energy line <span class="arrow">→</span></button></div>
+      </div>
+      <div class="vg-scene" data-quest="2">
+        <span class="step-tag">step 2 · a real Body</span>
+        <h2>Open one real Body.</h2>
+        <p>Walk the Village, pick any Body that catches your eye, and open its telemetry: hashrate, temperature, what it actually did today. Nearly every Body down there is bound to a live machine, so what you are reading moved since yesterday. It is not a brochure.</p>
+      </div>
+      <div class="vg-scene" data-quest="3">
+        <span class="step-tag">step 3 · side by side</span>
+        <h2>Now put the two next to each other.</h2>
+        <p>On one side, a machine that will never be anything but what it is — you have seen its whole arithmetic, and that is all of it, for good. On the other, a real Body: some days up, some days down, and every one of those days on the screen in front of you. That is the difference worth choosing between. Pick where your Energy sits.</p>
+        <div class="vg-actions"><button class="btn" type="button" id="questCommit">Pick the real Body <span class="arrow">→</span></button></div>
+        <p class="vg-error aw-hidden" id="questError"></p>
+      </div>
+      <div class="vg-scene" data-quest="4">
+        <span class="step-tag">out</span>
+        <h2>You are out of the Frog.</h2>
+        <p>The Village is open to you. Your Energy is still on the clock until it is in a Body — that part does not stop because you decided something.</p>
+        <div class="vg-actions"><button class="btn" type="button" id="questDone">Enter a Body <span class="arrow">→</span></button></div>
+      </div>
+    </section>
+
+    <!-- The simulated deposit (091 §4 / 092 §6). AN AMOUNT PICKER, NOT A CARD
+         FORM — 078 §F refuses a card form permanently, and the refusal belongs
+         in the built artifact so nobody "improves" it later: a fake card form is
+         precisely the surface that reads as a real payment, and it teaches people
+         to type card numbers into things that look like this. So there is no card
+         input of any kind on this page at any fidelity — not the long number, not
+         the date, not the security code — no "Pay" button, no order summary and
+         no wording implying funds moved.
+
+         091's acceptance greps this file for those field names, so this comment
+         deliberately does not spell them out: a comment that trips the check
+         explaining why the check exists makes the check unreadable. -->
+    <section class="aw-panel aw-hidden" id="depositStep" style="margin-top:18px">
+      <span class="step-tag">put Energy in</span>
+      <h2>How much Energy do you want to put in?</h2>
+      <p>This is the one decision the real thing will ask you to make, so make it the way you would make it for real: pick an amount.</p>
+      <div class="aw-choices" id="depositAmounts"></div>
+      <p class="aw-note">No money moves. This credits play Energy to your game balance — there is no card, no charge, and nothing leaves any account of yours. Real payments are not part of this build.</p>
+      <p class="vg-founder aw-hidden" id="depositResult"></p>
+      <p class="vg-error aw-hidden" id="depositError"></p>
+    </section>
 
     <div id="villageListView">
       <h1 class="vg-sr-only">The Village</h1>
@@ -451,6 +579,14 @@
       <div id="chainViewBeatSlot"></div>
       <ol class="aw-chain-list" id="detailChainList"></ol>
       <p id="detailFullNote" class="aw-hidden" style="color:#FFD873;font-weight:700">This chain is at capacity — no room for a new Entity right now.</p>
+
+      <!-- dev-inbox 091 §3: the purchase gate. ONE LINE, and it is 092 §3's
+           string — the SAME sentence the server returns as the `detail` of its
+           403 `not_escaped`. That is deliberate: a player who runs into the
+           server refusal must not be told a second, different story. The UI gate
+           is a courtesy; the RPC is the lock (078 §G), which is why this element
+           is also what the refusal handler paints. -->
+      <div class="vg-gate aw-hidden" id="purchaseGate">Still in the Frog. Read your Energy, open one real Body — then this unlocks.</div>
 
       <div id="shareTiersWrap">
         <p style="margin-top:18px;font-weight:700;color:#fff">Choose a share size:</p>
@@ -2139,6 +2275,13 @@
     slot.classList.add("aw-hidden");
     try {
       var t = await api("/bodies/" + bodyId + "/telemetry");
+      // dev-inbox 091 §1, step 2 of the escape quest: "open one real Body's live
+      // telemetry". Marked HERE, on a telemetry payload that actually arrived --
+      // not on entering the Body, and not in the catch below. A Body whose
+      // telemetry could not be read has not shown the player the thing the step
+      // is about, and crediting the step there would let the quest complete on a
+      // screen that said "Live telemetry isn't available for this Body".
+      markQuestStep(2);
       slot.innerHTML =
         '<div><span class="t-lab">' + TELEMETRY_LABELS.hashrate_current_ghs + '</span><span class="t-val">' + t.hashrate_current_ghs + ' GH/s</span></div>' +
         '<div><span class="t-lab">' + TELEMETRY_LABELS.hashrate_average_ghs + '</span><span class="t-val">' + t.hashrate_average_ghs + ' GH/s</span></div>' +
@@ -2227,6 +2370,11 @@
     // independently of how much of the Body has been sold, migration 005).
     var canJoinAtAll = b.is_top_up || b.slots_open > 0;
     byId("shareTiersWrap").classList.toggle("aw-hidden", !canJoinAtAll || b.share_room <= 0);
+    // dev-inbox 091 §3. Applied AFTER the line above rather than folded into it:
+    // this is a second, independent reason to hide the picker, and keeping the
+    // capacity/share_room rule intact means the gate cannot silently change what
+    // "this Body is full" means.
+    syncPurchaseGate();
     byId("shareTiers").innerHTML = TIERS.map(function (t) {
       var disabled = !canJoinAtAll || t.frac > b.share_room + 1e-9;
       return '<button type="button" class="aw-choice" data-frac="' + t.frac + '"' + (disabled ? " disabled" : "") + '>' +
@@ -2385,6 +2533,12 @@
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
       mapNeedsRefresh = true; // this body's sold_pct (and possibly the ownership ring) just changed
       await updateBalance();
+      // dev-inbox 091 §2: the burn strip must disappear the MOMENT the player
+      // holds a Body, not on the next page load. This is the same place the page
+      // already refreshes the balance and the owned-Body ring after a purchase,
+      // so the countdown leaves with them rather than lingering over a player who
+      // is no longer on the clock.
+      await refreshEscape();
       var reloadId = currentBody.body_id;
       // Re-pull the player's entity ids first, so the chain below immediately
       // shows the row they just bought marked "you" instead of on the next visit.
@@ -2401,11 +2555,203 @@
          purchase is committed either way, and recovering re-reads state that is
          already stale by then, so it is the right response to both. */
       if (err && err.bodyUnreadable) { await recoverFromLostPurchaseReply(currentBody && currentBody.body_id); return; }
+      /* dev-inbox 091 §3: the server's refusal renders as the GATE, not as a
+         generic error. The UI gate is a courtesy and the RPC is the lock, so a
+         403 `not_escaped` reaching here means the page's own state was stale --
+         re-read it from the server and let the cue explain, rather than printing
+         a red error line for a rule the player has simply not met yet. The
+         detail string is the same sentence the cue already carries (092 §3), so
+         nothing new appears on screen. */
+      if (err && err.status === 403 && /Still in the Frog/.test(String(err.message || ""))) {
+        await refreshEscape();
+        byId("purchaseGate").scrollIntoView({ block: "center" });
+        return;
+      }
       errEl.textContent = String(err.message || err);
       errEl.classList.remove("aw-hidden");
       if (currentBody && isFullChainError(err)) await recoverFromFullChain(currentBody.body_id);
     }
   });
+
+  /* ================= dev-inbox 091: the escape arc =====================
+
+     ONE SOURCE OF TRUTH, AND IT IS THE SERVER. `escapeState` is whatever
+     GET /me/escape last said — balance, escaped, burn_daily, days_remaining,
+     dormant, holds_body. Nothing in this file derives any of those; in
+     particular `days_remaining` is NEVER computed here from a rate, because a
+     page-side division is a second source of truth for the number the whole
+     mechanic exists to make felt, and it would disagree with the server on
+     exactly the nights that matter (091's Depends-on note).
+
+     The lock itself lives in `purchase_body_share()` (migration 022). Everything
+     below is the courtesy layer in front of it. */
+  var escapeState = null;
+  // Steps 1 and 2 are read-only inspections, so they are tracked client-side.
+  // Step 3 is the server write, and `escaped` from /me/escape is the authority:
+  // on load, escaped === true means the quest is finished whatever local state
+  // says (091 §1). Keyed PER PLAYER for the same reason the intro flag is --
+  // a browser-wide key would hand the next account on this machine somebody
+  // else's progress.
+  function questStorageKey() {
+    return "wowsuch_escape_steps::" + ((session && session.user_id) || "anon");
+  }
+  function loadQuestProgress() {
+    try { return parseInt(localStorage.getItem(questStorageKey()) || "0", 10) || 0; }
+    catch (e) { return 0; }
+  }
+  function saveQuestProgress(n) {
+    try { localStorage.setItem(questStorageKey(), String(n)); } catch (e) { /* private mode */ }
+  }
+  function markQuestStep(n) {
+    if (loadQuestProgress() >= n) return;
+    saveQuestProgress(n);
+    renderEscapeArc();
+  }
+
+  async function refreshEscape() {
+    try {
+      escapeState = await api("/me/escape");
+    } catch (err) {
+      // A read that failed tells us nothing, so it must not be rendered as a
+      // state. Leave whatever we last knew on screen rather than flipping the
+      // player into a dormancy or a lock we cannot substantiate.
+      if (err && err.status === 401) { clearSession(); location.reload(); }
+      return;
+    }
+    renderEscapeArc();
+  }
+
+  function renderEscapeArc() {
+    if (!escapeState) return;
+    var s = escapeState;
+    var onTheClock = !s.holds_body && s.burn_daily > 0;
+
+    /* ---- the burn strip (091 §2) ----
+       NEVER a countdown when there is nothing to count. The server returns
+       days_remaining: null for a Body-holder, and null is rendered as NOTHING --
+       not 0, not "∞", not an em dash pretending to be a number (092 §0: there is
+       no copy for a countdown that is not running, deliberately). */
+    var strip = byId("burnStrip");
+    if (onTheClock && s.days_remaining != null) {
+      byId("burnBalance").textContent = money(s.balance);
+      byId("burnDaily").textContent = money(s.burn_daily);
+      // Singular at 1 (092 §0). The unit sits in the value, not in the label,
+      // because the label is fixed copy and the plural is data-dependent.
+      byId("burnDays").textContent = s.days_remaining + (s.days_remaining === 1 ? " day" : " days");
+      strip.classList.remove("aw-hidden");
+    } else {
+      strip.classList.add("aw-hidden");
+    }
+    // The Awakening quotes the same two figures from the same response.
+    if (s.burn_daily > 0) byId("introBurnDaily").textContent = money(s.burn_daily);
+    if (s.days_remaining != null) byId("introBurnDays").textContent = String(s.days_remaining);
+
+    /* ---- dormancy (092 §5) ---- */
+    byId("dormantScreen").classList.toggle("aw-hidden", !s.dormant);
+
+    /* ---- the quest (092 §7) ---- */
+    var quest = byId("escapeQuest");
+    var showQuest = !s.escaped && !s.holds_body;
+    quest.classList.toggle("aw-hidden", !showQuest && !questJustFinished);
+    var step = s.escaped ? 4 : Math.min(loadQuestProgress() + 1, 3);
+    quest.querySelectorAll("[data-quest]").forEach(function (el) {
+      el.classList.toggle("active", parseInt(el.getAttribute("data-quest"), 10) === step);
+    });
+
+    /* ---- the purchase gate (091 §3) ---- */
+    syncPurchaseGate();
+  }
+
+  // Set once, by the commit, so the completion scene can stay on screen for the
+  // moment after `escaped` flips true -- without it the whole panel would vanish
+  // the instant the quest succeeded and the player would never see 092's
+  // completion copy.
+  var questJustFinished = false;
+
+  /* ---- the purchase gate ----
+     Gates the ACTION, never the ground. The map, the Body detail, the chain and
+     the telemetry all stay readable while locked (078 §G, 091 §3): a hidden map
+     cannot sell anything, and step 2 of the quest runs through it. */
+  function syncPurchaseGate() {
+    var gate = byId("purchaseGate");
+    if (!gate) return;
+    var locked = !!(escapeState && !escapeState.escaped);
+    var inBody = !byId("bodyDetailView").classList.contains("aw-hidden");
+    gate.classList.toggle("aw-hidden", !(locked && inBody));
+    // The share picker is the purchase action's entry point, so it is what the
+    // gate replaces. renderShareTiers() owns its own visibility rules (capacity,
+    // share_room); this only ever ADDS a reason to hide it.
+    if (locked) byId("shareTiersWrap").classList.add("aw-hidden");
+    if (locked) byId("previewPanel").classList.add("aw-hidden");
+  }
+
+  byId("questStep1").addEventListener("click", function () {
+    markQuestStep(1);
+    var strip = byId("burnStrip");
+    if (!strip.classList.contains("aw-hidden")) strip.scrollIntoView({ block: "center" });
+  });
+
+  byId("questCommit").addEventListener("click", async function () {
+    var err = byId("questError");
+    err.classList.add("aw-hidden");
+    try {
+      escapeState = await api("/me/escape", { method: "POST" });
+      questJustFinished = true;
+      renderEscapeArc();
+      // The purchase path is open from this moment -- no page reload, which is
+      // 091's acceptance: the unlock is the same interaction, not the next visit.
+      if (currentBody) renderBodyDetail();
+    } catch (e) {
+      err.textContent = String(e.message || e);
+      err.classList.remove("aw-hidden");
+    }
+  });
+
+  byId("questDone").addEventListener("click", function () {
+    // Escape -> deposit -> first purchase (078 ruling 7). The deposit step is
+    // where the sequence goes next, and it is the same step dormancy exits by.
+    questJustFinished = false;
+    renderEscapeArc();
+    openDepositStep();
+  });
+
+  /* ---- the simulated deposit (091 §4 / 092 §6) ----
+     Preset amounts are this spec's call, not copy. They are round numbers around
+     the $10.8 grant so the decision on screen is recognisably the real one --
+     "how much do you put in" -- rather than an abstraction. */
+  var DEPOSIT_AMOUNTS = [10, 25, 50, 100];
+  byId("dormantDeposit").addEventListener("click", openDepositStep);
+
+  function openDepositStep() {
+    var wrap = byId("depositAmounts");
+    wrap.innerHTML = DEPOSIT_AMOUNTS.map(function (a) {
+      return '<button type="button" class="aw-choice" data-amount="' + a + '"><h4>Add ' + esc(money(a)) + '</h4></button>';
+    }).join("");
+    wrap.querySelectorAll("[data-amount]").forEach(function (btn) {
+      btn.addEventListener("click", function () { submitDeposit(parseFloat(btn.getAttribute("data-amount"))); });
+    });
+    byId("depositResult").classList.add("aw-hidden");
+    byId("depositError").classList.add("aw-hidden");
+    byId("depositStep").classList.remove("aw-hidden");
+    byId("depositStep").scrollIntoView({ block: "center" });
+  }
+
+  async function submitDeposit(amount) {
+    var errEl = byId("depositError"), okEl = byId("depositResult");
+    errEl.classList.add("aw-hidden");
+    try {
+      var res = await api("/me/topup", { method: "POST", body: { amount: amount } });
+      // In place, no reload (091 §4). The balance chip, the burn strip and the
+      // dormancy state all move off the same refresh.
+      okEl.textContent = "Added. Your Energy now reads " + money(res.balance) + ".";
+      okEl.classList.remove("aw-hidden");
+      byId("balanceLine").textContent = money(res.balance);
+      await refreshEscape();
+    } catch (e) {
+      errEl.textContent = String(e.message || e);
+      errEl.classList.remove("aw-hidden");
+    }
+  }
 
   /* ---------------- session bootstrap ---------------- */
   async function updateBalance() {
@@ -2431,6 +2777,12 @@
       loadMap();
     }
     updateBalance();
+    // dev-inbox 091. Read on every entry, including the one that goes through
+    // the Awakening: scene 3 quotes `burn_daily` and `days_remaining` from this
+    // same response, and an already-escaped player returning must land unlocked
+    // rather than at step 1 (091 §1 -- `escaped` is the authority over anything
+    // this browser remembers).
+    refreshEscape();
   }
 
   byId("logoutLink").addEventListener("click", function () {
