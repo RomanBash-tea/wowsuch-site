@@ -1574,6 +1574,34 @@
   // no camera to preserve and the fresh map must land on the reset view.
   byId("mapRetry") && byId("mapRetry").addEventListener("click", function () { loadMap(); });
 
+  /* ---- ?body=<id> deep link (dev-inbox 096) ----
+     The dashboard's chain card links each Body a player holds straight to its
+     plot. Without a receiver here that link lands on the fleet view and the
+     player is back to hunting a 1000-plot canvas by eye, which is the whole
+     thing 096 set out to end -- so the emitting half on dashboard.html and this
+     half are one change in two files.
+
+     ONE-SHOT: the id is consumed on the first map load and cleared before the
+     camera moves, so a later reload (or the refresh after a purchase) does not
+     drag the player back into the same Body.
+
+     RESERVED GROUND IS NOT GATED HERE, deliberately. `bodyAtCanvasPoint()`
+     refuses reserved plots so a CLICK on the canvas cannot open them (044 §7);
+     this is not a click, it is a player following a link to a Body they hold,
+     and the swarm's own accounts hold Bodies inside the reserve. Nothing is
+     exposed by allowing it: GET /bodies/{id} is public and unauthenticated
+     already, and the purchase RPC still refuses on its own terms. */
+  var deepLinkBodyId = (function () {
+    try { return new URLSearchParams(location.search).get("body") || null; }
+    catch (err) { return null; }   // no URLSearchParams -- the map still works
+  })();
+  function consumeBodyDeepLink() {
+    if (!deepLinkBodyId) return;
+    var row = bodyById[deepLinkBodyId];
+    deepLinkBodyId = null;          // cleared BEFORE the await inside enterBody
+    if (row) enterBody(row);
+  }
+
   async function loadMap(keepCamera) {
     // Only the never-painted case gets the overlay. A refresh that fails after a
     // real map is on screen must not cover a true picture to report a failed
@@ -1619,6 +1647,10 @@
     // the exact empty-village flash this task exists to remove. This callback is
     // queued after paint's, so both land in the same frame.
     requestAnimationFrame(hideMapLoading);
+    // Placed inside loadMap rather than at its two call sites: `bodyById` only
+    // exists after indexMap() above, and a third call site added later would
+    // otherwise silently lose the deep link.
+    consumeBodyDeepLink();
   }
 
   /* ---- hit testing ---- */

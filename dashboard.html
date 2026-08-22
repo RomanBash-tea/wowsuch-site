@@ -130,6 +130,26 @@
   <h1 class="reveal">Your dashboard</h1>
   <p class="reveal" id="welcomeLine" style="font-weight:700;color:var(--ink-soft);max-width:60ch;margin-top:6px">Your wallet and mining activity, in one place.</p>
 
+  <!-- dev-inbox 096 §4, Roman's ruling 2026-08-22 («переставить, карточку Деревни
+       первой»): the Village chain card leads the page. It is the only card here
+       carrying real game data -- the wallet reads localStorage and says the MPC
+       wallet is not open yet, "Payouts & orders" reads checkout leads from
+       localStorage, and "Fleet & earnings" is the marketing account-summary feed.
+       A page that opened with a wallet that does not work was undercutting the
+       operational picture underneath it.
+       The ruling was REORDER, not remove: the three cards below keep their
+       content, their data sources and their relative order, and simply sit
+       beneath this one. Nothing is hidden and nothing is deleted. -->
+  <div class="card feature reveal" id="gameCard" style="margin-top:26px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
+      <h2>Your Village chain</h2>
+      <span class="status soon" id="gameStatus">⏳ loading</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--ink-soft);font-weight:600;margin-bottom:14px">Game-balance chain from the Village — practice energy, not real money. Payouts run once a night; check back tomorrow after a fresh purchase.</p>
+    <div id="payoutBeatSlot"></div>
+    <div id="gameBody"><p class="empty-state">Checking your game balance…</p></div>
+  </div>
+
   <div class="dgrid">
     <div class="card feature reveal">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
@@ -158,15 +178,6 @@
     <div id="feedBody"><p class="empty-state">Loading your fleet…</p></div>
   </div>
 
-  <div class="card feature reveal" id="gameCard" style="margin-top:26px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px">
-      <h2>Your Village chain</h2>
-      <span class="status soon" id="gameStatus">⏳ loading</span>
-    </div>
-    <p style="font-size:.85rem;color:var(--ink-soft);font-weight:600;margin-bottom:14px">Game-balance chain from the Village — practice energy, not real money. Payouts run once a night; check back tomorrow after a fresh purchase.</p>
-    <div id="payoutBeatSlot"></div>
-    <div id="gameBody"><p class="empty-state">Checking your game balance…</p></div>
-  </div>
 </div></main>
 
 <footer><div class="wrap">
@@ -489,6 +500,73 @@
   var BODY_STATUS_LABEL = { active: "active", degraded: "degraded", EOL: "end of life", "no data": "no data" };
   function bodyStatusClass(s) { return s === "active" ? "status live" : s === "no data" ? "status soon" : "status kyc"; }
 
+  /* ---- dev-inbox 096: health is a DIFFERENT FACT from lifecycle ----
+     `body_status` above is `bodies.status` (active/degraded/EOL) -- a LIFECYCLE
+     field, "is this Body still in the game at all". `health_status` answers
+     "what is it doing right now". A Body can be `active` and failing, or `EOL`
+     and resting, so both ship and both are labelled; collapsing them loses the
+     half a player asking "is my thing working" actually wants.
+
+     THE DISPLAY MAP IS THE ONLY PLACE A HEALTH WORD IS WRITTEN on this page.
+     dev-inbox 093 is redrawing this vocabulary for a buyer (Healthy / Strained /
+     Failing / Resting / Down / No signal) and explicitly deferred health-on-the-
+     dashboard to this card; when it ships, THIS MAP is what changes and nothing
+     else on the page does. The tokens below are today's stored values and match
+     village.html's HEALTH_LABEL exactly -- two copies because there is no build
+     step and no shared bundle, so what is enforceable instead is that they say
+     the same words. */
+  var HEALTH_LABEL = {
+    healthy: "Healthy", warning: "Warning", critical: "Critical",
+    resting: "Resting", offline: "Offline", unknown: "Unknown"
+  };
+  function healthLabel(token) {
+    // No token at all -- no `bodies` row came back for this chain -- is honestly
+    // `unknown`: we do not know, which is a different claim from "it is down".
+    if (!token) return HEALTH_LABEL.unknown;
+    /* A token the map has NOT learned renders AS ITSELF, deliberately. The trap
+       is recorded in village.html: every consumer of that map has an `||`
+       fallback, so a state added to the backend before the map catches up
+       renders as a valid-looking word and is indistinguishable from a real
+       reading -- nothing throws, nothing logs, and there is no `undefined` for a
+       reviewer to spot. A raw token on screen is ugly and loud, which is the
+       whole point of choosing it over a plausible lie. */
+    return HEALTH_LABEL[token] || token;
+  }
+  function healthClass(token) {
+    if (token === "healthy") return "status live";
+    // `resting` and `unknown` are not verdicts about the hardware, so neither
+    // gets the alarm styling; an unrecognised token lands here too, which keeps
+    // an unknown state from borrowing the reassurance of green.
+    if (token === "warning" || token === "critical" || token === "offline") return "status kyc";
+    return "status soon";
+  }
+
+  /* ---- dev-inbox 096: a signed total, and never a false zero ----
+     gameMoney() is unsigned by design (see #049) and stays that way for the
+     reserve and the spendable balance. "Earned to date" MAY BE NEGATIVE -- the
+     synthetic series runs negative 2026-08-22 -> 08-26 -- and that negative is
+     the honest number the floored reserve hides, so it must never be softened.
+
+     The sub-cent branch is what stops this from lying at 2dp. 25 live Entities
+     hold a 0.0100 share, so a loss night costs them -0.0012: toFixed(2) prints
+     "-0.00", and #049's payout-row formatter deliberately collapses that to
+     "$0.00" because a ROW that rounds to nothing paid nothing worth naming. A
+     TOTAL is a different claim -- printing "$0.00" for a player who really did
+     lose money is exactly the softening this card exists to undo -- so a
+     non-zero amount that rounds to nothing renders as "less than a cent", with
+     its sign, rather than as zero. */
+  function signedGameMoney(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return "—";
+    var rounded = parseFloat(v.toFixed(2));
+    if (rounded === 0) {
+      if (v < 0) return "-<$0.01";
+      if (v > 0) return "<$0.01";
+      return "$0.00";
+    }
+    return (rounded < 0 ? "-$" : "$") + Math.abs(rounded).toFixed(2);
+  }
+
   function renderGameChain(data) {
     if (!data.chains.length) {
       gameStatus.className = "status soon"; gameStatus.textContent = "⏳ no chain yet";
@@ -520,11 +598,47 @@
          with its cause off-screen. */
       var showReserveNote = payouts.some(function (p) { return roundedMoney(p.income_k) < 0; }) ||
         (payouts.length > 0 && Number(c.game_balance) === 0);
+      /* dev-inbox 096: WHERE the Body is, and a link that ends the manual
+         lookup. The address is the Village address -- `designation`, the same
+         "<District> · <plot>" string GET /map, /bodies and /preview already
+         emit, so the two surfaces cannot drift on where a Body is.
+         It is NOT the physical facility, and that is a ruling, not a gap:
+         Roman decided 2026-08-22 that a buyer is not told which site their
+         machine sits in. Nothing on this page reads foreman_unit_ref, location,
+         a mac, a serial or a worker name -- the backend does not send them and
+         the standing sanitize_telemetry() rule forbids emitting them at all.
+         The link is the half dev-inbox 063 did not have: without it a player
+         has to find their own Body BY EYE on a 1000-plot canvas, which is the
+         concrete "piece it together from several surfaces" the card complains
+         about. */
+      var address = c.designation
+        ? '<p class="aw-note">' + esc(c.designation) +
+          (c.body_id ? ' · <a href="village.html?body=' + encodeURIComponent(c.body_id) + '">Open on the map <span class="arrow">→</span></a>' : "") +
+          '</p>'
+        : "";
+      /* The floor line appears only when the floor actually forgave something.
+         Judged on the RAW value, never the rounded one: an Entity whose whole
+         loss is under a cent is exactly the case that needs the explanation,
+         and rounding it away would delete the line precisely there. */
+      var absorbed = Number(c.floor_absorbed) || 0;
       return '<div class="aw-panel">' +
         '<h3>' + esc(c.display_name || c.class_code + ' Body') +
-        '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span></h3>' +
+        '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span>' +
+        '<span class="' + healthClass(c.health_status) + '" style="margin-left:6px;font-size:.72rem">' + esc(healthLabel(c.health_status)) + '</span></h3>' +
         '<div class="chain-pos-row"><span class="pos">Position #' + c.chain_position + '</span><span>' + Math.round(c.share * 100) + '% share</span></div>' +
-        '<div class="aw-math"><div class="row"><span>Reserve held (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div></div>' +
+        address +
+        /* Three numbers, and they reconcile exactly:
+               reserve held == earned to date + absorbed by the floor
+           The replay computes all three (migration 027) and used to keep only
+           the first. "Reserve held" is a CURRENT, zero-floored figure -- once a
+           loss night is absorbed it is strictly greater than what the Body
+           produced -- so on its own it overstates what happened to a player who
+           lost money. The other two are what make it honest. */
+        '<div class="aw-math">' +
+          '<div class="row"><span>Reserve held (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div>' +
+          '<div class="row"><span>Earned to date</span><b>' + signedGameMoney(c.lifetime_income) + '</b></div>' +
+          (absorbed > 0 ? '<div class="row"><span>Absorbed by the floor</span><b>' + signedGameMoney(absorbed) + '</b></div>' : "") +
+        '</div>' +
         '<p class="aw-note">' + esc(historyHeader) + '</p>' +
         '<div class="aw-math">' + rows + '</div>' +
         (showReserveNote ? '<p class="aw-note">A night can end below zero. When it does, it comes out of this Entity\'s reserve, and the reserve stops at zero — never below, and never a debt. That is why the nights above do not add up to the reserve.</p>' : "") +
