@@ -2640,14 +2640,78 @@
      without hiding the explanation with it. Disarm the button instead, and
      blank the three preview rows so no stale number from an earlier, successful
      preview is left standing next to an error about this one. */
-  function setConfirmArmed(armed) {
+  function setConfirmArmed(armed, keepFigures) {
     byId("confirmPurchase").disabled = !armed;
-    if (armed) return;
+    // `keepFigures` is the dev-inbox 098 case and it is the opposite of the 082
+    // one. When the PREVIEW FAILED there is nothing true left on screen, so the
+    // rows are blanked. When the preview SUCCEEDED and only the balance is
+    // short, the rows are the most useful thing on the page -- the cost is
+    // exactly what the player needs in order to decide how much to deposit --
+    // so they stay.
+    if (armed || keepFigures) return;
     byId("prevPosition").textContent = "—";
     byId("prevFloor").textContent = "—";
     byId("prevCost").textContent = "—";
     byId("prevDisclaimer").textContent = "";
     byId("prevFounderNote").classList.add("aw-hidden");
+  }
+
+  /* ================= dev-inbox 098: never offer a share the player cannot pay for
+
+     Roman's ruling on the numbers, 2026-08-25: option (1) -- the grant stays at
+     $10.80, the tiers stay as they are, and the deposit is a REQUIRED step
+     rather than an optional rehearsal. Nothing here changes a number; this is
+     the code half, which needed no ruling.
+
+     What it fixes. A fresh player is granted $10.80 and the cheapest tier is 5%
+     of a Body at $25. Before this, the page rendered that tier live, previewed
+     it at `Cost $25.00`, and answered Confirm with the RPC's
+     `not enough game balance for this purchase` -- a 402 with no number in it
+     and no statement of the shortfall. That is the same defect 082 removed from
+     this panel one case over: the page offering an action it already knows
+     cannot succeed.
+
+     WHY THE TIER BUTTON IS NOT THE THING DISABLED. Clicking a tier is an
+     INQUIRY -- "what does this cost?" -- and it can always succeed. Disabling
+     tiers by affordability would hide the one number a player needs in order to
+     decide how much to deposit, which is worse than the problem. The commitment
+     is Confirm, so Confirm is what gets disarmed.
+
+     The arithmetic that makes this reachable at all: 10.80 + the smallest
+     deposit preset (10) = 20.80, still under 25. So a cautious first-timer
+     deposits once and is STILL short, and this message is what tells them by
+     how much. `DEPOSIT_AMOUNTS` is deliberately untouched -- ruling (1). */
+  var currentBalance = null;   // null = not yet known; never guessed
+  // The cost of the share currently previewed, kept so a 402 on Confirm can
+  // quote a real figure instead of the RPC's numberless refusal.
+  var lastPreviewCost = null;
+
+  /* THE ONLY WRITER of the balance chip. Three call sites used to set
+     `#balanceLine.textContent` directly -- the purchase reply, the deposit
+     reply and /me/balance -- and a fourth reader would have had to remember all
+     three. Routing them through one setter is what keeps `currentBalance` from
+     drifting away from the number the player can actually see, which is the
+     only thing that makes the shortfall line trustworthy. */
+  function setBalance(n) {
+    if (typeof n !== "number" || isNaN(n)) return;
+    currentBalance = n;
+    byId("balanceLine").textContent = money(n);
+  }
+
+  function affordabilityGap(cost) {
+    if (currentBalance === null || typeof cost !== "number") return null;
+    var gap = cost - currentBalance;
+    // money() renders 2dp, so a gap that rounds away is not a gap the player
+    // could act on -- and the RPC, not this page, is the authority anyway.
+    return gap > 0.005 ? gap : null;
+  }
+
+  function shortfallLine(cost) {
+    var gap = affordabilityGap(cost);
+    if (gap === null) return null;
+    return "This share costs " + money(cost) + " and your balance is " +
+      money(currentBalance) + " — " + money(gap) + " short. Add Energy below, " +
+      "then come back and confirm.";
   }
 
   async function selectShare(frac) {
@@ -2671,13 +2735,28 @@
         : "";
       byId("prevFounderNote").classList.toggle("aw-hidden", !willFound);
       prevPanel.classList.remove("aw-hidden");
-      setConfirmArmed(true);
-      byId("purchaseError").classList.add("aw-hidden");
+      /* dev-inbox 098. The preview SUCCEEDED, so every figure on screen is
+         true -- but the player may still not be able to pay for it, and before
+         this the page armed Confirm anyway and let the RPC deliver a numberless
+         402. Say the shortfall here, keep the figures, and disarm the one
+         control that cannot succeed. The RPC remains the authority: this is a
+         courtesy gate in front of it, exactly like the capacity gate. */
+      lastPreviewCost = (typeof preview.cost === "number") ? preview.cost : null;
+      var short = shortfallLine(lastPreviewCost);
+      if (short) {
+        setConfirmArmed(false, true);   // keep the figures: the cost IS the answer
+        byId("purchaseError").textContent = short;
+        byId("purchaseError").classList.remove("aw-hidden");
+      } else {
+        setConfirmArmed(true);
+        byId("purchaseError").classList.add("aw-hidden");
+      }
     } catch (err) {
       prevPanel.classList.remove("aw-hidden");
       // dev-inbox 082 D3: never `err.message` on the money path. An expired
       // session gets the sentence; everything else keeps the message this page
       // or the RPC wrote on purpose.
+      lastPreviewCost = null;   // nothing true is left to quote
       byId("purchaseError").textContent = moneyPathError(err);
       byId("purchaseError").classList.remove("aw-hidden");
       setConfirmArmed(false);
@@ -2799,7 +2878,7 @@
       // below left the chip a full API round-trip behind -- invisible locally,
       // ~a second against Render, during which the result panel announced the
       // new balance while the chip above it still showed the old one.
-      byId("balanceLine").textContent = money(result.balance);
+      setBalance(result.balance);
       // Beat: purchase / incarnation -- fires right after a player's first successful body purchase.
       showBeat(byId("purchaseBeatSlot"), "purchase", "You've incarnated.",
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
@@ -2842,6 +2921,23 @@
       // dev-inbox 082 D3. By the time a 401 reaches here, api() has already
       // tried a refresh and it failed -- so this is a genuinely dead session
       // and the player needs a sentence, not the library's wording.
+      /* dev-inbox 098: the RPC is the authority and it can still refuse on
+         balance -- the gate above is only a courtesy, and the balance can move
+         between the preview and the confirm (a nightly payout, a burn, another
+         tab). When it does, the player gets the numbers rather than the RPC's
+         bare `not enough game balance for this purchase`. Falls back to the
+         backend's own sentence if the balance is somehow unknown, which is
+         still no worse than before. */
+      if (err && err.status === 402) {
+        // Re-read FIRST. The refusal is proof this page's copy of the balance
+        // was stale, so composing the sentence before refreshing would quote
+        // the very number that just turned out to be wrong.
+        await updateBalance();
+        errEl.textContent = shortfallLine(lastPreviewCost) || moneyPathError(err);
+        errEl.classList.remove("aw-hidden");
+        setConfirmArmed(false, true);
+        return;
+      }
       errEl.textContent = moneyPathError(err);
       errEl.classList.remove("aw-hidden");
       if (err && err.status === 401) setConfirmArmed(false);
@@ -3021,7 +3117,7 @@
       // dormancy state all move off the same refresh.
       okEl.textContent = "Added. Your Energy now reads " + money(res.balance) + ".";
       okEl.classList.remove("aw-hidden");
-      byId("balanceLine").textContent = money(res.balance);
+      setBalance(res.balance);
       await refreshEscape();
     } catch (e) {
       errEl.textContent = String(e.message || e);
@@ -3033,7 +3129,7 @@
   async function updateBalance() {
     try {
       var b = await api("/me/balance");
-      byId("balanceLine").textContent = money(b.balance);
+      setBalance(b.balance);
       byId("introBalance").textContent = money(b.balance); // the awakening quotes the real starting balance
       byId("acctChip").textContent = session.email || "—";
     } catch (err) {
