@@ -758,6 +758,124 @@
   function clearSession() { localStorage.removeItem(LS_SESSION); }
 
   var session = loadSession();
+
+  /* ================= dev-inbox 082: a session that renews itself =============
+
+     Reported by Deanna with a screenshot, 2026-08-20 -- the first defect on this
+     project found by a person rather than by a harness, and it was on the money
+     path. A player who left this page open for about an hour and then chose a
+     share was shown the backend's raw auth string inside the purchase panel,
+     directly above a live "Confirm purchase" button.
+
+     THE ROOT WAS NOT ON THIS PAGE. The backend dropped `refresh_token` before
+     the response was built, so this page was never neglecting to renew -- it had
+     never been given the material to renew WITH. Measured on the live auth
+     tables 2026-08-25: 2,749 sessions issued, ZERO ever refreshed. That is
+     fixed in game/app/routers/auth.py; what follows is the half that lives here.
+
+     Three rules govern everything below.
+
+     ONE REFRESH, ONE RETRY, AND ONLY EVER ON A 401. The retry is keyed on
+     `err.status === 401` and on nothing else -- never on "the call failed".
+     A 401 is refused BEFORE `purchase_body_share()` runs, so retrying one cannot
+     double-charge; a lost 2xx (`err.bodyUnreadable`) is the opposite case and
+     retrying THAT charges twice past the headcount gate (dev-inbox 053).
+     `api()` only ever sets `bodyUnreadable` on a 2xx, so `status === 401` and
+     `bodyUnreadable` are disjoint by construction, and the 401 test alone is
+     sufficient to keep the lost-reply path out of here.
+
+     RENEW BEFORE IT DIES, not only after. A background interval is not enough:
+     a laptop that sleeps wakes with a dead token and no timer having fired. The
+     proactive check runs when the page becomes visible again and immediately
+     before every money-path call, which is where being wrong is most expensive.
+
+     NO BACKEND STRING REACHES A PLAYER ON THE MONEY PATH. */
+
+  // Renew when the token is within this of expiry. Comfortably longer than a
+  // slow Render cold start, so a call that begins fresh cannot land expired.
+  var REFRESH_MARGIN_MS = 5 * 60 * 1000;
+  // Survives the reload that a dead session triggers -- the sentence has to
+  // outlive the page that decided to show it. sessionStorage, not local: it is
+  // for this tab's next paint, not a fact about this browser.
+  var SS_SESSION_ENDED = "wowsuch_game_session_ended";
+  var SESSION_ENDED_COPY = "Your session ended while this page was open. Log in again and your balance and Bodies will be exactly as you left them.";
+
+  /* The absolute deadline is computed ONCE, here, at the moment the response
+     arrived. `expires_in` is a DURATION and is only meaningful against the
+     instant it was issued; recomputing it on every load would silently reset
+     the clock forward on each page view and the token would then expire while
+     this page still believed it was fresh. */
+  function applySession(payload, userId, email) {
+    session = {
+      access_token: payload.access_token,
+      // A refresh response may legitimately omit a new refresh token and leave
+      // the existing one valid; keep what we hold rather than nulling it.
+      refresh_token: payload.refresh_token || (session && session.refresh_token) || null,
+      expires_at: payload.expires_in ? Date.now() + payload.expires_in * 1000 : null,
+      user_id: userId,
+      email: email
+    };
+    saveSession(session);
+  }
+
+  /* SINGLE-FLIGHT. A page load fires several authenticated calls at once, so an
+     expired token produces several simultaneous 401s. Without this, each would
+     start its own refresh, and every refresh after the first would present a
+     token the first one had already rotated away -- turning one recoverable
+     expiry into a burst of failures. Shared promise: the first caller does the
+     work, the rest await the same answer. */
+  var refreshInFlight = null;
+  function refreshSession() {
+    if (refreshInFlight) return refreshInFlight;
+    if (!session || !session.refresh_token) return Promise.resolve(false);
+    refreshInFlight = (async function () {
+      try {
+        var data = await api("/auth/refresh", {
+          method: "POST",
+          body: { refresh_token: session.refresh_token },
+          noAuthRetry: true   // a 401 here IS the answer, not something to retry
+        });
+        if (!data || !data.session || !data.session.access_token) return false;
+        applySession(data.session, data.user_id || (session && session.user_id), data.email || (session && session.email));
+        return true;
+      } catch (e) {
+        return false;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+    return refreshInFlight;
+  }
+
+  // Proactive renewal. Cheap and silent when there is nothing to do, which is
+  // almost always -- so callers can put it in front of anything that matters
+  // without thinking about cost.
+  async function ensureFreshSession() {
+    if (!session || !session.refresh_token || !session.expires_at) return;
+    if (Date.now() < session.expires_at - REFRESH_MARGIN_MS) return;
+    await refreshSession();
+  }
+
+  /* The honest end of the line: both tokens are dead and only a password can
+     help. Reload rather than patch the DOM, because half this page's state
+     (the map, the chain, the escape clock, currentBody) was read under an
+     identity that no longer exists. The sentence is handed across the reload
+     so the player is told what happened instead of finding themselves
+     mysteriously logged out. */
+  function endSession(message) {
+    clearSession();
+    try { sessionStorage.setItem(SS_SESSION_ENDED, message || SESSION_ENDED_COPY); }
+    catch (e) { /* private mode: the reload still happens, just wordlessly */ }
+    location.reload();
+  }
+
+  // A 401 that survived the refresh above is a dead session, not a bug worth
+  // quoting. Anything else keeps its own message: a full chain, a 403 gate and
+  // a lost reply all carry sentences this page wrote deliberately.
+  function moneyPathError(err) {
+    if (err && err.status === 401) return SESSION_ENDED_COPY;
+    return String((err && err.message) || err);
+  }
   var currentBody = null;   // {body_id, class_code, capacity, chain, ...}
   var selectedShare = null;
   var mapData = null;       // { bodies: [...], grid: {width,height}, district_size: {...} }
@@ -765,7 +883,39 @@
   var myEntityIds = {};     // entity_id -> true, from /me/dashboard, so the player can find themselves in a chain
   var mapNeedsRefresh = false; // set after a purchase so the map re-fetches once, not on every frame
 
+  /* dev-inbox 082. `api()` is now a thin recovery wrapper around the unchanged
+     request itself. Everything the rest of this file relied on -- err.status,
+     err.bodyUnreadable, the empty-body contract -- lives in `apiOnce()` exactly
+     as before and is untouched.
+
+     THE RETRY CONDITION IS THE WHOLE SAFETY ARGUMENT, so it is spelled out
+     rather than left to the reader:
+       - `err.status !== 401` -> rethrow. A lost 2xx keeps its real 2xx status,
+         so `bodyUnreadable` can never reach the retry (dev-inbox 053).
+       - `opts.noAuthRetry` -> rethrow. Set on the retry itself and on the
+         refresh call, which caps this at ONE refresh and ONE retry.
+       - a `/auth/...` path -> rethrow. A 401 from login is "wrong password" and
+         a 401 from refresh is "your refresh token is dead" -- both are answers,
+         and retrying either would be a loop.
+       - no refresh token held -> rethrow, there is nothing to recover with. */
   async function api(path, opts) {
+    opts = opts || {};
+    try {
+      return await apiOnce(path, opts);
+    } catch (err) {
+      if (!err || err.status !== 401) throw err;
+      if (opts.noAuthRetry) throw err;
+      if (String(path).indexOf("/auth/") === 0) throw err;
+      if (!session || !session.refresh_token) throw err;
+      var renewed = await refreshSession();
+      if (!renewed) throw err;
+      // apiOnce() reads the module-level `session` when it builds the header,
+      // so the retry carries the token the refresh just installed.
+      return await apiOnce(path, Object.assign({}, opts, { noAuthRetry: true }));
+    }
+  }
+
+  async function apiOnce(path, opts) {
     opts = opts || {};
     var headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
     if (session && session.access_token) headers.Authorization = "Bearer " + session.access_token;
@@ -876,8 +1026,11 @@
     try {
       var data = await api(path, { method: "POST", body: { email: email, password: password } });
       if (!data.session) throw new Error("No session returned — check your email/password.");
-      session = { access_token: data.session.access_token, user_id: data.user_id, email: data.email };
-      saveSession(session);
+      // dev-inbox 082: stores the refresh token and the absolute expiry too. A
+      // backend that has not been redeployed yet simply omits both fields, and
+      // this page then behaves exactly as it did before -- no renewal, but no
+      // breakage either.
+      applySession(data.session, data.user_id, data.email);
       enterVillage(mode === "register");
     } catch (err) {
       var msg = String(err.message || err);
@@ -2481,9 +2634,28 @@
     });
   }
 
+  /* dev-inbox 082 D2.4: the panel must never offer an action it already knows
+     cannot succeed. `#confirmPurchase` lives INSIDE `#previewPanel`, and so does
+     `#purchaseError` -- so the panel cannot simply be hidden on a failure
+     without hiding the explanation with it. Disarm the button instead, and
+     blank the three preview rows so no stale number from an earlier, successful
+     preview is left standing next to an error about this one. */
+  function setConfirmArmed(armed) {
+    byId("confirmPurchase").disabled = !armed;
+    if (armed) return;
+    byId("prevPosition").textContent = "—";
+    byId("prevFloor").textContent = "—";
+    byId("prevCost").textContent = "—";
+    byId("prevDisclaimer").textContent = "";
+    byId("prevFounderNote").classList.add("aw-hidden");
+  }
+
   async function selectShare(frac) {
     selectedShare = frac;
     var prevPanel = byId("previewPanel");
+    // dev-inbox 082: renew ahead of a money-path call rather than discovering
+    // the expiry through a 401 the player has already been shown.
+    await ensureFreshSession();
     try {
       var preview = await api("/bodies/" + currentBody.body_id + "/preview", { method: "POST", body: { share: frac } });
       byId("prevPosition").textContent = "#" + preview.fixed_chain_position + (preview.is_top_up ? " (already yours)" : "");
@@ -2499,11 +2671,16 @@
         : "";
       byId("prevFounderNote").classList.toggle("aw-hidden", !willFound);
       prevPanel.classList.remove("aw-hidden");
+      setConfirmArmed(true);
       byId("purchaseError").classList.add("aw-hidden");
     } catch (err) {
       prevPanel.classList.remove("aw-hidden");
-      byId("purchaseError").textContent = String(err.message || err);
+      // dev-inbox 082 D3: never `err.message` on the money path. An expired
+      // session gets the sentence; everything else keeps the message this page
+      // or the RPC wrote on purpose.
+      byId("purchaseError").textContent = moneyPathError(err);
       byId("purchaseError").classList.remove("aw-hidden");
+      setConfirmArmed(false);
     }
   }
 
@@ -2609,6 +2786,9 @@
     if (!selectedShare) return;
     var errEl = byId("purchaseError");
     errEl.classList.add("aw-hidden");
+    // dev-inbox 082: the last and most expensive moment to be holding a dead
+    // token. Renewing here costs nothing when the session is healthy.
+    await ensureFreshSession();
     try {
       var result = await api("/bodies/" + currentBody.body_id + "/purchase", { method: "POST", body: { share: selectedShare } });
       byId("resultLine").textContent = "You are now " + result.rune.toUpperCase() + (result.rune_suffix || "") +
@@ -2659,8 +2839,12 @@
         byId("purchaseGate").scrollIntoView({ block: "center" });
         return;
       }
-      errEl.textContent = String(err.message || err);
+      // dev-inbox 082 D3. By the time a 401 reaches here, api() has already
+      // tried a refresh and it failed -- so this is a genuinely dead session
+      // and the player needs a sentence, not the library's wording.
+      errEl.textContent = moneyPathError(err);
       errEl.classList.remove("aw-hidden");
+      if (err && err.status === 401) setConfirmArmed(false);
       if (currentBody && isFullChainError(err)) await recoverFromFullChain(currentBody.body_id);
     }
   });
@@ -2707,7 +2891,7 @@
       // A read that failed tells us nothing, so it must not be rendered as a
       // state. Leave whatever we last knew on screen rather than flipping the
       // player into a dormancy or a lock we cannot substantiate.
-      if (err && err.status === 401) { clearSession(); location.reload(); }
+      if (err && err.status === 401) endSession(SESSION_ENDED_COPY); // dev-inbox 082
       return;
     }
     renderEscapeArc();
@@ -2853,7 +3037,10 @@
       byId("introBalance").textContent = money(b.balance); // the awakening quotes the real starting balance
       byId("acctChip").textContent = session.email || "—";
     } catch (err) {
-      if (err.status === 401) { clearSession(); location.reload(); }
+      // dev-inbox 082: a 401 here has already survived one refresh attempt
+      // inside api(), so the session is dead rather than merely stale. Same
+      // reload as before -- it now carries an explanation across it.
+      if (err.status === 401) endSession(SESSION_ENDED_COPY);
     }
   }
 
@@ -2883,6 +3070,24 @@
   });
 
   byId("yr") && (byId("yr").textContent = new Date().getFullYear());
+
+  /* dev-inbox 082. A backgrounded tab runs no timers worth trusting and a
+     sleeping laptop runs none at all, so the token is checked at the moment the
+     page is looked at again -- which is also the moment before the player does
+     anything with it. */
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") ensureFreshSession();
+  });
+
+  // dev-inbox 082: the sentence endSession() handed across its own reload.
+  (function showSessionEndedNotice() {
+    var msg = null;
+    try {
+      msg = sessionStorage.getItem(SS_SESSION_ENDED);
+      if (msg) sessionStorage.removeItem(SS_SESSION_ENDED);
+    } catch (e) { return; }
+    if (msg) showAuthError(msg);
+  })();
 
   if (session && session.access_token) {
     enterVillage(false);
