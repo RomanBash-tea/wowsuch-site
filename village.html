@@ -547,16 +547,13 @@
           </dl>
           <button type="button" class="btn" id="cardEnter">Enter body <span class="arrow">→</span></button>
         </div>
-        <div class="vmap-legend">
-          <span><i class="dot healthy"></i>healthy</span>
-          <span><i class="dot warning"></i>warning</span>
-          <span><i class="dot critical"></i>critical</span>
-          <span><i class="dot resting"></i>resting</span>
-          <span><i class="dot offline"></i>offline</span>
-          <span><i class="dot unknown"></i>unknown</span>
-          <span><i class="dot owned"></i>yours</span>
-          <span><i class="dot unclaimed"></i>unclaimed</span>
-        </div>
+        <!-- dev-inbox 093: the six state entries are BUILT from HEALTH_ORDER and
+             HEALTH_LABEL (see renderMapLegend), not typed here. Hand-typed markup
+             is how this legend came to print raw lowercase tokens while the card
+             and the tooltip beside it printed proper labels -- one of the two
+             surfaces that bypassed the display map entirely. The `yours` and
+             `unclaimed` entries are not health states and stay literal. -->
+        <div class="vmap-legend" id="mapLegend"></div>
       </div>
       <p class="vmap-hint" id="mapHint"></p>
       <!-- dev-inbox 076: the "Loading the village…" line moved INTO the map
@@ -1062,15 +1059,64 @@
     healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B",
     resting: "#7B5EA7", offline: "#8a8a8a", unknown: "#5B6B78"
   };
+  // dev-inbox 093: the words a BUYER reads. The stored token is unchanged and
+  // stays the internal contract -- it keys the classifier's gates, the shadow
+  // arm, three tables and 59 literals across game/tests/, and no player ever
+  // needs to see it. Only this map decides what is shown.
+  //
+  // The six tokens are not one ladder; they are three questions flattened into
+  // one column -- "is anything wrong" (healthy/warning/critical), "what is it
+  // deliberately doing" (resting), "can we see it at all" (offline/unknown).
+  // The words below are chosen so a reader is not asked to decode which question
+  // fired:
+  //   Strained   -- running, but under stress or below par. States a fact about
+  //                 the machine instead of an alarm level about our attention,
+  //                 and deliberately leaves the word "unwell" free for the
+  //                 district roll-up, which means a different scope.
+  //   Failing    -- a fault that stops it, or will damage it if left. States a
+  //                 direction. NOT "stopped" (a critical Body can still be
+  //                 hashing while overheating) and NOT "being repaired" -- this
+  //                 service has no ticket layer, so that would be a promise we
+  //                 cannot keep.
+  //   Down       -- FOREMAN says the unit is down. Since 074 that is what
+  //                 `offline` means: a positive claim by the vendor, which must
+  //                 stay distinct from our own blindness. Attributes no cause.
+  //   No signal  -- epistemic, and about US: no observation row, or Foreman's
+  //                 last_update gone stale, or our stored label gone stale. Any
+  //                 word that made this sound like a hardware condition would
+  //                 re-commit the exact defect 074 was built to remove.
+  // `Healthy` and `Resting` are kept: the first is the lore's own word, the
+  // second was already chosen as a statement about intent, not about damage.
   var HEALTH_LABEL = {
-    healthy: "Healthy", warning: "Warning", critical: "Critical",
-    resting: "Resting", offline: "Offline", unknown: "Unknown"
+    healthy: "Healthy", warning: "Strained", critical: "Failing",
+    resting: "Resting", offline: "Down", unknown: "No signal"
   };
   // The canonical order for anywhere that enumerates states -- best to worst,
   // then the two that are not a verdict about the hardware at all. A literal
   // list at each call site is how the district tooltip came to sum four of six
   // against a total of six; there should be exactly one place to add a state.
   var HEALTH_ORDER = ["healthy", "warning", "critical", "resting", "offline", "unknown"];
+  // dev-inbox 093. The legend is rendered from the same two maps every other
+  // surface reads, so it cannot drift into a second vocabulary the way it had:
+  // it was static markup printing the raw token in lower case while the card and
+  // the plot tooltip beside it already went through HEALTH_LABEL.
+  //
+  // The DOT COLOURS stay in CSS and stay keyed to the TOKEN (`.dot.healthy`),
+  // which is why the class below is `k` and not the label -- the 074 comment on
+  // that CSS block explains why the colours are hand-kept there, and this change
+  // deliberately does not disturb that arrangement.
+  function renderMapLegend() {
+    var el = byId("mapLegend");
+    if (!el) return;
+    var parts = HEALTH_ORDER.map(function (k) {
+      return '<span><i class="dot ' + k + '"></i>' + esc(HEALTH_LABEL[k]) + "</span>";
+    });
+    // Not health states: ownership and whether anyone lives there at all.
+    parts.push('<span><i class="dot owned"></i>yours</span>');
+    parts.push('<span><i class="dot unclaimed"></i>unclaimed</span>');
+    el.innerHTML = parts.join("");
+  }
+  renderMapLegend();
   // Dim factor for a Body the active filter does not point at, MULTIPLIED into
   // whatever alpha that Body already draws with. The floor keeps the faintest
   // combination (unclaimed AND filtered out) on the canvas: the filter emphasises,
@@ -1517,13 +1563,45 @@
       // would reinstate exactly the false-alarm class this redesign removes, one level
       // up at the district summary.
       //
-      // KNOWN RESIDUAL, recorded rather than quietly fixed here: a district whose
-      // Bodies are ALL `unknown` still prints "all healthy", because this line counts
-      // faults rather than checking how many Bodies are actually known. That wording
-      // belongs to the status-vocabulary rename (Asana 1217276864686957), not to this
-      // ticket, and changing it here would pre-empt a decision that card owns.
+      // The RESIDUAL the block above recorded is FIXED here -- dev-inbox 093, which
+      // is the card (Asana 1217276864686957) that 074 assigned it to by gid.
+      //
+      // The defect: the phrase was derived as `not unwell -> "all healthy"`, so a
+      // district in which every Body reads `unknown` announced "all healthy". That
+      // turns "we cannot see any of these" into a positive claim of health, on the
+      // map, silently -- the same mistake as the vocabulary itself, treating the
+      // epistemic states as if they sat on the health axis.
+      //
+      // Now derived from what is actually PRESENT, never from the complement of one
+      // set. Three branches: a fault is a fault; "all healthy" only when every Body
+      // really is healthy; otherwise name the remainder rather than claim health for
+      // Bodies that are merely resting or unobserved.
+      //
+      // ⚠️ The `unwell` SET is deliberately UNCHANGED (074 box 21b): admitting
+      // `resting` or `unknown` to it would reinstate the false-alarm class 074
+      // removed. The set was right; the phrase derived from its complement was not.
+      //
+      // Words come from HEALTH_LABEL so this line cannot become a third vocabulary,
+      // lower-cased because it reads as a sentence fragment here rather than as a
+      // status chip. "unwell" is this line's own word for its own scope and is not
+      // a state name.
       var unwell = (d.health.warning || 0) + (d.health.critical || 0) + (d.health.offline || 0);
-      var sub = d.settled + "/" + d.count + " settled · " + (unwell ? unwell + " unwell" : "all healthy");
+      var healthWord = function (k) { return HEALTH_LABEL[k].toLowerCase(); };
+      var mood;
+      if (unwell) {
+        mood = unwell + " unwell";
+      } else if ((d.health.healthy || 0) === d.count) {
+        mood = "all " + healthWord("healthy");
+      } else {
+        mood = HEALTH_ORDER
+          .filter(function (k) { return k !== "healthy" && d.health[k]; })
+          .map(function (k) { return d.health[k] + " " + healthWord(k); })
+          .join(" · ");
+      }
+      // With no usable composition the clause is simply absent rather than
+      // asserting something the payload does not support -- the same treatment
+      // `sold_pct` already gets on the plot tooltip.
+      var sub = d.settled + "/" + d.count + " settled" + (mood ? " · " + mood : "");
       c.font = "700 " + Math.max(7, CELL * 0.3) + "px 'IBM Plex Mono', monospace";
       c.strokeStyle = "rgba(10,7,1,.92)";
       c.lineWidth = Math.max(1.4, CELL * 0.1);
@@ -1932,7 +2010,16 @@
     if (pop && room === false) pop += " · " + fullReason(b).toLowerCase();
     return "<b>" + esc(bodyLabel(b)) + "</b>" +
       '<span class="muted">' + esc(sub) + "</span><br>" +
-      (HEALTH_LABEL[b.health] || "Unknown") + (taken == null ? "" : " · " + taken + "% taken") +
+      // dev-inbox 093: falls back to HEALTH_LABEL.unknown, NOT to a literal
+      // "Unknown". Before the rename those were the same string; after it,
+      // "Unknown" is a word belonging to no state at all -- a third vocabulary
+      // appearing exactly where a payload is unrecognised. Going through the map
+      // also keeps this in step with the plot COLOUR, which already falls back to
+      // HEALTH_COLOR.unknown, so the dot and the word cannot disagree.
+      // (The selection card below keeps its "—" placeholder deliberately: that
+      // means "no health value at all", it is not a state's word, and 074's
+      // box 21-pre negative control identifies the fallback by it.)
+      (HEALTH_LABEL[b.health] || HEALTH_LABEL.unknown) + (taken == null ? "" : " · " + taken + "% taken") +
       (pop ? "<br>" + esc(pop) : "") +
       (f ? '<br><span class="muted">' + esc(f) + "</span>" : "");
   }
@@ -1955,8 +2042,13 @@
     // answers "how many are in trouble" and neither a planned pause nor an
     // unobserved Body is trouble. THIS answers "what is this district made of",
     // where every Body has to be accounted for.
+    //
+    // dev-inbox 093: through HEALTH_LABEL, not the raw key. This line was the
+    // second surface that bypassed the display map -- it concatenated the token
+    // straight into the tooltip, so a district read "30 resting · 10 unknown"
+    // while the card for one of those very Bodies said "Resting" / "No signal".
     var mix = HEALTH_ORDER.filter(function (k) { return d.health[k]; })
-      .map(function (k) { return d.health[k] + " " + k; }).join(" · ");
+      .map(function (k) { return d.health[k] + " " + HEALTH_LABEL[k]; }).join(" · ");
     return "<b>" + esc(d.name) + "</b>" + d.count + " Bodies · " + Math.round(d.soldSum / d.count) + "% settled<br>" +
       '<span class="muted">' + esc(mix) + "</span><br>Click to fly in";
   }
