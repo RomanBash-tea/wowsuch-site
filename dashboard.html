@@ -440,6 +440,69 @@
   function loadGameSession() {
     try { return JSON.parse(localStorage.getItem(LS_GAME_SESSION) || "null"); } catch (e) { return null; }
   }
+  /* dev-inbox 102. Until now this page only ever READ the session, so it could
+     not renew one even when the material to do it was sitting in the same
+     object village.html writes. */
+  function saveGameSession(s) {
+    try { localStorage.setItem(LS_GAME_SESSION, JSON.stringify(s)); } catch (e) { /* private mode */ }
+  }
+  function clearGameSession() {
+    try { localStorage.removeItem(LS_GAME_SESSION); } catch (e) { /* private mode */ }
+  }
+
+  /* dev-inbox 102 §3. 082's Village sentence with its first clause dropped:
+     "while this page was open" is not necessarily true here -- a player can
+     arrive on the dashboard holding an already-dead token. Deliberately a
+     THIRD state and not a third variant of the wording. */
+  var GAME_SESSION_ENDED_COPY = "Your session ended. Log in again and your balance and Bodies will be exactly as you left them.";
+
+  /* dev-inbox 102 §4. The stored object's FIELD NAMES must match
+     village.html's `applySession()` exactly -- both pages read one object, so a
+     divergence here silently logs the player out of the other page.
+
+     `expires_at` is an ABSOLUTE deadline computed ONCE, at the instant the
+     response arrived. `expires_in` is a DURATION and is only meaningful against
+     that instant; recomputing it on load would push the deadline forward on
+     every page view and the token would then expire while the page still
+     believed it was fresh. This page never recomputes it -- it only writes it
+     here, on a response it just received. */
+  function applyRefreshedGameSession(session, payload, userId, email) {
+    var next = {
+      access_token: payload.access_token,
+      // A refresh response may legitimately omit a new refresh token and leave
+      // the existing one valid; keep what we hold rather than nulling it.
+      refresh_token: payload.refresh_token || session.refresh_token || null,
+      expires_at: payload.expires_in ? Date.now() + payload.expires_in * 1000 : null,
+      user_id: userId || session.user_id,
+      email: email || session.email
+    };
+    saveGameSession(next);
+    return next;
+  }
+
+  /* Resolves to the NEW session object, or null when the session is genuinely
+     dead. Never throws -- the caller branches on the value, not on an
+     exception, so a refresh failure cannot be mistaken for the transport
+     failure below it.
+
+     No single-flight here, unlike village.html: this page fires exactly ONE
+     authenticated call, so there is no burst of simultaneous 401s to collapse.
+     No proactive/interval refresh either (102 "Do not") -- the Village owns
+     renewal; a second timer writing the same key is a race for no gain. */
+  function refreshGameSession(session) {
+    if (!session || !session.refresh_token) return Promise.resolve(null);
+    return fetch(GAME_API_BASE + "/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+      cache: "no-store"
+    }).then(function (resp) {
+      return resp.ok ? resp.json() : null;
+    }).then(function (data) {
+      if (!data || !data.session || !data.session.access_token) return null;
+      return applyRefreshedGameSession(session, data.session, data.user_id, data.email);
+    }).catch(function () { return null; });
+  }
   function gameMoney(n) { return "$" + Number(n).toFixed(2); } // dev-inbox 062: matches village.html's money() -- game-balance amounts are USD-denominated, render as dollars
 
   /* ---- dev-inbox #049 (S4): signed rendering, payout-history ROWS ONLY ----
@@ -675,21 +738,65 @@
     }
   }
 
-  function loadGameChain() {
-    var session = loadGameSession();
-    if (!session || !session.access_token) {
-      gameStatus.className = "status soon"; gameStatus.textContent = "⏳ not signed in";
-      gameBody.innerHTML = '<p class="empty-state">Log in to see your Village chain and payout history.</p>' +
-        '<a class="btn sm" href="village.html">The Village — log in <span class="arrow">→</span></a>';
-      return;
-    }
-    fetch(GAME_API_BASE + "/me/dashboard", {
+  /* dev-inbox 102 §2. The page's existing signed-out state, reused rather than
+     given a second design -- it already carries the way back. `notice` is the
+     one sentence added above it when the session DIED, as opposed to never
+     having existed. */
+  function renderGameSignedOut(notice) {
+    gameStatus.className = "status soon"; gameStatus.textContent = "⏳ not signed in";
+    gameBody.innerHTML =
+      (notice ? '<p class="empty-state">' + esc(notice) + '</p>' : '') +
+      '<p class="empty-state">Log in to see your Village chain and payout history.</p>' +
+      '<a class="btn sm" href="village.html">The Village — log in <span class="arrow">→</span></a>';
+  }
+
+  function fetchGameDashboard(session) {
+    return fetch(GAME_API_BASE + "/me/dashboard", {
       headers: { Authorization: "Bearer " + session.access_token },
       cache: "no-store"
-    }).then(function (resp) {
-      if (!resp.ok) throw new Error(String(resp.status));
-      return resp.json();
-    }).then(renderGameChain).catch(function () {
+    });
+  }
+
+  /* dev-inbox 102. Sentinel rather than a thrown error, so "the session is
+     dead" travels down the SUCCESS path and cannot be swallowed by the catch
+     that handles transport failures. Before 102 there was one catch for all
+     three outcomes, which is why a 401, a 500 and a dropped connection all
+     rendered the same sentence -- and the one failure a player can act on was
+     indistinguishable from the two they cannot. */
+  var GAME_SESSION_DEAD = { sessionDead: true };
+
+  function loadGameChain() {
+    var session = loadGameSession();
+    if (!session || !session.access_token) { renderGameSignedOut(null); return; }
+    fetchGameDashboard(session).then(function (resp) {
+      /* Keyed on 401 and NOTHING else (102 §1). A 500, a timeout or a dropped
+         connection must not trigger a refresh or a retry: "the call failed" is
+         not evidence that the token is the problem. There is no money path on
+         this page, so this is not a double-charge guard -- it is what keeps
+         this page and the Village honest with each other. */
+      if (resp.status !== 401) {
+        if (!resp.ok) throw new Error(String(resp.status));
+        return resp.json();
+      }
+      return refreshGameSession(session).then(function (next) {
+        if (!next) return GAME_SESSION_DEAD;
+        // Exactly ONE retry, and only after a refresh that actually succeeded.
+        return fetchGameDashboard(next).then(function (retry) {
+          if (retry.status === 401) return GAME_SESSION_DEAD;
+          if (!retry.ok) throw new Error(String(retry.status));
+          return retry.json();
+        });
+      });
+    }).then(function (data) {
+      if (data === GAME_SESSION_DEAD) {
+        clearGameSession();
+        renderGameSignedOut(GAME_SESSION_ENDED_COPY);
+        return;
+      }
+      renderGameChain(data);
+    }).catch(function () {
+      // Unchanged, and deliberately so: this is now the NON-auth failure only.
+      // Nothing is cleared and nothing was refreshed to get here.
       gameStatus.className = "status kyc"; gameStatus.textContent = "⚠ error";
       gameBody.innerHTML = '<p class="empty-state">Couldn’t load your Village chain right now.</p>';
     });
