@@ -659,8 +659,8 @@
       <li class="vg-codex-entry"><b>Body</b><span>a real machine, working right now, holding your share of what it extracts.</span></li>
       <li class="vg-codex-entry"><b>Chain</b><span>the order of residents sharing one Body, lined up in the sequence they joined.</span></li>
       <li class="vg-codex-entry"><b>Keeper</b><span>a resident who watches a Body's real telemetry and earns extra for the duty.</span></li>
-      <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, credited to residents in the chain.</span></li>
-      <li class="vg-codex-entry"><b>Nightly payout</b><span>energy lands once a day; check back each morning.</span></li>
+      <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, settled nightly across the residents in the chain. Some nights a Body spends more energy than it extracts, and the settlement runs the other way.</span></li>
+      <li class="vg-codex-entry"><b>Nightly payout</b><span>the night&rsquo;s settlement lands once a day; check back each morning. It can be a credit or a debit, depending on what the Body did that night.</span></li>
     </ul>
     <p class="vg-codex-closing">This phase runs on a game balance only — practice energy, not real money.</p>
   </div>
@@ -2574,7 +2574,14 @@
     // set both for a returning owner and right after a fresh purchase above).
     if (b.is_top_up) {
       showBeat(byId("chainViewBeatSlot"), "chain_view", "Meet your chain.",
-        "These are the residents sharing this Body with you, lined up in the order they joined. Look after the chain, and it looks after you.");
+        /* dev-inbox 084 §4. This used to end "Look after the chain, and it looks
+           after you." — a reciprocity promise that fires on FIRST chain view, and
+           the product then spent five nights returning a debit. It stated what the
+           chain OWES; this states how it BEHAVES. No yield claim, no implied
+           guarantee of return, inside the locked lexicon.
+           ⚠️ PROVISIONAL: this is spec 084's own DRAFT wording, not [lore]-approved
+           copy. Live and provisional is not the same as approved. */
+        "These are the residents sharing this Body with you, lined up in the order they joined. Look after the chain, and the chain carries what it earns — some nights that is more than others.");
     }
     // The player has to be able to find THEMSELVES in the chain. entity_id is the
     // exact key -- /me/dashboard hands back the player's own entity_ids, and the

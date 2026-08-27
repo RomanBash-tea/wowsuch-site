@@ -13,12 +13,36 @@
   var WOWSUCH_FEED_TOKEN = "";   // dedicated feed token — INJECTED AT DEPLOY; keep this empty-string placeholder in git, never commit the real value
 
   /* ---------- utilities ---------- */
+  /* dev-inbox 084 §6. This used to return "$" + Math.abs(n), which rendered a
+     LOSS AS A GAIN -- silently, with no error and no console warning, just a
+     plausible-looking positive number. It was latent rather than live: every
+     caller either passed a non-negative balance or wrapped it in its own sign
+     logic. Latent is not safe, though: the next caller handed an income figure
+     would have shipped that bug, and it is the failure class that survives
+     review because it looks like formatting.
+
+     Same three rules as dashboard.html's payoutRowMoney() and village.html's
+     signedMoney(), so the three cannot drift apart:
+       - the sign is judged on the ROUNDED magnitude, never the raw value, so
+         what is shown and what is signed can never disagree;
+       - a value that rounds to zero prints NO sign -- -0.001 renders "$0.00",
+         not "-$0.00", which reads as a rendering fault rather than a number;
+       - the sign sits AHEAD of the unit ("-$1.20", never "$-1.20").
+     Unlike payoutRowMoney() this does not prefix "+" on a gain: it is the
+     general-purpose formatter, not a ledger-row one.
+
+     A caller that genuinely wants a magnitude calls Math.abs() at its own call
+     site, where the intent is visible. */
   function money(n) {
-    var abs = Math.abs(n);
-    return "$" + abs.toLocaleString(undefined, {
-      minimumFractionDigits: abs < 1000 ? 2 : 0,
-      maximumFractionDigits: abs < 1000 ? 2 : 0
+    var num = Number(n) || 0;
+    var abs = Math.abs(num);
+    var digits = abs < 1000 ? 2 : 0;
+    var mag = abs.toLocaleString(undefined, {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
     });
+    var roundsToZero = parseFloat(abs.toFixed(digits)) === 0;
+    return (num < 0 && !roundsToZero ? "-$" : "$") + mag;
   }
   function whole(n) { return "$" + Math.round(n).toLocaleString(); }
   function hashStr(gh) {
@@ -314,27 +338,85 @@
   wireChat(byId("fcBody"), byId("fcChips"), byId("fcForm"), byId("fcText"));
 
   /* ---------- charts ---------- */
-  function renderChart(svg, data, color, fill) {
+  /* dev-inbox 084 §1. This auto-scaled to the series min/max with NO zero
+     baseline and filled down to the PLOT FLOOR, so five straight losing nights
+     drew as a rising green area -- a shape that says "up and to the right"
+     while every value in it is a loss. The axis compounded it: Math.round() on
+     a sub-dollar range collapsed all five labels to "0".
+
+     Three fixes, and all three are needed together:
+       - zero is forced INTO the domain whenever the series contains a negative
+         value, and a visible zero rule is drawn;
+       - the area fills FROM THE ZERO LINE rather than the plot floor, split by
+         a gradient with a hard stop exactly at zero, so ground below zero
+         carries the loss colour and ground above it the gain colour;
+       - axis labels carry enough precision for the range, and if they still
+         come out identical the precision is raised until they do not.
+
+     `lossFill` is optional so the existing all-positive callers (buy.html's
+     difficulty and price charts) are unaffected. */
+  var _chartGradSeq = 0;
+  function renderChart(svg, data, color, fill, lossFill) {
     if (!svg) return;
     var W = 520, H = 240, pl = 44, pr = 14, pt = 18, pb = 30;
     var min = Math.min.apply(null, data), max = Math.max.apply(null, data);
+    var hasNegative = data.some(function (v) { return v < 0; });
+    // Forced BEFORE the padding, so the padding cannot push zero back out.
+    if (hasNegative) { min = Math.min(min, 0); max = Math.max(max, 0); }
     var range = (max - min) || 1;
     min -= range * 0.12; max += range * 0.12; range = max - min;
     var iw = W - pl - pr, ih = H - pt - pb;
     function X(i) { return pl + i * iw / (data.length - 1); }
     function Y(v) { return pt + (1 - (v - min) / range) * ih; }
+
+    // Enough precision that the five labels are actually different numbers.
+    // A run of identical "0"s is what the old Math.round() produced on any
+    // sub-dollar range, and it reads as "there is nothing here".
+    function axisLabels() {
+      for (var d = (range < 1 ? 2 : range < 10 ? 1 : 0); d <= 4; d++) {
+        var out = [], seen = {}, dupe = false;
+        for (var k = 0; k <= 4; k++) {
+          var t = (max - range * k / 4).toFixed(d);
+          if (seen[t]) dupe = true;
+          seen[t] = 1; out.push(t);
+        }
+        if (!dupe) return out;
+      }
+      return null;
+    }
+    var labels = axisLabels() || ["", "", "", "", ""];
+
     var g = "";
     for (var k = 0; k <= 4; k++) {
-      var gy = pt + ih * k / 4, gv = max - range * k / 4;
+      var gy = pt + ih * k / 4;
       g += '<line x1="' + pl + '" y1="' + gy + '" x2="' + (W - pr) + '" y2="' + gy + '" stroke="#2B1D05" stroke-width="1" opacity="0.12"/>';
-      g += '<text x="' + (pl - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-family="IBM Plex Mono,monospace" font-weight="600" font-size="10" fill="#6A5224" opacity="0.75">' + Math.round(gv) + "</text>";
+      g += '<text x="' + (pl - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-family="IBM Plex Mono,monospace" font-weight="600" font-size="10" fill="#6A5224" opacity="0.75">' + labels[k] + "</text>";
     }
+
+    // The area's base: the zero line when the series crosses it, the plot floor
+    // otherwise (which is the pre-084 behaviour, unchanged for positive series).
+    var baseY = hasNegative ? Y(0) : pt + ih;
+    var defs = "", areaFill = fill;
+    if (hasNegative) {
+      var gid = "wowChartSplit" + (++_chartGradSeq);
+      var zeroFrac = Math.max(0, Math.min(1, (baseY - pt) / ih));
+      var loss = lossFill || "rgba(176,42,42,0.18)";
+      defs = '<defs><linearGradient id="' + gid + '" gradientUnits="userSpaceOnUse" x1="0" y1="' + pt + '" x2="0" y2="' + (pt + ih) + '">' +
+        '<stop offset="0" stop-color="' + fill + '"/>' +
+        '<stop offset="' + zeroFrac.toFixed(4) + '" stop-color="' + fill + '"/>' +
+        '<stop offset="' + zeroFrac.toFixed(4) + '" stop-color="' + loss + '"/>' +
+        '<stop offset="1" stop-color="' + loss + '"/></linearGradient></defs>';
+      areaFill = "url(#" + gid + ")";
+      g += '<line x1="' + pl + '" y1="' + baseY.toFixed(1) + '" x2="' + (W - pr) + '" y2="' + baseY.toFixed(1) +
+        '" stroke="#2B1D05" stroke-width="1.5" opacity="0.55" stroke-dasharray="4 3"/>';
+    }
+
     var pts = data.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); });
     var area = "M" + X(0).toFixed(1) + "," + Y(data[0]).toFixed(1) + " L" + pts.join(" L") +
-      " L" + X(data.length - 1).toFixed(1) + "," + (pt + ih) + " L" + pl + "," + (pt + ih) + " Z";
+      " L" + X(data.length - 1).toFixed(1) + "," + baseY.toFixed(1) + " L" + pl + "," + baseY.toFixed(1) + " Z";
     var lx = X(data.length - 1), ly = Y(data[data.length - 1]);
-    svg.innerHTML = g +
-      '<path d="' + area + '" fill="' + fill + '"/>' +
+    svg.innerHTML = defs + g +
+      '<path d="' + area + '" fill="' + areaFill + '"/>' +
       '<polyline points="' + pts.join(" ") + '" fill="none" stroke="' + color + '" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>' +
       '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="5.5" fill="' + color + '" stroke="#2B1D05" stroke-width="2.5"/>' +
       '<text x="' + pl + '" y="' + (H - 8) + '" font-family="Nunito,sans-serif" font-weight="700" font-size="11" fill="#6A5224">12 mo ago</text>' +

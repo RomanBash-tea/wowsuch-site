@@ -238,8 +238,8 @@
       <li class="vg-codex-entry"><b>Body</b><span>a real machine, working right now, holding your share of what it extracts.</span></li>
       <li class="vg-codex-entry"><b>Chain</b><span>the order of residents sharing one Body, lined up in the sequence they joined.</span></li>
       <li class="vg-codex-entry"><b>Keeper</b><span>a resident who watches a Body's real telemetry and earns extra for the duty.</span></li>
-      <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, credited to residents in the chain.</span></li>
-      <li class="vg-codex-entry"><b>Nightly payout</b><span>energy lands once a day; check back each morning.</span></li>
+      <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, settled nightly across the residents in the chain. Some nights a Body spends more energy than it extracts, and the settlement runs the other way.</span></li>
+      <li class="vg-codex-entry"><b>Nightly payout</b><span>the night&rsquo;s settlement lands once a day; check back each morning. It can be a credit or a debit, depending on what the Body did that night.</span></li>
     </ul>
     <p class="vg-codex-closing">This phase runs on a game balance only — practice energy, not real money.</p>
   </div>
@@ -401,10 +401,13 @@
     if (feedStatus) { feedStatus.className = "status live"; feedStatus.innerHTML = '<span class="d"></span> live'; }
 
     var netDay = earnings.net_24h_usd, net7 = earnings.net_7d_usd;
-    // net_* can be genuinely negative (real net-loss data) — W.money() only ever
-    // renders the unsigned magnitude, so prepend the sign ourselves (same
-    // convention lease.html uses for its cost lines) to render truthfully.
-    function fmtNet(n) { return n == null ? "—" : (n < 0 ? "-" : "") + W.money(n); }
+    /* dev-inbox 084 §6. This used to prepend the sign itself, because W.money()
+       returned only the unsigned magnitude. money() is now sign-correct, so
+       prepending here as well would render "--$1.20" — a caller-side workaround
+       outliving the defect it worked around. Left as a named wrapper rather than
+       inlined: the null-to-"—" branch is still this tile's own, and the name is
+       where a reader looks for how a net figure is rendered. */
+    function fmtNet(n) { return n == null ? "—" : W.money(n); }
     var tiles = feedTile("Active miners", (fleet.active_miners || 0).toLocaleString()) +
       feedTile("Total miners", (fleet.total_miners || 0).toLocaleString()) +
       feedTile("Total hashrate", W.hashStr(fleet.total_ghs || 0)) +
@@ -422,11 +425,21 @@
       '<div class="chart-card"><div class="chart-head"><h3>Net earnings</h3><span class="illus">live · ~10 min refresh</span></div>' +
       (canChartNet ? '<svg id="feedChartNet" viewBox="0 0 520 240" role="img" aria-label="Net earnings trend"></svg>' :
         '<p class="chart-note">Net-earnings trend isn’t available yet for this account.</p>') +
+      /* dev-inbox 084 §1's honest limit, and it is the half that matters most:
+         this tile plots the REAL fleet feed, not the player's payout. Nothing on
+         the page said so, and a player reads a chart on their own dashboard as
+         their own earnings. Fixing the axis without this label would leave a
+         truthful chart in a misleading place. */
+      '<p class="chart-note">Fleet output, measured — not your payout.</p>' +
       '</div></div>';
 
     feedBody.innerHTML = '<div class="feed-tiles">' + tiles + '</div>' + charts;
     if (canChartGhs) W.renderChart(byId("feedChartGhs"), ghs, "#C77A08", "rgba(199,122,8,0.16)");
-    if (canChartNet) W.renderChart(byId("feedChartNet"), netUsd, "#1E8A4C", "rgba(30,138,76,0.16)");
+    // dev-inbox 084 §1: the 5th argument is the BELOW-ZERO fill. Without it a
+    // losing stretch would still be painted in the gain colour, which is the
+    // whole defect. Only this chart passes it — the hashrate series cannot go
+    // negative, so it keeps the two-colour-free path.
+    if (canChartNet) W.renderChart(byId("feedChartNet"), netUsd, "#1E8A4C", "rgba(30,138,76,0.16)", "rgba(176,42,42,0.20)");
   }
   document.addEventListener("wow:feed", function (e) { renderFeed(e.detail); });
   if (W.fetchFeed) W.fetchFeed();
