@@ -128,9 +128,28 @@
   .vmap-legend .dot.resting{background:#7B5EA7;}
   .vmap-legend .dot.offline{background:#8a8a8a;}
   .vmap-legend .dot.unknown{background:#5B6B78;}
+  /* dev-inbox 121. NOT a seventh health colour. The danger mark is an OVERLAY the
+     canvas strokes on top of whatever HEALTH_COLOR a Body already carries, so this
+     swatch is a neutral ground with the ring over it rather than one more flat fill
+     -- a reader who saw a solid colour here would look for it on the map and never
+     find it. Hand-kept in step with DANGER_RING_COLOR in the JS, exactly as the
+     074 comment above requires of the six health dots. */
+  .vmap-legend .dot.danger{background:#6E6257;box-shadow:inset 0 0 0 2.5px #120C03;}
   .vmap-legend .dot.owned{background:transparent;border:2px solid #FFB92E;}
   .vmap-legend .dot.unclaimed{background:rgba(138,138,138,.35);border:1px solid rgba(255,216,115,.8);}
   .vmap-hint{font-size:.82rem;color:var(--soft-on-dark);font-weight:600;margin-top:8px;max-width:70ch;}
+  /* dev-inbox 121: the badge and its reason line. The badge rides BESIDE a health
+     word on the map card and leads the block in the detail panel. Deliberately
+     muted -- dark ground, no red, no motion: this states a condition about a Body,
+     it is not an alarm competing with the page for attention. */
+  .vg-danger-badge{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;
+    font-family:var(--mono);font-size:.62rem;font-weight:800;text-transform:uppercase;
+    letter-spacing:.04em;color:#FFE7C2;background:#120C03;border:1px solid #6E6257;
+    vertical-align:middle;white-space:nowrap;}
+  .vg-danger{margin-top:12px;padding:10px 12px;border-radius:var(--r-sm);
+    background:rgba(18,12,3,.55);border-left:3px solid #6E6257;}
+  .vg-danger .vg-danger-badge{margin-left:0;}
+  .vg-danger p{margin:6px 0 0;font-size:.86rem;line-height:1.5;color:var(--soft-on-dark);}
 
   /* ---- village map: the fleet -> district -> body navigation model ----
      Roman, 2026-08-04: "the map is not intuitive -- at some point you simply
@@ -572,6 +591,11 @@
       <p class="vg-founder aw-hidden" id="detailFounder"></p>
       <p class="vg-error aw-hidden" id="detailError" style="color:#FF9C8F"></p>
       <div class="aw-occ-bar"><div class="aw-occ-fill" id="detailOccFill" style="width:0%"></div></div>
+      <!-- dev-inbox 121: above the telemetry strip on purpose. The strip is the
+           reading; this is the verdict about the reading, and a player who scrolls
+           past a hashrate of zero must not have to reach the numbers to be told the
+           Body is in danger. Filled by renderDangerBlock(). -->
+      <div class="vg-danger aw-hidden" id="detailDanger"></div>
       <div class="vg-telemetry aw-hidden" id="detailTelemetry"></div>
       <div id="chainViewBeatSlot"></div>
       <ol class="aw-chain-list" id="detailChainList"></ol>
@@ -1212,6 +1236,14 @@
     healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B",
     resting: "#7B5EA7", offline: "#8a8a8a", unknown: "#5B6B78"
   };
+  // dev-inbox 121. Deliberately NOT a member of HEALTH_COLOR, and the reason is the
+  // same one the block above gives for its fallbacks: a Body in danger still has a
+  // health state, and the map has to keep saying which. Adding a seventh entry here
+  // would make the two mutually exclusive and silently drop the health reading for
+  // exactly the Bodies a player most needs it on. Near-black, so the ring reads as
+  // a ring against all six fills instead of arriving as a colour of its own.
+  // Hand-kept in step with `.vmap-legend .dot.danger` in the CSS.
+  var DANGER_RING_COLOR = "#120C03";
   // dev-inbox 093: the words a BUYER reads. The stored token is unchanged and
   // stays the internal contract -- it keys the classifier's gates, the shadow
   // arm, three tables and 59 literals across game/tests/, and no player ever
@@ -1264,6 +1296,10 @@
     var parts = HEALTH_ORDER.map(function (k) {
       return '<span><i class="dot ' + k + '"></i>' + esc(HEALTH_LABEL[k]) + "</span>";
     });
+    // dev-inbox 121. Appended rather than added to HEALTH_ORDER, because that list
+    // is a PARTITION -- the district roll-up sums over it and expects the six to
+    // account for every Body exactly once. Danger rides on top of any of them.
+    parts.push('<span><i class="dot danger"></i>In danger</span>');
     // Not health states: ownership and whether anyone lives there at all.
     parts.push('<span><i class="dot owned"></i>yours</span>');
     parts.push('<span><i class="dot unclaimed"></i>unclaimed</span>');
@@ -1570,6 +1606,21 @@
       c.fillStyle = HEALTH_COLOR[b.health] || HEALTH_COLOR.unknown;
       c.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
       c.globalAlpha = dim; // outline, ring and labels fade with the plot they belong to
+      // dev-inbox 121: the danger overlay. Stroked OVER the health fill, never in
+      // place of it -- the fill still says what state the Body is in and this says
+      // it is in danger on top of that. No animation, no glow, no second hue: at
+      // fleet zoom ~1000 plots share this canvas, and anything that pulses turns a
+      // serious signal into decoration. Kept clear of the tile edge (0.34 + half of
+      // 0.11 = 0.395 of a cell) so it can never fuse with the gold owned outline or
+      // the unclaimed stroke, which both ride at the border.
+      if (b.danger) {
+        c.strokeStyle = DANGER_RING_COLOR;
+        c.lineWidth = Math.max(1, CELL * 0.11);
+        c.setLineDash([]); // explicit: another branch may have left a pattern set
+        c.beginPath();
+        c.arc(x + CELL / 2, y + CELL / 2, CELL * 0.34, 0, Math.PI * 2);
+        c.stroke();
+      }
       // The "unclaimed" outline only earns its keep where a plot is the thing
       // you're aiming at. At fleet level it turned the whole map into a grid of
       // outlines; the faded fill alone carries the distinction there.
@@ -2234,7 +2285,13 @@
     var f = founderLine(b, false);
     byId("cardFounder").textContent = f ? f.charAt(0).toUpperCase() + f.slice(1) : "";
     byId("cardFounder").classList.toggle("aw-hidden", !f);
-    byId("cardHealth").textContent = HEALTH_LABEL[b.health] || "—";
+    // dev-inbox 121: the badge rides BESIDE the health word and never replaces it,
+    // for the same reason the ring is not a seventh colour -- "In danger" is an
+    // overlay on a health state, not one more value this row can take. Both halves
+    // are controlled literals (HEALTH_LABEL, and a fixed span), so innerHTML here
+    // interpolates nothing that came off the wire.
+    byId("cardHealth").innerHTML = esc(HEALTH_LABEL[b.health] || "—") +
+      (b.danger ? '<span class="vg-danger-badge">In danger</span>' : "");
     byId("cardSold").textContent = soldPctText(b);
     // Says what the two numbers around it mean, so the player does not do the
     // arithmetic -- read through hasRoom(), so "Taken 100%" can never sit over
@@ -2515,11 +2572,68 @@
     if (mins < 60) return mins + "m ago";
     return Math.round(mins / 60) + "h ago";
   }
+  /* ---- dev-inbox 121: the danger band in the detail panel ----
+     TWO payloads can carry the word and they arrive in that order: the MAP row is
+     already in hand when the Body opens, the telemetry read lands a round-trip
+     later. So the map row paints first and telemetry overrides it when it arrives.
+     The cache is keyed by body id because renderBodyDetail() runs BEFORE the fetch
+     resolves -- without the key, a reading belonging to the Body the player just
+     left would paint the one they just opened, which is precisely the class of bug
+     the bodyLoadToken above exists to kill.
+     Both payloads carry `danger` (the word) AND `danger_since` (ISO-8601 UTC or
+     null) -- the since-stamp was added to spec 121's S5 contract at build time
+     precisely because this copy's `{days}` is computed from it. The condition
+     codes and the run counter are never exposed. `{days}` has a stated minimum
+     of 1, so a null `danger_since` (a state armed by the bootstrap backfill
+     whose start predates the retained observations is still stamped; null only
+     if a payload omits the key) renders "Silent for 1 day." */
+  var telemetryDanger = { bodyId: null, danger: undefined, since: null };
+  function clearTelemetryDanger() { telemetryDanger = { bodyId: null, danger: undefined, since: null }; }
+  function dangerNow() {
+    var id = enteredBody && enteredBody.id;
+    if (telemetryDanger.bodyId === id && telemetryDanger.danger !== undefined) {
+      return { state: telemetryDanger.danger, since: telemetryDanger.since };
+    }
+    if (!enteredBody) return { state: null, since: null };
+    return { state: enteredBody.danger || null, since: enteredBody.danger_since || null };
+  }
+  function renderDangerBlock() {
+    var el = byId("detailDanger");
+    if (!el) return;
+    var d = dangerNow();
+    if (!d.state) { el.innerHTML = ""; el.classList.add("aw-hidden"); return; }
+    var reason;
+    if (d.state === "silent") {
+      // Whole days, floor, minimum 1 -- a Body armed four hours ago has not been
+      // silent for "0 days", and the copy's own rule is the floor, not a rounding.
+      var days = 1;
+      if (d.since) {
+        var elapsed = Math.floor((Date.now() - new Date(d.since).getTime()) / 86400000);
+        if (elapsed > 1) days = elapsed;
+      }
+      reason = "Silent for " + days + " " + (days === 1 ? "day" : "days") +
+        ". This Body has stopped producing Energy. A Body silent this long may never wake.";
+    } else {
+      reason = "In distress. Something inside this Body is failing. Without healing, it may not survive.";
+    }
+    el.innerHTML = '<span class="vg-danger-badge">In danger</span><p>' + esc(reason) + "</p>";
+    el.classList.remove("aw-hidden");
+  }
+
   async function loadTelemetry(bodyId) {
     var slot = byId("detailTelemetry");
     slot.classList.add("aw-hidden");
     try {
       var t = await api("/bodies/" + bodyId + "/telemetry");
+      // An ABSENT key leaves the map row standing; a present null is a real "no
+      // danger" and must be able to clear a stale map row. `undefined` is the only
+      // value that means "this payload did not speak about danger".
+      telemetryDanger = {
+        bodyId: bodyId,
+        danger: (t.danger === undefined ? undefined : (t.danger || null)),
+        since: t.danger_since || null
+      };
+      renderDangerBlock();
       // dev-inbox 091 §1, step 2 of the escape quest: "open one real Body's live
       // telemetry". Marked HERE, on a telemetry payload that actually arrived --
       // not on entering the Body, and not in the catch below. A Body whose
@@ -2539,6 +2653,10 @@
       // gracefully, never block the rest of the detail panel (chain/purchase).
       slot.innerHTML = '<p class="aw-note" style="margin:0">Live telemetry isn\'t available for this Body right now.</p>';
       slot.classList.remove("aw-hidden");
+      // A failed read is not evidence about danger either way, so fall back to what
+      // the map row said rather than leaving a previous Body's reading in place.
+      clearTelemetryDanger();
+      renderDangerBlock();
     }
   }
   byId("backToList").addEventListener("click", function () { leaveBody(); });
@@ -2569,6 +2687,7 @@
     fEl.classList.toggle("aw-hidden", !founder);
     var occPct = Math.round((1 - b.share_room) * 100);
     byId("detailOccFill").style.width = occPct + "%";
+    renderDangerBlock(); // dev-inbox 121 -- map row now, telemetry overrides on arrival
     // Beat: first chain view -- fires the first time a player views the
     // detail of a chain/body they actually own an entity in (is_top_up is
     // set both for a returning owner and right after a fresh purchase above).
