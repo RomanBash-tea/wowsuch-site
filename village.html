@@ -19,7 +19,13 @@
   .dash-head{border-bottom:3px solid var(--ink);background:var(--paper);}
   .dash-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;flex-wrap:wrap;}
   .dash-head .acct{font-family:var(--mono);font-weight:700;font-size:.82rem;color:var(--ink-soft);}
-  .dash-head .head-actions{display:flex;align-items:center;gap:12px;margin-left:auto;}
+  /* flex-wrap added with dev-inbox 127's header link: this row can now hold four
+     items for a logged-in player (replay button when unlocked, Codex, the ledger
+     link, the account chip). It sits inside body{overflow-x:hidden}, so an
+     overflowing nowrap row is CLIPPED rather than scrollable -- the account chip
+     would simply leave the screen at 390px with nothing to show it had. The
+     parent .wrap already wraps; this row did not. */
+  .dash-head .head-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
   .dash-main{padding:44px 0 80px;}
   .vg-panel{max-width:520px;}
   .vg-panel label{display:block;font-weight:700;font-size:.82rem;margin-top:14px;}
@@ -327,6 +333,24 @@
     <!-- Internal: only rendered after ?replay=<passcode> matches. Not a public control. -->
     <button type="button" class="btn sm alt vg-replay" id="replayIntroBtn">▶ Replay intro</button>
     <button type="button" class="btn sm alt" id="codexBtn">📖 Village Codex</button>
+    <!-- dev-inbox 127 §1. The way into the player's own page, from anywhere on
+         the Village. Hidden for a visitor; revealed only once the player is
+         actually IN the Village, not while the Awakening is playing -- a fresh
+         registrant mid-Awakening owns nothing, and this link would take them to
+         an empty page in the middle of the one sequence that is meant to own
+         the screen. The footer link at the bottom of this page is NOT this: it
+         reads as a marketing-site link and a player who has just spent Energy
+         never scrolls to it.
+         ⚠️ THE LABEL IS THE INCUMBENT ONE, DELIBERATELY. Spec 127 §3 is a naming
+         fork reserved for [lore] ("[lore] decides and writes the final string;
+         the implementer wires it verbatim"), and it is still unruled. Wiring a
+         provisional name here would have split this page's wording from the four
+         marketing CTAs that link into the same page -- wallet.html:258 and :416,
+         buy.html:377, rent-to-own.html:477 -- and those are the surfaces a rename
+         has to move WITH it. When the fork is ruled, all eight strings change in
+         one sweep: these three, dashboard.html's <title>/og:title/twitter:title/
+         JSON-LD name/<h1>, and those four CTAs. -->
+    <a class="btn sm alt aw-hidden" id="ledgerLink" href="dashboard.html">📒 Your dashboard</a>
     <span class="acct" id="acctChip">—</span>
   </div>
 </div></div>
@@ -431,7 +455,11 @@
   <section id="villageStage" class="aw-stage aw-hidden" style="margin-top:26px">
     <span class="step-tag">YOUR GAME BALANCE</span>
     <h2><span class="vg-balance-chip" id="balanceLine">—</span></h2>
-    <p>Practice energy, not real money — watch how it moves. <button type="button" class="aw-wallet-link" id="logoutLink">Log out</button></p>
+    <!-- dev-inbox 127 §1: "place it with the balance chip, not in the footer" --
+         the chip and the ledger answer the same question and belong to the same
+         glance. This one needs no visibility wiring: #villageStage is itself
+         hidden until a session exists. -->
+    <p>Practice energy, not real money — watch how it moves. <a class="aw-wallet-link" href="dashboard.html">Your dashboard</a> · <button type="button" class="aw-wallet-link" id="logoutLink">Log out</button></p>
 
     <!-- ============ dev-inbox 091: the escape arc =========================
          Four surfaces, all of them ABOVE the map and none of them covering it.
@@ -631,6 +659,13 @@
         <h3>Welcome to the Chain</h3>
         <div id="purchaseBeatSlot"></div>
         <p id="resultLine" style="color:#fff"></p>
+        <!-- dev-inbox 127 §2. The purchase used to end on the chain roster --
+             which answers "who else is here", not "what do I now hold". This
+             panel is the one surface guaranteed to be on screen at that moment,
+             so the route out of it goes here rather than on the chain_view beat
+             further down the page. It carries NO money number: 096 settled the
+             three reconciling figures and they stay the cabinet's alone. -->
+        <div class="vg-actions" style="margin-top:14px"><a class="btn" href="dashboard.html">See what you hold <span class="arrow">→</span></a></div>
       </div>
     </div>
   </section>
@@ -1112,11 +1147,24 @@
     while (local.length < 2) local += "x";
     return local.toUpperCase();
   }
+  /* dev-inbox 127 §1. THE ONLY WRITER of the header ledger link's visibility,
+     and it is deliberately tied to the Village stage rather than to the session.
+     A session exists from the moment a registration returns, which is BEFORE the
+     Awakening plays; revealing the link there puts a live route to an empty page
+     in the header during the one sequence that is meant to own the screen, and
+     the player it offers that to owns nothing yet. Tying it here instead means
+     the two states move together and there is one place to read, including on
+     the replay path -- startIntro() below hides the stage, so it hides this too. */
+  function showVillageStage(show) {
+    byId("villageStage").classList.toggle("aw-hidden", !show);
+    byId("ledgerLink").classList.toggle("aw-hidden", !show);
+  }
+
   function startIntro() {
     byId("introRune").textContent = session ? deriveRune(session.email) : "—";
     byId("introBalance").textContent = "—";
     authGate.classList.add("aw-hidden");
-    byId("villageStage").classList.add("aw-hidden");
+    showVillageStage(false);
     byId("pageIntro").classList.add("aw-hidden");
     byId("onboarding").classList.remove("aw-hidden");
     showIntroScene(0);
@@ -1130,7 +1178,7 @@
     if (session && session.access_token) {
       // Registration-stage copy stays hidden for a signed-in player: it invites
       // them to register and pick a Body they are already standing on.
-      byId("villageStage").classList.remove("aw-hidden");
+      showVillageStage(true);
       loadMap();
     } else {
       byId("pageIntro").classList.remove("aw-hidden");
@@ -2961,12 +3009,31 @@
      landed instead of inferring it: /me/balance is authoritative and
      independent of the lost reply, and GET /bodies/{id} carries the chain, so
      the client can read its own entity back rather than guess at it. */
+  /* dev-inbox 127 §2. Measured on a 390x844 phone before this existed: the result
+     panel opens where the tier buttons were, and its CTA into the player's own page
+     landed 3px BELOW the fold -- so the one route out of the purchase was, on a
+     phone, invisible at the exact moment it is wanted.
+     ⚠️ CALL IT AFTER EVERY LAYOUT CHANGE, NOT ONCE AT THE UN-HIDE. What moves the
+     panel is not its own height but the content ABOVE it inside #bodyDetailView --
+     the chain roster, the danger block, the share tiers, and the `chain_view` beat
+     card that renderBodyDetail() inserts on a first purchase into a Body. A single
+     scroll fired at the un-hide measures a page that is about to grow underneath
+     it, which is the same off-screen result with extra steps. */
+  function scrollResultPanelIntoView() {
+    byId("resultPanel").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function recoverFromLostPurchaseReply(bodyId) {
     selectedShare = null;
     byId("previewPanel").classList.add("aw-hidden");
     byId("purchaseError").classList.add("aw-hidden");
     byId("resultLine").textContent = "Your purchase went through — only the confirmation didn't reach us. The balance above is current; reload the page to see your entity in this Body.";
     byId("resultPanel").classList.remove("aw-hidden");
+    // dev-inbox 127 §2, same reason as on the intact path -- this branch shows the
+    // same panel and owes the same route out of it. This call covers the two early
+    // returns below (no bodyId, or the player navigated away), which exit before
+    // anything can grow above the panel.
+    scrollResultPanelIntoView();
     mapNeedsRefresh = true; // this body's sold share changed, exactly as on the intact path
     await updateBalance();  // authoritative, and it swallows its own failures
     await loadOwnedBodies(); // repopulates myEntityIds, so "you" is findable in the chain below
@@ -2977,6 +3044,12 @@
     currentBody = fresh;
     currentBody.is_top_up = true; // the purchase just gave this player an active entity here
     renderBodyDetail();
+    /* dev-inbox 127 §2. renderBodyDetail() is the growth this path was missing:
+       is_top_up is true one line above, so it fires the `chain_view` beat card --
+       ABOVE #resultPanel, on exactly the first-purchase case this recovery exists
+       for -- and repaints the chain roster, the danger block and the tiers. The
+       scroll at the un-hide is stale the moment this returns. */
+    scrollResultPanelIntoView();
     var mine = (fresh.chain || []).filter(function (e) { return myEntityIds[e.entity_id]; })[0];
     // /me/dashboard is best-effort and this runs inside the click handler's own
     // catch, so anything missing leaves the honest line above rather than
@@ -2985,6 +3058,7 @@
     byId("resultLine").textContent = "Your purchase went through — the confirmation didn't reach us, so we read it back. You are " +
       mine.rune.toUpperCase() + (mine.rune_suffix || "") + " — position #" + mine.chain_position +
       ", " + Math.round(mine.share * 100) + "% of this Body.";
+    scrollResultPanelIntoView(); // this line is longer than the one it replaces, so the panel just grew
   }
 
   byId("confirmPurchase").addEventListener("click", async function () {
@@ -3008,6 +3082,9 @@
       // Beat: purchase / incarnation -- fires right after a player's first successful body purchase.
       showBeat(byId("purchaseBeatSlot"), "purchase", "You've incarnated.",
         "That spark just became a resident — you're in a real Body now, holding your share of what it extracts.");
+      // dev-inbox 127 §2. After showBeat(), not at the un-hide above: the beat
+      // card is inserted ABOVE the panel and moves it down the page.
+      scrollResultPanelIntoView();
       mapNeedsRefresh = true; // this body's sold_pct (and possibly the ownership ring) just changed
       await updateBalance();
       // dev-inbox 091 §2: the burn strip must disappear the MOMENT the player
@@ -3023,6 +3100,13 @@
       currentBody = await api("/bodies/" + reloadId);
       currentBody.is_top_up = true; // this purchase just gave the player an active entity here
       renderBodyDetail();
+      /* dev-inbox 127 §2. The SAME staleness the recovery path has, and it was
+         missed here first: is_top_up is true one line above, so renderBodyDetail()
+         fires the `chain_view` beat and repaints the roster, the danger block and
+         the tiers -- all of it ABOVE #resultPanel. Everything between the scroll
+         at showBeat() and this line is awaited, so the page has had four round
+         trips to move underneath that scroll. Re-centre on the settled layout. */
+      scrollResultPanelIntoView();
     } catch (err) {
       /* Checked before the error line is painted, because this branch is the
          one case in this handler where "the call threw" does not mean "the
@@ -3274,7 +3358,7 @@
     if (freshRegistration || !hasSeenIntro()) {
       startIntro();
     } else {
-      byId("villageStage").classList.remove("aw-hidden");
+      showVillageStage(true); // dev-inbox 127 §1 -- the stage and the header link move together
       loadMap();
     }
     updateBalance();
