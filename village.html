@@ -3257,7 +3257,7 @@
   function syncPurchaseGate() {
     var gate = byId("purchaseGate");
     if (!gate) return;
-    var locked = !!(escapeState && !escapeState.escaped);
+    var locked = !!(escapeState && !escapeState.escaped && !escapeState.holds_body);
     var inBody = !byId("bodyDetailView").classList.contains("aw-hidden");
     gate.classList.toggle("aw-hidden", !(locked && inBody));
     // The share picker is the purchase action's entry point, so it is what the
