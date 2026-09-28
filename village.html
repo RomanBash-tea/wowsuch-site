@@ -455,6 +455,9 @@
   <section id="villageStage" class="aw-stage aw-hidden" style="margin-top:26px">
     <span class="step-tag">YOUR GAME BALANCE</span>
     <h2><span class="vg-balance-chip" id="balanceLine">—</span></h2>
+    <!-- dev-inbox 129: a failed balance read must not look like one still loading. -->
+    <p class="aw-hidden" id="balanceFail"><span id="balanceFailMsg"></span>
+      <button type="button" class="btn sm alt" id="balanceRetry">Try again</button></p>
     <!-- dev-inbox 127 §1: "place it with the balance chip, not in the footer" --
          the chip and the ledger answer the same question and belong to the same
          glance. This one needs no visibility wiring: #villageStage is itself
@@ -922,6 +925,7 @@
      so the player is told what happened instead of finding themselves
      mysteriously logged out. */
   function endSession(message) {
+    clearTimeout(balanceRetryTimer); // dev-inbox 129: no balance retry outlives the session
     clearSession();
     try { sessionStorage.setItem(SS_SESSION_ENDED, message || SESSION_ENDED_COPY); }
     catch (e) { /* private mode: the reload still happens, just wordlessly */ }
@@ -3336,19 +3340,71 @@
   }
 
   /* ---------------- session bootstrap ---------------- */
-  async function updateBalance() {
+  // dev-inbox 129. Worded after MAP_FAILURE_COPY on purpose: same situation,
+  // same house voice, no new claim.
+  var BALANCE_FAILURE_COPY = "Your balance did not answer. Give it a moment, then try again.";
+  var balanceRetryTimer = null;
+  // The rule, chosen to be NO WORSE than the pre-129 page in any ordering of
+  // overlapping calls (enterVillage, the replay button and the purchase flow
+  // all call this, some unawaited):
+  //   * ANY success paints, hides the failure line and retires a pending
+  //     retry -- exactly what a success always did here; a read that succeeded
+  //     is real data.
+  //   * a FAILURE speaks only if (i) no read was issued after it and (ii) no
+  //     read succeeded after it was issued. Then "did not answer" is true of
+  //     everything the page has asked since -- it can never appear beside a
+  //     balance that loaded after the failed request went out, whichever order
+  //     the requests were issued or settled in.
+  // Accepted residue, same as before 129: if the newest read never settles
+  // (a hung request), nothing speaks -- the chip keeps what it had.
+  var balanceGen = 0;          // reads issued
+  var balanceSettled = 0;      // reads settled, success or failure
+  var balanceLastOk = 0;       // balanceSettled value at the latest success
+
+  async function updateBalance(isRetry) {
+    var gen = ++balanceGen;
+    var settledAtIssue = balanceSettled;
+    // The chip is local session data, not part of the balance read -- written
+    // first so a failed read (dev-inbox 129) does not also blank the account.
+    if (session) byId("acctChip").textContent = session.email || "—";
     try {
       var b = await api("/me/balance");
+      balanceLastOk = ++balanceSettled;
       setBalance(b.balance);
       byId("introBalance").textContent = money(b.balance); // the awakening quotes the real starting balance
-      byId("acctChip").textContent = session.email || "—";
+      // A read succeeded: retire any retry an earlier failure scheduled, or that
+      // stale retry could fail after this and show "did not answer" beside a
+      // balance that just loaded.
+      clearTimeout(balanceRetryTimer);
+      byId("balanceFail").classList.add("aw-hidden");
     } catch (err) {
       // dev-inbox 082: a 401 here has already survived one refresh attempt
       // inside api(), so the session is dead rather than merely stale. Same
       // reload as before -- it now carries an explanation across it.
-      if (err.status === 401) endSession(SESSION_ENDED_COPY);
+      balanceSettled++;
+      if (err.status === 401) { endSession(SESSION_ENDED_COPY); return; }
+      // A newer read owns the outcome, or a read succeeded since this one went out.
+      if (gen !== balanceGen || balanceLastOk > settledAtIssue) return;
+      // dev-inbox 129: anything else (the observed case is an intermittent 400,
+      // never reproduced) is NOT a dead session, so it must never reuse
+      // endSession(). Retry once, quietly -- the only observed instance cleared
+      // on the next run -- then say plainly that the read failed, rather than
+      // leaving the "—" a player reads as "still loading".
+      if (!isRetry) {
+        clearTimeout(balanceRetryTimer);
+        balanceRetryTimer = setTimeout(function () { updateBalance(true); }, 2000);
+        return;
+      }
+      if (currentBalance === null) byId("balanceLine").textContent = "—";
+      byId("balanceFailMsg").textContent = BALANCE_FAILURE_COPY;
+      byId("balanceFail").classList.remove("aw-hidden");
     }
   }
+  byId("balanceRetry").addEventListener("click", function () {
+    clearTimeout(balanceRetryTimer); // no duplicate request alongside the click
+    byId("balanceFail").classList.add("aw-hidden");
+    updateBalance(true);
+  });
 
   function enterVillage(freshRegistration) {
     authGate.classList.add("aw-hidden");
@@ -3371,6 +3427,7 @@
   }
 
   byId("logoutLink").addEventListener("click", function () {
+    clearTimeout(balanceRetryTimer); // dev-inbox 129
     clearSession();
     location.reload();
   });
