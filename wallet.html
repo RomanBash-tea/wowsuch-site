@@ -51,6 +51,11 @@
   @media(max-width:900px){.contact-grid{grid-template-columns:1fr;}}
   .cta-final{background:var(--gold);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);}
   .cta-final .eyebrow{color:var(--ink);}
+  /* dev-inbox 131: this page's stat row has 4 tiles, not the shared 5 (the
+     uptime tile for a wallet that does not exist yet was removed): one row of
+     4 on wide screens, 2x2 below that instead of the shared 3+1. */
+  @media(min-width:1041px){#numbers .stats-grid{grid-template-columns:repeat(4,1fr);}}
+  @media(max-width:1040px){#numbers .stats-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body class="has-mobile-cta">
@@ -164,7 +169,6 @@
       <div class="stat"><div class="num">$0</div><div class="lab">to open, ever</div></div>
       <div class="stat"><div class="num">Proven</div><div class="lab">Antminer L9 hardware</div></div>
       <div class="stat"><div class="num">0</div><div class="lab">keys we ever hold</div></div>
-      <div class="stat"><div class="num"><span class="count" data-target="99" data-dec="0">99</span>.9%</div><div class="lab">wallet infra uptime</div></div>
     </div>
   </div>
 </div></section>
@@ -172,16 +176,16 @@
 <!-- ============ WHAT'S INSIDE ============ -->
 <section id="coins" class="band-alt"><div class="wrap">
   <div class="sec-head center reveal"><span class="eyebrow">much coins, very simple</span>
-    <h2>What's inside your wallet</h2>
-    <p>One account, five coins, zero custodial risk.</p>
+    <h2>What your wallet will hold</h2>
+    <p>Planned: one account, five coins, and keys only you hold.</p>
   </div>
   <div class="specsheet reveal">
     <div class="spec-row"><span class="k">Coins supported</span><span class="v">DOGE · LTC · BTC · ETH · USDC</span></div>
     <div class="spec-row"><span class="k">Custody model</span><span class="v">MPC self-custody (planned) — only you will hold the keys</span></div>
     <div class="spec-row"><span class="k">Cost to open</span><span class="v">$0</span></div>
-    <div class="spec-row"><span class="k">Activation time</span><span class="v">under a minute</span></div>
-    <div class="spec-row"><span class="k">Withdrawals</span><span class="v">any time, to any wallet</span></div>
-    <div class="spec-row"><span class="k">Who else uses it</span><span class="v">every WowSuch mining payout lands here</span></div>
+    <div class="spec-row"><span class="k">Activation time</span><span class="v">under a minute (planned)</span></div>
+    <div class="spec-row"><span class="k">Withdrawals</span><span class="v">any time, to any wallet (planned)</span></div>
+    <div class="spec-row"><span class="k">Payouts</span><span class="v">planned home for WowSuch mining payouts</span></div>
   </div>
 </div></section>
 
