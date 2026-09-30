@@ -58,6 +58,9 @@
   .aw-panel{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
     padding:18px 20px;margin-top:18px;max-width:640px;}
   .aw-panel h3{font-family:var(--display);color:#fff;font-size:1rem;margin:0 0 10px;}
+  /* dev-inbox 135: the watch block's heading sits on the same dark panel as h3;
+     without this it inherits body --ink and reads ~1:1 (refute review 2026-09-30). */
+  .aw-panel .watch-block h4{font-family:var(--display);color:#fff;font-size:.95rem;margin:0 0 6px;}
   .aw-math{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
     padding:6px 16px;margin-top:12px;}
   .aw-math .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;
@@ -804,30 +807,21 @@
     return isNaN(d.getTime()) ? "—" : d.toLocaleTimeString(undefined, WATCH_TIME_FORMAT);
   }
 
-  /* Resolves to a Response, or GAME_SESSION_DEAD. A 401 gets exactly what
-     loadGameChain() gives it: one refresh, one retry, nothing else. */
+  /* Resolves to a Response. NO refresh and NO session clearing here, on
+     purpose (refute review, 2026-09-30): the watch block is optional, this page
+     is not the renewal owner (102), and a refresh rotates the refresh token a
+     Village tab -- or a second Keep-watch click -- may be holding. A 401 is just
+     another failed response: on load the slot stays empty, on a click the
+     spec's retry sentence shows. A reload runs loadGameChain(), which renews. */
   function watchFetch(method, bodyId) {
-    function send(session) {
-      var opts = { method: method, headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" };
-      if (bodyId) {
-        opts.headers["Content-Type"] = "application/json";
-        opts.body = JSON.stringify({ body_id: bodyId });
-      }
-      return fetch(GAME_API_BASE + "/me/watch", opts);
-    }
     var session = loadGameSession();
-    if (!session || !session.access_token) return Promise.resolve(GAME_SESSION_DEAD);
-    return send(session).then(function (resp) {
-      if (resp.status !== 401) return resp;
-      return refreshGameSession(session).then(function (next) {
-        if (!next) return GAME_SESSION_DEAD;
-        return send(next).then(function (retry) { return retry.status === 401 ? GAME_SESSION_DEAD : retry; });
-      });
-    });
-  }
-  function watchSessionDead() {
-    clearGameSession();
-    renderGameSignedOut(GAME_SESSION_ENDED_COPY);
+    if (!session || !session.access_token) return Promise.reject(new Error("no session"));
+    var opts = { method: method, headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" };
+    if (bodyId) {
+      opts.headers["Content-Type"] = "application/json";
+      opts.body = JSON.stringify({ body_id: bodyId });
+    }
+    return fetch(GAME_API_BASE + "/me/watch", opts);
   }
 
   /* "Last night" is the latest period anywhere in this player's payout
@@ -874,7 +868,7 @@
       html += '<p class="aw-note"><b>' + esc(n >= 2 ? "Watch kept · " + n + " in a row" : "Watch kept") + '</b></p>' +
         '<p class="aw-note">' + esc("Next watch opens at " + watchTime(item.next_watch_at) + ".") + '</p>';
     }
-    return html + '<p class="game-note-light">' + esc("The health record comes from the machine's own reports, checked hourly.") + '</p></div>';
+    return html + '<p class="aw-note">' + esc("The health record comes from the machine's own reports, checked hourly.") + '</p></div>';
   }
 
   function renderWatchSlot(slot, item, chain, payoutLine) {
@@ -884,7 +878,6 @@
     btn.addEventListener("click", function () {
       btn.disabled = true;
       watchFetch("POST", item.body_id).then(function (resp) {
-        if (resp === GAME_SESSION_DEAD) { watchSessionDead(); return; }
         if (resp.status === 201) {
           return resp.json().then(function (next) { renderWatchSlot(slot, next, chain, payoutLine); });
         }
@@ -896,6 +889,16 @@
             item.next_watch_at = r.next_watch_at;
             item.streak = Math.max(Number(item.streak) || 0, 1);
             renderWatchSlot(slot, item, chain, payoutLine);
+            // The 409 carries no streak: read it once more so another tab's
+            // watch is counted. On any failure the state rendered above stands.
+            return watchFetch("GET").then(function (g) {
+              if (!g.ok) return;
+              return g.json().then(function (w) {
+                (w.bodies || []).forEach(function (fresh) {
+                  if (fresh.body_id === item.body_id) renderWatchSlot(slot, fresh, chain, payoutLine);
+                });
+              });
+            }).catch(function () {});
           });
         }
         throw new Error(String(resp.status));
@@ -911,7 +914,6 @@
     var chains = data.chains || [];
     if (!chains.length) return;
     watchFetch("GET").then(function (resp) {
-      if (resp === GAME_SESSION_DEAD) { watchSessionDead(); return; }
       if (!resp.ok) throw new Error(String(resp.status));
       return resp.json().then(function (w) {
         var byBody = {};
