@@ -807,6 +807,9 @@
         return;
       }
       renderGameChain(data);
+      // dev-inbox 134: the session is known-valid here -- /me/dashboard just
+      // answered with it (after at most one refresh) -- so this is the load hook.
+      recordVisit();
     }).catch(function () {
       // Unchanged, and deliberately so: this is now the NON-auth failure only.
       // Nothing is cleared and nothing was refreshed to get here.
@@ -814,7 +817,45 @@
       gameBody.innerHTML = '<p class="empty-state">Couldn’t load your Village chain right now.</p>';
     });
   }
-  if (gameBody) loadGameChain();
+  /* dev-inbox 134. "A player opened a game page" -- the only record M3's D1/D7
+     read has. Called from exactly two places: the load hook above, and the tab
+     coming back to the foreground below. NEVER from a timer, polling or session
+     renewal: a tab left open for a week must not read as a player who returned
+     every day.
+
+     No refresh here, deliberately. This page is not the renewal owner (102
+     "Do not"), and a refresh rotates the refresh token the Village tab may be
+     holding. On the foreground path the token read from storage may therefore
+     be dead (a dashboard-only tab left open past expiry); that one visit is
+     dropped rather than risking the other tab's session. The load path above
+     has already refreshed when it needed to.
+
+     Throttled per tab: skip if this tab recorded a visit under 55 minutes ago.
+     The server keys on the hour anyway; this only saves requests.
+     Fire-and-forget: no UI, no retry, errors end at one console.debug. */
+  var VISIT_THROTTLE_MS = 55 * 60 * 1000;
+  var lastVisitOkAt = 0;
+  function recordVisit() {
+    var session = loadGameSession();
+    if (!session || !session.access_token) return; // never for a logged-out visitor
+    if (Date.now() - lastVisitOkAt < VISIT_THROTTLE_MS) return;
+    fetch(GAME_API_BASE + "/me/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+      body: JSON.stringify({ page: "dashboard" }),
+      cache: "no-store"
+    }).then(function (resp) {
+      if (resp.ok) lastVisitOkAt = Date.now();
+      else console.debug("visit not recorded", resp.status);
+    }).catch(function (e) { console.debug("visit not recorded", e); });
+  }
+
+  if (gameBody) {
+    loadGameChain();
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") recordVisit();
+    });
+  }
 })();
 </script>
 </body>

@@ -3406,6 +3406,28 @@
     updateBalance(true);
   });
 
+  /* dev-inbox 134. "A player opened a game page" -- the only record M3's D1/D7
+     read has. Called from exactly two places: enterVillage() (the session is
+     established) and the tab coming back to the foreground. NEVER from a
+     timer, balance polling or session renewal: a tab left open for a week must
+     not read as a player who returned every day.
+
+     Through api(), so a stale token gets the page's one single-flight refresh
+     and one retry like every other call here. Throttled per tab: skip if this
+     tab recorded a visit under 55 minutes ago (the server keys on the hour
+     anyway; this only saves requests). Fire-and-forget: no UI, no retry loop,
+     and a failure -- 401 included -- ends at one console.debug; ending the
+     session stays updateBalance()'s job. */
+  var VISIT_THROTTLE_MS = 55 * 60 * 1000;
+  var lastVisitOkAt = 0;
+  function recordVisit() {
+    if (!session || !session.access_token) return; // never for a logged-out visitor
+    if (Date.now() - lastVisitOkAt < VISIT_THROTTLE_MS) return;
+    api("/me/visit", { method: "POST", body: { page: "village" } })
+      .then(function () { lastVisitOkAt = Date.now(); })
+      .catch(function (e) { console.debug("visit not recorded", e && e.status); });
+  }
+
   function enterVillage(freshRegistration) {
     authGate.classList.add("aw-hidden");
     // #pageIntro is registration-stage copy ("Register, pick a seeded Body...").
@@ -3424,6 +3446,7 @@
     // rather than at step 1 (091 §1 -- `escaped` is the authority over anything
     // this browser remembers).
     refreshEscape();
+    recordVisit(); // dev-inbox 134: the load hook
   }
 
   byId("logoutLink").addEventListener("click", function () {
@@ -3439,7 +3462,10 @@
      page is looked at again -- which is also the moment before the player does
      anything with it. */
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") ensureFreshSession();
+    if (document.visibilityState !== "visible") return;
+    // dev-inbox 134: the visit goes AFTER the proactive renewal, so a tab that
+    // slept past expiry records its return on the renewed token.
+    ensureFreshSession().catch(function () {}).then(function () { recordVisit(); });
   });
 
   // dev-inbox 082: the sentence endSession() handed across its own reload.
