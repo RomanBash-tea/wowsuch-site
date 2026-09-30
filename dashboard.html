@@ -69,6 +69,11 @@
   .aw-math .row:last-child{border-bottom:none;}
   .aw-math .row b{color:var(--gold-on-dark);}
   .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:14px !important;}
+  /* dev-inbox 135 (2026-09-30): `.card p{color:var(--ink-soft)}` in components.css
+     (0,1,1) outranks `.aw-note` (0,1,0), so every note on the dark cabinet panel
+     rendered dark-on-dark -- the payout-history header, the designation, the
+     reserve note, and the whole watch block. Same colour, one step more specific. */
+  .aw-panel .aw-note{color:var(--soft-on-dark);}
   .game-note-light{font-size:.85rem;color:var(--ink-soft);opacity:.85;margin-top:14px;font-weight:600;}
   .game-balance-chip{font-family:var(--mono);font-weight:800;font-size:1.1rem;}
   .aw-hidden{display:none !important;} /* not defined page-wide -- village.html/awakening.html each define it locally, this page needs it now for the Codex overlay */
