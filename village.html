@@ -299,6 +299,9 @@
   .aw-math .row b{color:var(--gold-on-dark);}
   .aw-math .row.net{font-weight:800;}
   .aw-math .row.net b{color:#fff;}
+  /* dev-inbox 136: a note line sitting between two .row lines of the panel --
+     the shared .aw-note look, with the row's own rhythm and divider. */
+  .aw-math .aw-math-note{margin:0 !important;padding:0 0 9px;border-bottom:1px solid rgba(255,185,46,.25);}
   .aw-chain-list{list-style:none;margin:14px 0 0;padding:0;}
   .aw-chain-list li{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:.82rem;
     font-weight:700;color:var(--soft-on-dark);padding:8px 0;border-bottom:1px dashed rgba(255,185,46,.25);}
@@ -650,6 +653,8 @@
         <div class="aw-math">
           <div class="row"><span>Fixed chain position</span><b id="prevPosition">—</b></div>
           <div class="row"><span>Worst-case floor (per day, for this share)</span><b id="prevFloor">—</b></div>
+          <!-- dev-inbox 136, FALLBACK copy: the spec's marketer claim-check line was blank at build, so no last-night figure is rendered. The API already returns last_night_usd; the primary copy is a copy-only switch once R-1 reads PASS. -->
+          <p class="aw-note aw-math-note" id="prevFloorNote">That is this share's floor on the worst night on record. Once you settle, your cabinet shows what every night actually paid.</p>
           <div class="row net"><span>Cost (from your game balance)</span><b id="prevCost">—</b></div>
         </div>
         <p class="vg-founder aw-hidden" id="prevFounderNote"></p>
