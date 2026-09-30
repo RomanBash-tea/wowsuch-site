@@ -61,6 +61,13 @@
   /* dev-inbox 135: the watch block's heading sits on the same dark panel as h3;
      without this it inherits body --ink and reads ~1:1 (refute review 2026-09-30). */
   .aw-panel .watch-block h4{font-family:var(--display);color:#fff;font-size:.95rem;margin:0 0 6px;}
+  /* design review 2026-09-30 S1: the payout amount carries the weight, the same
+     gold the payout table uses for figures. Scoped to the payout line so the
+     bold "Watch kept" state is not recoloured. */
+  .aw-panel .watch-block .watch-payout b{color:var(--gold-on-dark);}
+  /* design review 2026-09-30 S3: the house 3px --ink outline is ~invisible on the
+     #2A1B06 panel, so the button read as a flat lozenge (seen in a render). */
+  .aw-panel .btn{border-color:var(--gold-deep);}
   .aw-math{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
     padding:6px 16px;margin-top:12px;}
   .aw-math .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;
@@ -846,13 +853,18 @@
         if (latest !== null && p.period === latest) { found = true; total += Number(p.income_k) || 0; }
       });
     });
-    return found ? "Last night's payout: " + payoutRowMoney(total) : "No payout recorded for last night yet.";
+    // Returns ESCAPED HTML, not text: only the amount is bolded (design review
+    // 2026-09-30 S1 -- the payout is one of the two things this block exists to
+    // show, and as a plain note it weighed the same as the footnote).
+    return found
+      ? esc("Last night's payout: ") + '<b>' + esc(payoutRowMoney(total)) + '</b>'
+      : esc("No payout recorded for last night yet.");
   }
 
   function watchBlockHtml(item, chain, payoutLine) {
     var name = chain.display_name || chain.designation || (chain.class_code + " Body");
     var t = item.transitions_24h || [];
-    var html = '<div class="watch-block" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(127,127,127,.25)">' +
+    var html = '<div class="watch-block" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,185,46,.25)">' +
       '<h4>' + esc("Last night on " + name) + '</h4>';
     if (!t.length) {
       html += '<p class="aw-note">' + esc("Held steady — " + healthLabel(chain.health_status) + " all night.") + '</p>';
@@ -860,11 +872,13 @@
       html += '<p class="aw-note">' + esc(t.length === 1
         ? "The machine's health changed once in the last 24 hours:"
         : "The machine's health changed " + t.length + " times in the last 24 hours:") + '</p>' +
-        '<div class="aw-math">' + t.map(function (x) {
-          return '<div class="row"><span>' + esc(watchTime(x.observed_hour) + " · " + healthLabel(x.from_status) + " → " + healthLabel(x.to_status)) + '</span></div>';
-        }).join("") + '</div>';
+        // Plain mono lines, no frame (design review 2026-09-30 S2 (a)): a one-row
+        // gold box sat beside the Keep watch button and read like a control.
+        '<p class="aw-note num">' + t.map(function (x) {
+          return esc(watchTime(x.observed_hour) + " · " + healthLabel(x.from_status) + " → " + healthLabel(x.to_status));
+        }).join("<br>") + '</p>';
     }
-    html += '<p class="aw-note">' + esc(payoutLine) + '</p>';
+    html += '<p class="aw-note watch-payout">' + payoutLine + '</p>';
     if (!item.next_watch_at) {
       html += '<button type="button" class="btn sm" data-watch-keep="' + esc(item.body_id) + '">' + esc("Keep watch") + '</button>' +
         '<p class="aw-note watch-error" hidden>' + esc("Couldn't record the watch. Try again in a moment.") + '</p>';
