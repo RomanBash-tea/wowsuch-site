@@ -237,7 +237,7 @@
       <li class="vg-codex-entry"><b>Entity</b><span>you, before you've claimed anything to hold: a name in the ledger and a spark of your own.</span></li>
       <li class="vg-codex-entry"><b>Body</b><span>a real machine, working right now, holding your share of what it extracts.</span></li>
       <li class="vg-codex-entry"><b>Chain</b><span>the order of residents sharing one Body, lined up in the sequence they joined.</span></li>
-      <li class="vg-codex-entry"><b>Keeper</b><span>a resident who watches a Body's real telemetry and earns extra for the duty.</span></li>
+      <li class="vg-codex-entry"><b>Keeper</b><span>a resident who keeps watch over a Body's real telemetry.</span></li>
       <li class="vg-codex-entry"><b>Energy</b><span>what a Body extracts, settled nightly across the residents in the chain. Some nights a Body spends more energy than it extracts, and the settlement runs the other way.</span></li>
       <li class="vg-codex-entry"><b>Nightly payout</b><span>the night&rsquo;s settlement lands once a day; check back each morning. It can be a credit or a debit, depending on what the Body did that night.</span></li>
     </ul>
@@ -651,7 +651,10 @@
       return;
     }
     gameStatus.className = "status live"; gameStatus.innerHTML = '<span class="d"></span> live';
-    var panels = data.chains.map(function (c) {
+    /* dev-inbox 135: one overnight-watch slot per held Body, in the first card
+       for that Body; loadWatch() fills it once GET /me/watch answers. */
+    var watchSlotTaken = {};
+    var panels = data.chains.map(function (c, chainIndex) {
       var payouts = c.payouts || [];
       var rows = payouts.length
         ? payouts.map(function (p) {
@@ -697,6 +700,11 @@
          loss is under a cent is exactly the case that needs the explanation,
          and rounding it away would delete the line precisely there. */
       var absorbed = Number(c.floor_absorbed) || 0;
+      var watchSlot = "";
+      if (c.body_id && !watchSlotTaken[c.body_id]) {
+        watchSlotTaken[c.body_id] = true;
+        watchSlot = '<div data-watch-body="' + esc(c.body_id) + '" data-watch-chain="' + chainIndex + '"></div>';
+      }
       return '<div class="aw-panel">' +
         '<h3>' + esc(c.display_name || c.class_code + ' Body') +
         '<span class="' + bodyStatusClass(c.body_status) + '" style="margin-left:8px;font-size:.72rem">' + esc(BODY_STATUS_LABEL[c.body_status] || c.body_status) + '</span>' +
@@ -719,6 +727,7 @@
         '<div class="aw-math">' + rows + '</div>' +
         (showReserveNote ? '<p class="aw-note">A night can end below zero. When it does, it comes out of this Entity\'s reserve, and the reserve stops at zero — never below, and never a debt. That is why the nights above do not add up to the reserve.</p>' : "") +
         (c.body_status === "no data" ? '<p class="aw-note">No telemetry available for this Body right now.</p>' : "") +
+        watchSlot +
         '</div>';
     }).join("");
     gameBody.innerHTML =
@@ -778,6 +787,145 @@
      indistinguishable from the two they cannot. */
   var GAME_SESSION_DEAD = { sessionDead: true };
 
+  /* ---- dev-inbox 135: overnight watch (keeper watch v0) ----
+     One block per held Body, inside that Body's card: what the machine's
+     health record did in the last 24 hours, last night's payout, and the one
+     daily action -- Keep watch. A watch changes NO balance, payout, Energy,
+     share, role or chain position; it is a timestamp and a streak.
+
+     GET /me/watch is fetched ONCE per page load, after /me/dashboard answered
+     (so the session is known-valid and no two 401s can race one refresh). Never
+     on a timer. Health words come from healthLabel() -- the page's ONE display
+     map -- and money from payoutRowMoney(), the formatter the payout rows use,
+     because a night can pay a loss. Every value goes through esc(). */
+  var WATCH_TIME_FORMAT = { hour: "numeric", minute: "2-digit", hour12: true };
+  function watchTime(iso) {
+    var d = new Date(iso);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleTimeString(undefined, WATCH_TIME_FORMAT);
+  }
+
+  /* Resolves to a Response, or GAME_SESSION_DEAD. A 401 gets exactly what
+     loadGameChain() gives it: one refresh, one retry, nothing else. */
+  function watchFetch(method, bodyId) {
+    function send(session) {
+      var opts = { method: method, headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" };
+      if (bodyId) {
+        opts.headers["Content-Type"] = "application/json";
+        opts.body = JSON.stringify({ body_id: bodyId });
+      }
+      return fetch(GAME_API_BASE + "/me/watch", opts);
+    }
+    var session = loadGameSession();
+    if (!session || !session.access_token) return Promise.resolve(GAME_SESSION_DEAD);
+    return send(session).then(function (resp) {
+      if (resp.status !== 401) return resp;
+      return refreshGameSession(session).then(function (next) {
+        if (!next) return GAME_SESSION_DEAD;
+        return send(next).then(function (retry) { return retry.status === 401 ? GAME_SESSION_DEAD : retry; });
+      });
+    });
+  }
+  function watchSessionDead() {
+    clearGameSession();
+    renderGameSignedOut(GAME_SESSION_ENDED_COPY);
+  }
+
+  /* "Last night" is the latest period anywhere in this player's payout
+     history; a Body with no row for that period has no payout recorded yet. */
+  function latestPayoutPeriod(chains) {
+    var latest = null;
+    chains.forEach(function (c) {
+      (c.payouts || []).forEach(function (p) { if (latest === null || p.period > latest) latest = p.period; });
+    });
+    return latest;
+  }
+  function watchPayoutLine(bodyId, chains, latest) {
+    var found = false, total = 0;
+    chains.forEach(function (c) {
+      if (c.body_id !== bodyId) return;
+      (c.payouts || []).forEach(function (p) {
+        if (latest !== null && p.period === latest) { found = true; total += Number(p.income_k) || 0; }
+      });
+    });
+    return found ? "Last night's payout: " + payoutRowMoney(total) : "No payout recorded for last night yet.";
+  }
+
+  function watchBlockHtml(item, chain, payoutLine) {
+    var name = chain.display_name || chain.designation || (chain.class_code + " Body");
+    var t = item.transitions_24h || [];
+    var html = '<div class="watch-block" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(127,127,127,.25)">' +
+      '<h4>' + esc("Last night on " + name) + '</h4>';
+    if (!t.length) {
+      html += '<p class="aw-note">' + esc("Held steady — " + healthLabel(chain.health_status) + " all night.") + '</p>';
+    } else {
+      html += '<p class="aw-note">' + esc(t.length === 1
+        ? "The machine's health changed once in the last 24 hours:"
+        : "The machine's health changed " + t.length + " times in the last 24 hours:") + '</p>' +
+        '<div class="aw-math">' + t.map(function (x) {
+          return '<div class="row"><span>' + esc(watchTime(x.observed_hour) + " · " + healthLabel(x.from_status) + " → " + healthLabel(x.to_status)) + '</span></div>';
+        }).join("") + '</div>';
+    }
+    html += '<p class="aw-note">' + esc(payoutLine) + '</p>';
+    if (!item.next_watch_at) {
+      html += '<button type="button" class="btn sm" data-watch-keep="' + esc(item.body_id) + '">' + esc("Keep watch") + '</button>' +
+        '<p class="aw-note watch-error" hidden>' + esc("Couldn't record the watch. Try again in a moment.") + '</p>';
+    } else {
+      var n = Number(item.streak) || 0;
+      html += '<p class="aw-note"><b>' + esc(n >= 2 ? "Watch kept · " + n + " in a row" : "Watch kept") + '</b></p>' +
+        '<p class="aw-note">' + esc("Next watch opens at " + watchTime(item.next_watch_at) + ".") + '</p>';
+    }
+    return html + '<p class="game-note-light">' + esc("The health record comes from the machine's own reports, checked hourly.") + '</p></div>';
+  }
+
+  function renderWatchSlot(slot, item, chain, payoutLine) {
+    slot.innerHTML = watchBlockHtml(item, chain, payoutLine);
+    var btn = slot.querySelector("[data-watch-keep]");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      watchFetch("POST", item.body_id).then(function (resp) {
+        if (resp === GAME_SESSION_DEAD) { watchSessionDead(); return; }
+        if (resp.status === 201) {
+          return resp.json().then(function (next) { renderWatchSlot(slot, next, chain, payoutLine); });
+        }
+        if (resp.status === 409) {
+          // Already kept (another tab, or a double tap): render the not-open
+          // state from the response itself.
+          return resp.json().then(function (r) {
+            if (!r || !r.next_watch_at) throw new Error("409 without next_watch_at");
+            item.next_watch_at = r.next_watch_at;
+            item.streak = Math.max(Number(item.streak) || 0, 1);
+            renderWatchSlot(slot, item, chain, payoutLine);
+          });
+        }
+        throw new Error(String(resp.status));
+      }).catch(function () {
+        btn.disabled = false;
+        var err = slot.querySelector(".watch-error");
+        if (err) err.hidden = false;
+      });
+    });
+  }
+
+  function loadWatch(data) {
+    var chains = data.chains || [];
+    if (!chains.length) return;
+    watchFetch("GET").then(function (resp) {
+      if (resp === GAME_SESSION_DEAD) { watchSessionDead(); return; }
+      if (!resp.ok) throw new Error(String(resp.status));
+      return resp.json().then(function (w) {
+        var byBody = {};
+        (w.bodies || []).forEach(function (item) { byBody[item.body_id] = item; });
+        var latest = latestPayoutPeriod(chains);
+        Array.prototype.forEach.call(gameBody.querySelectorAll("[data-watch-body]"), function (slot) {
+          var item = byBody[slot.getAttribute("data-watch-body")];
+          var chain = chains[Number(slot.getAttribute("data-watch-chain"))];
+          if (item && chain) renderWatchSlot(slot, item, chain, watchPayoutLine(item.body_id, chains, latest));
+        });
+      });
+    }).catch(function (e) { console.debug("watch not loaded", e); });
+  }
+
   function loadGameChain() {
     var session = loadGameSession();
     if (!session || !session.access_token) { renderGameSignedOut(null); return; }
@@ -810,6 +958,8 @@
       // dev-inbox 134: the session is known-valid here -- /me/dashboard just
       // answered with it (after at most one refresh) -- so this is the load hook.
       recordVisit();
+      // dev-inbox 135: once per load, after the dashboard answered.
+      loadWatch(data);
     }).catch(function () {
       // Unchanged, and deliberately so: this is now the NON-auth failure only.
       // Nothing is cleared and nothing was refreshed to get here.
