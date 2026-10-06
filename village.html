@@ -382,6 +382,7 @@
     </form>
     <p style="margin-top:10px"><button type="button" class="aw-wallet-link" id="authToggle">Already have runes? Log in.</button></p>
     <p class="vg-error aw-hidden" id="authError"></p>
+    <p class="aw-hidden" id="authWait" role="status" aria-live="polite" style="margin-top:10px;font-weight:600;color:var(--ink-soft)"></p>
     <p style="font-size:.8rem;color:var(--ink-soft);margin-top:14px">WowSuch is in early build. No real money moves through this account yet.</p>
   </section>
 
@@ -1085,27 +1086,119 @@
   function showAuthError(msg) { authError.textContent = msg; authError.classList.remove("aw-hidden"); }
   function hideAuthError() { authError.classList.add("aw-hidden"); }
 
+  /* ---------------- dev-inbox 137: the cold-start door ----------------
+     wowsuch-game runs on Render's free plan, which sleeps when idle; the first
+     request after a sleep waits ~33 s for the instance to boot (measured
+     2026-10-06: 32.9-33.3 s cold, 0.8-1.4 s warm). The register click used to be
+     the page's FIRST call to the API, so the whole boot landed on it while the
+     panel showed nothing and the button stayed live: a second click sent a
+     second request, and a reload at the moment the server woke lost the answer
+     to a register that still created the account (2026-10-02 -- every retry
+     after that read "already answers to that email").
+     Two parts, both free: (1) a GET / on page load -- the existing DB-free
+     health route -- so the boot overlaps with reading and typing; (2) a status
+     line with a seconds counter whenever the API has not answered within
+     WAIT_SHOW_MS of page load or of a submit, with submit disabled until it
+     answers, and disabled for the whole life of a submit regardless.
+     The copy is plain interface text, verbatim from spec 137. */
+  var authWait = byId("authWait");
+  var WAIT_SHOW_MS = 1800, WAIT_GIVE_UP_MS = 90000, PREWARM_RETRY_MS = 3000;
+  var apiAwake = false, authInFlight = false, waitTimer = null, waitStart = 0;
+
+  function renderWait() {
+    var elapsed = Date.now() - waitStart;
+    if (elapsed >= WAIT_GIVE_UP_MS) {
+      authWait.textContent = "The game server is not answering. Please reload the page in a minute.";
+      // Give up waiting, not the page: the line stays, the counter stops, and
+      // submit unlocks (unless a submit is itself in flight) so a late answer
+      // is never locked out until a reload. The pre-warm stops retrying too.
+      clearInterval(waitTimer);
+      waitTimer = null;
+      syncSubmit();
+      return;
+    }
+    authWait.textContent = "Starting the game server — this can take up to a minute on the first visit. (" + Math.floor(elapsed / 1000) + " s)";
+  }
+  function startWait(since) {
+    stopWait();
+    waitStart = since;
+    renderWait();
+    authWait.classList.remove("aw-hidden");
+    waitTimer = setInterval(renderWait, 1000);
+  }
+  function stopWait() {
+    if (waitTimer) clearInterval(waitTimer);
+    waitTimer = null;
+    authWait.classList.add("aw-hidden");
+  }
+  function syncSubmit() { authSubmit.disabled = authInFlight || (waitTimer !== null && !apiAwake); }
+  function markApiAwake() {
+    apiAwake = true;
+    // Hide unconditionally: a stale "not answering, reload" line must not sit
+    // over a submit that is about to answer -- reloading then is exactly how
+    // the 2026-10-02 register answer was lost.
+    stopWait();
+    syncSubmit();
+  }
+
+  (function prewarmApi() {
+    var pageT = Date.now();
+    function ping() {
+      // Bounded: at most ~30 tries over the 90-s give-up window, then stop.
+      if (apiAwake || Date.now() - pageT >= WAIT_GIVE_UP_MS) return;
+      // no-cors on purpose: the reply is opaque, so ANY HTTP answer resolves
+      // the promise. A CORS mismatch (another origin, a local run) can then
+      // never leave submit locked forever behind a ping that always "fails";
+      // the worst case is unlocking early, and the submit's own waiting line
+      // still covers that. Only a network error retries.
+      fetch(API_BASE + "/", { mode: "no-cors", cache: "no-store" })
+        .then(markApiAwake, function () { setTimeout(ping, PREWARM_RETRY_MS); });
+    }
+    ping();
+    setTimeout(function () {
+      if (!apiAwake && !authInFlight) { startWait(pageT); syncSubmit(); }
+    }, WAIT_SHOW_MS);
+  })();
+
   authForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    if (authInFlight || authSubmit.disabled) return;
     hideAuthError();
     var email = byId("authEmail").value.trim();
     var password = byId("authPassword").value;
-    var path = mode === "register" ? "/auth/register" : "/auth/login";
+    // Captured once: the mode toggle stays live during a long cold-start wait,
+    // and the outcome must follow the request that was SENT, not the toggle.
+    var isRegister = mode === "register";
+    var path = isRegister ? "/auth/register" : "/auth/login";
+    authInFlight = true;
+    syncSubmit();
+    var submitT = Date.now();
+    // Only while the server is not yet known to be up: on a warm server a slow
+    // answer is not a cold start, and the line would say something false.
+    var submitWait = setTimeout(function () { if (authInFlight && !apiAwake) startWait(submitT); }, WAIT_SHOW_MS);
     try {
       var data = await api(path, { method: "POST", body: { email: email, password: password } });
+      // Any answer at all, error or not, proves the server is up.
+      apiAwake = true;
       if (!data.session) throw new Error("No session returned — check your email/password.");
       // dev-inbox 082: stores the refresh token and the absolute expiry too. A
       // backend that has not been redeployed yet simply omits both fields, and
       // this page then behaves exactly as it did before -- no renewal, but no
       // breakage either.
       applySession(data.session, data.user_id, data.email);
-      enterVillage(mode === "register");
+      enterVillage(isRegister);
     } catch (err) {
       var msg = String(err.message || err);
       if (/already registered|already answers/i.test(msg)) msg = "An entity already answers to that email. Log in instead?";
       else if (/invalid.*credential|invalid login/i.test(msg)) msg = "That email and password don't match anything in the ledger.";
       else if (/password/i.test(msg) && /char/i.test(msg)) msg = "Passwords need at least 6 characters.";
+      if (err && err.status) apiAwake = true;  // an HTTP error is still an answer
       showAuthError(msg);
+    } finally {
+      clearTimeout(submitWait);
+      authInFlight = false;
+      stopWait();
+      syncSubmit();
     }
   });
 
