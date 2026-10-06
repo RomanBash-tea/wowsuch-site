@@ -375,6 +375,9 @@
     <p id="authSubhead" style="margin-top:10px;color:var(--ink-soft);font-weight:600">
       Give us an email and a password — the ledger takes it from there. Your runes are already inside that address; you don't have to draw them yourself.
     </p>
+    <!-- dev-inbox 137: ABOVE the form on purpose. Below the button it sat under
+         the fold at 1280x720, so a visitor saw only a greyed-out button. -->
+    <p class="aw-hidden" id="authWait" role="status" style="margin-top:10px;font-weight:700;color:var(--ink)"></p>
     <form id="authForm">
       <label>Email <input type="email" id="authEmail" required autocomplete="email"></label>
       <label>Password <input type="password" id="authPassword" required autocomplete="current-password" minlength="6"></label>
@@ -382,7 +385,6 @@
     </form>
     <p style="margin-top:10px"><button type="button" class="aw-wallet-link" id="authToggle">Already have runes? Log in.</button></p>
     <p class="vg-error aw-hidden" id="authError"></p>
-    <p class="aw-hidden" id="authWait" role="status" aria-live="polite" style="margin-top:10px;font-weight:600;color:var(--ink-soft)"></p>
     <p style="font-size:.8rem;color:var(--ink-soft);margin-top:14px">WowSuch is in early build. No real money moves through this account yet.</p>
   </section>
 
