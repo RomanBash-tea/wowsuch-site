@@ -656,8 +656,10 @@
         <div class="aw-math">
           <div class="row"><span>Fixed chain position</span><b id="prevPosition">—</b></div>
           <div class="row"><span>Worst-case floor (per day, for this share)</span><b id="prevFloor">—</b></div>
-          <!-- dev-inbox 136, FALLBACK copy: the spec's marketer claim-check line was blank at build, so no last-night figure is rendered. The API already returns last_night_usd; the primary copy is a copy-only switch once R-1 reads PASS. -->
+          <!-- dev-inbox 138 (CLAIMS C-11, approved 2026-10-06): the last-night row and its footnote show ONLY when the API returns a figure, which it does only for a night a payout actually ran, at most one night old. Otherwise the 136 fallback sentence below shows, byte-identical, and no figure row. C-11's limits: no percentage, no ratio to price, no per-month/year figure, no sum or average, never "$a-$b" with the floor. -->
+          <div class="row aw-hidden" id="prevLastNightRow"><span>Last night, this share would have received</span><b id="prevLastNight">—</b></div>
           <p class="aw-note aw-math-note" id="prevFloorNote">That is this share's floor on the worst night on record. Once you settle, your cabinet shows what every night actually paid.</p>
+          <p class="aw-note aw-math-note aw-hidden" id="prevLastNightNote">Past nights, not a promise.</p>
           <div class="row net"><span>Cost (from your game balance)</span><b id="prevCost">—</b></div>
         </div>
         <p class="vg-founder aw-hidden" id="prevFounderNote"></p>
@@ -2929,6 +2931,7 @@
     if (armed || keepFigures) return;
     byId("prevPosition").textContent = "—";
     byId("prevFloor").textContent = "—";
+    showLastNight(null);
     byId("prevCost").textContent = "—";
     byId("prevDisclaimer").textContent = "";
     byId("prevFounderNote").classList.add("aw-hidden");
@@ -2992,6 +2995,19 @@
       "then come back and confirm.";
   }
 
+  /* dev-inbox 138: the "last night" row (CLAIMS C-11). A figure shows the
+     row and its footnote (#prevLastNightNote) and hides the 136
+     fallback sentence; null (no payout ran in the last night, or the read
+     failed) restores exactly the 136 panel. signedMoney: a loss night is a
+     real, negative figure and is shown as one. */
+  function showLastNight(value) {
+    var has = value !== null && value !== undefined && isFinite(Number(value));
+    byId("prevLastNight").textContent = has ? signedMoney(Number(value)) : "—";
+    byId("prevLastNightRow").classList.toggle("aw-hidden", !has);
+    byId("prevLastNightNote").classList.toggle("aw-hidden", !has);
+    byId("prevFloorNote").classList.toggle("aw-hidden", has);
+  }
+
   async function selectShare(frac) {
     selectedShare = frac;
     var prevPanel = byId("previewPanel");
@@ -3002,6 +3018,7 @@
       var preview = await api("/bodies/" + currentBody.body_id + "/preview", { method: "POST", body: { share: frac } });
       byId("prevPosition").textContent = "#" + preview.fixed_chain_position + (preview.is_top_up ? " (already yours)" : "");
       byId("prevFloor").textContent = signedMoney(preview.worst_case_floor_usd) + " / day";  // dev-inbox 084: can be negative, and is today
+      showLastNight(preview.last_night_usd);
       byId("prevCost").textContent = money(preview.cost);
       byId("prevDisclaimer").textContent = preview.disclaimer;
       // Founding is the one thing a buyer can't get back later, so say it at the
