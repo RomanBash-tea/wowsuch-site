@@ -669,12 +669,15 @@
     return (rounded < 0 ? "-$" : "$") + Math.abs(rounded).toFixed(2);
   }
 
-  /* dev-inbox 141 C: the chain card's per-night rows and its "Earned to date"
-     share THIS formatter, at 3 decimals. Each value rounded on its own at 2dp
-     made the visible rows miss the visible total (Dmytro counted $0.14 against
-     $0.15); at 3dp a row can miss by at most 0.0005, so the card adds up to
-     within a tenth of a cent. The total is still the ledger value -- only its
-     precision changed. Sign and zero handling as signedGameMoney (no "+"): an
+  /* dev-inbox 141 C: the chain card's money -- its per-night rows, "Earned to
+     date", and the two figures that reconcile with it (Reserve held, Absorbed
+     by the floor) -- share THIS formatter, at 3 decimals. Each value rounded on
+     its own at 2dp made the visible rows miss the visible total (Dmytro counted
+     $0.14 against $0.15). At 3dp each row can miss by at most 0.0005, so the gap
+     is bounded by 0.0005 per row -- small, but it grows with the history. A
+     mixed precision inside the reconciliation block would itself print a
+     contradiction ($0.56 against $0.543 + $0.02), so all three move together.
+     The values are still the ledger's -- only their precision changed. Sign and zero handling as signedGameMoney (no "+"): an
      exact zero prints "$0.000", never "-$0.000", and a NON-zero value that
      rounds to nothing prints "<$0.001" with its sign -- the dev-inbox 096 rule
      above, so a real loss total never reads as zero. Every other surface keeps
@@ -770,9 +773,9 @@
            produced -- so on its own it overstates what happened to a player who
            lost money. The other two are what make it honest. */
         '<div class="aw-math">' +
-          '<div class="row"><span>Reserve held (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div>' +
+          '<div class="row"><span>Reserve held (this Entity)</span><b>' + chainCardMoney(c.game_balance) + '</b></div>' +
           '<div class="row"><span>Earned to date</span><b>' + chainCardMoney(c.lifetime_income) + '</b></div>' +
-          (absorbed > 0 ? '<div class="row"><span>Absorbed by the floor</span><b>' + signedGameMoney(absorbed) + '</b></div>' : "") +
+          (absorbed > 0 ? '<div class="row"><span>Absorbed by the floor</span><b>' + chainCardMoney(absorbed) + '</b></div>' : "") +
         '</div>' +
         '<p class="aw-note">' + esc(historyHeader) + '</p>' +
         '<div class="aw-math">' + rows + '</div>' +
