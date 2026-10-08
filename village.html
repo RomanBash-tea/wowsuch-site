@@ -44,7 +44,7 @@
   .vg-scene{display:none;}
   .vg-scene.active{display:block;}
   .vg-progress{display:flex;gap:6px;margin-bottom:18px;}
-  .vg-progress i{height:4px;flex:1;border-radius:99px;background:rgba(255,185,46,.22);}
+  .vg-progress i{height:6px;flex:1;border-radius:99px;background:rgba(255,185,46,.48);}
   .vg-progress i.done{background:var(--gold-on-dark);}
   .vg-rune{font-family:var(--mono);font-weight:800;color:var(--gold-on-dark);letter-spacing:.08em;}
   .vg-frog{border:3px solid var(--gold);border-radius:var(--r-md);background:#2A1B06;
@@ -90,6 +90,11 @@
     text-transform:uppercase;letter-spacing:.04em;}
   .aw-stage h2{color:#fff;margin-top:8px;}
   .aw-stage h3{color:#fff;}
+  /* dev-inbox 146 (design review 2026-08-20, item 1): the Awakening gets a column and its
+     headline a measure. Scoped to #onboarding, not .aw-stage -- #villageStage shares that
+     class and holds the map, which must keep the full width. */
+  #onboarding{max-width:760px;margin-left:auto;margin-right:auto;}
+  #onboarding h2{max-width:24ch;}
   .aw-stage p{color:var(--soft-on-dark);font-weight:600;margin-top:12px;max-width:56ch;}
   /* ---- village map (dev-inbox/Asana [backend] Village map, replaces the old aw-body-card list) ---- */
   .vmap-wrap{position:relative;margin-top:14px;border:4px solid var(--gold);border-radius:var(--r-lg);
@@ -133,7 +138,7 @@
      produces a legend that quietly lies about what a colour means. */
   .vmap-legend .dot.resting{background:#7B5EA7;}
   .vmap-legend .dot.offline{background:#8a8a8a;}
-  .vmap-legend .dot.unknown{background:#5B6B78;}
+  .vmap-legend .dot.unknown{background:#197075;}
   /* dev-inbox 121. NOT a seventh health colour. The danger mark is an OVERLAY the
      canvas strokes on top of whatever HEALTH_COLOR a Body already carries, so this
      swatch is a neutral ground with the ring over it rather than one more flat fill
@@ -277,8 +282,7 @@
   .aw-occ-chip{font-family:var(--mono);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:999px;
     background:var(--night);border:1px solid var(--gold);color:var(--soft-on-dark);}
   .aw-note{font-size:.85rem !important;color:var(--soft-on-dark);opacity:.85;margin-top:18px !important;}
-  .aw-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
-  .aw-choices.two{grid-template-columns:repeat(2,1fr);}
+  .aw-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:22px;}
   .aw-choice{text-align:left;background:#2A1B06;border:3px solid var(--gold);border-radius:var(--r-md);
     padding:16px;cursor:pointer;color:inherit;font-family:inherit;}
   .aw-choice:hover{box-shadow:0 0 0 3px rgba(255,185,46,.35);}
@@ -400,7 +404,7 @@
 
   <!-- ============ THE AWAKENING — played once, when the account is born ============ -->
   <section id="onboarding" class="aw-stage vg-intro aw-hidden">
-    <div class="vg-progress" id="introProgress" aria-hidden="true"></div>
+    <div class="vg-progress" id="introProgress" role="progressbar" aria-label="Awakening progress" aria-valuemin="0"></div>
 
     <div class="vg-scene active" data-scene="0">
       <span class="step-tag">something stirs</span>
@@ -1258,9 +1262,14 @@
   }
 
   function renderIntroProgress() {
-    byId("introProgress").innerHTML = introScenes.map(function (_, i) {
+    var bar = byId("introProgress");
+    bar.innerHTML = introScenes.map(function (_, i) {
       return '<i class="' + (i <= introIdx ? "done" : "") + '"></i>';
     }).join("");
+    // dev-inbox 146: the bar is the only place the sequence's length is shown, so it is
+    // announced, not hidden. Set on every call, as the segments are.
+    bar.setAttribute("aria-valuemax", String(introScenes.length));
+    bar.setAttribute("aria-valuenow", String(introIdx + 1));
   }
   function showIntroScene(i) {
     introIdx = Math.max(0, Math.min(introScenes.length - 1, i));
@@ -1411,7 +1420,7 @@
   // `undefined` for a reviewer to spot. Check the two new states POSITIVELY.
   var HEALTH_COLOR = {
     healthy: "#3AA655", warning: "#E9A23B", critical: "#C0392B",
-    resting: "#7B5EA7", offline: "#8a8a8a", unknown: "#5B6B78"
+    resting: "#7B5EA7", offline: "#8a8a8a", unknown: "#197075"
   };
   // dev-inbox 121. Deliberately NOT a member of HEALTH_COLOR, and the reason is the
   // same one the block above gives for its fallbacks: a Body in danger still has a
