@@ -674,9 +674,11 @@
      made the visible rows miss the visible total (Dmytro counted $0.14 against
      $0.15); at 3dp a row can miss by at most 0.0005, so the card adds up to
      within a tenth of a cent. The total is still the ledger value -- only its
-     precision changed. Sign as signedGameMoney (no "+"); a value that rounds to
-     zero prints "$0.000", never "-$0.000". Every other surface keeps its own
-     formatter. */
+     precision changed. Sign and zero handling as signedGameMoney (no "+"): an
+     exact zero prints "$0.000", never "-$0.000", and a NON-zero value that
+     rounds to nothing prints "<$0.001" with its sign -- the dev-inbox 096 rule
+     above, so a real loss total never reads as zero. Every other surface keeps
+     its own formatter. */
   // Mirrors _DASHBOARD_PAYOUT_LOOKBACK in game/app/routers/game.py: a chain
   // history this long may be truncated by the server (dev-inbox 141 B).
   var DASHBOARD_PAYOUT_LOOKBACK = 30;
@@ -684,7 +686,11 @@
     var v = Number(n);
     if (!isFinite(v)) return "—";
     var rounded = parseFloat(v.toFixed(3));
-    if (rounded === 0) return "$0.000";
+    if (rounded === 0) {
+      if (v < 0) return "-<$0.001";
+      if (v > 0) return "<$0.001";
+      return "$0.000";
+    }
     return (rounded < 0 ? "-$" : "$") + Math.abs(rounded).toFixed(3);
   }
 
@@ -795,7 +801,7 @@
     // payout row, sign ignored", and the beat's copy asserts energy was credited.
     // On a loss night the player is debited, so a history of losses only must not
     // fire it; the beat waits for the first row that rounds to a non-zero
-    // positive. The beat's text is unchanged and still ships as-is.
+    // positive. Its text now follows the night count (dev-inbox 141 B, below).
     var hasPositivePayout = data.chains.some(function (c) {
       return (c.payouts || []).some(function (p) { return roundedMoney(p.income_k) > 0; });
     });
