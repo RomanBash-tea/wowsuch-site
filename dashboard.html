@@ -375,6 +375,18 @@
 
   /* ---- payouts & orders ---- */
   var ordersWrap = byId("ordersWrap");
+  /* dev-inbox 141 A: this section lists real-miner hosting orders, which do not
+     exist in this phase, so a Body-share holder used to read "you have nothing"
+     here. The empty state is drawn once on load with the no-Entity line, and
+     redrawn by renderGameChain() once the game data shows at least one chain --
+     the choice waits for that data, so nothing new renders before it. */
+  function renderOrdersEmpty(holdsEntity) {
+    if (!ordersWrap || orders.length) return;
+    ordersWrap.innerHTML = '<p class="empty-state">' + (holdsEntity
+        ? "No hosting orders yet — this section lists orders for real machines hosted with WowSuch. Your Body shares from the Village are in your chain cards above, with each night's result."
+        : 'You don’t have an active mining order yet — payouts and order history will show up here once you do.') + '</p>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn sm" href="buy.html">Buy an L9 →</a><a class="btn sm alt" href="rent-to-own.html">Rent to own →</a></div>';
+  }
   if (ordersWrap) {
     if (orders.length) {
       var rows = orders.map(function (o) {
@@ -383,8 +395,7 @@
       ordersWrap.innerHTML = '<table class="data-table"><thead><tr><th>Plan</th><th>Qty</th><th>Order #</th><th>Due</th></tr></thead><tbody>' + rows + '</tbody></table>' +
         '<p style="font-weight:600;font-size:.85rem;color:var(--ink-soft);margin-top:14px">Payouts appear here once your machine is hashing — daily LTC + DOGE, automatically, to the wallet above.</p>';
     } else {
-      ordersWrap.innerHTML = '<p class="empty-state">You don’t have an active mining order yet — payouts and order history will show up here once you do.</p>' +
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn sm" href="buy.html">Buy an L9 →</a><a class="btn sm alt" href="rent-to-own.html">Rent to own →</a></div>';
+      renderOrdersEmpty(false);
     }
   }
 
@@ -658,6 +669,25 @@
     return (rounded < 0 ? "-$" : "$") + Math.abs(rounded).toFixed(2);
   }
 
+  /* dev-inbox 141 C: the chain card's per-night rows and its "Earned to date"
+     share THIS formatter, at 3 decimals. Each value rounded on its own at 2dp
+     made the visible rows miss the visible total (Dmytro counted $0.14 against
+     $0.15); at 3dp a row can miss by at most 0.0005, so the card adds up to
+     within a tenth of a cent. The total is still the ledger value -- only its
+     precision changed. Sign as signedGameMoney (no "+"); a value that rounds to
+     zero prints "$0.000", never "-$0.000". Every other surface keeps its own
+     formatter. */
+  // Mirrors _DASHBOARD_PAYOUT_LOOKBACK in game/app/routers/game.py: a chain
+  // history this long may be truncated by the server (dev-inbox 141 B).
+  var DASHBOARD_PAYOUT_LOOKBACK = 30;
+  function chainCardMoney(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return "—";
+    var rounded = parseFloat(v.toFixed(3));
+    if (rounded === 0) return "$0.000";
+    return (rounded < 0 ? "-$" : "$") + Math.abs(rounded).toFixed(3);
+  }
+
   function renderGameChain(data) {
     if (!data.chains.length) {
       gameStatus.className = "status soon"; gameStatus.textContent = "⏳ no chain yet";
@@ -673,7 +703,7 @@
       var payouts = c.payouts || [];
       var rows = payouts.length
         ? payouts.map(function (p) {
-            return '<div class="row"><span>' + esc(p.period) + '</span><b>' + payoutRowMoney(p.income_k) + '</b></div>';
+            return '<div class="row"><span>' + esc(p.period) + '</span><b>' + chainCardMoney(p.income_k) + '</b></div>';
           }).join("")
         : '<div class="row"><span>No payouts yet</span><b>—</b></div>';
       /* dev-inbox #049 (S2): the count is the number of rows ACTUALLY rendered,
@@ -735,7 +765,7 @@
            lost money. The other two are what make it honest. */
         '<div class="aw-math">' +
           '<div class="row"><span>Reserve held (this Entity)</span><b>' + gameMoney(c.game_balance) + '</b></div>' +
-          '<div class="row"><span>Earned to date</span><b>' + signedGameMoney(c.lifetime_income) + '</b></div>' +
+          '<div class="row"><span>Earned to date</span><b>' + chainCardMoney(c.lifetime_income) + '</b></div>' +
           (absorbed > 0 ? '<div class="row"><span>Absorbed by the floor</span><b>' + signedGameMoney(absorbed) + '</b></div>' : "") +
         '</div>' +
         '<p class="aw-note">' + esc(historyHeader) + '</p>' +
@@ -769,10 +799,20 @@
     var hasPositivePayout = data.chains.some(function (c) {
       return (c.payouts || []).some(function (p) { return roundedMoney(p.income_k) > 0; });
     });
+    // dev-inbox 141 B (variant B2): the text used to say "first night" whatever
+    // the history held -- Dmytro read it after 4 nights. N is the longest
+    // history across this player's chains. At the server's lookback cap the
+    // page cannot know the true count, so the count is dropped, not guessed.
     if (hasPositivePayout) {
-      showBeat(byId("payoutBeatSlot"), "payout", "Energy landed.",
-        "Your Body's first night's work is in — energy credited to your balance while you slept. Same time, every night, for as long as the chain holds.");
+      var nights = data.chains.reduce(function (m, c) { return Math.max(m, (c.payouts || []).length); }, 0);
+      var beatText = nights >= DASHBOARD_PAYOUT_LOOKBACK
+        ? "Every night's result, gain or loss, settles to your balance while you sleep. Same time, every night, for as long as the chain holds."
+        : nights >= 2
+          ? nights + " nights of work are in — each night's result, gain or loss, settles to your balance while you sleep. Same time, every night, for as long as the chain holds."
+          : "Your Body's first night's work is in — energy credited to your balance while you slept. Same time, every night, for as long as the chain holds.";
+      showBeat(byId("payoutBeatSlot"), "payout", "Energy landed.", beatText);
     }
+    renderOrdersEmpty(true);  // 141 A: this player holds at least one Entity
   }
 
   /* dev-inbox 102 §2. The page's existing signed-out state, reused rather than

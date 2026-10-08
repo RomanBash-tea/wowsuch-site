@@ -312,6 +312,15 @@
   .aw-chain-list .pct{flex:0 0 auto;text-align:right;}
   .aw-wallet-link{display:inline-block;margin-top:6px;background:none;border:none;padding:0;font-family:inherit;
     font-size:.82rem;font-weight:700;color:var(--gold-on-dark);text-decoration:underline;cursor:pointer;}
+  /* dev-inbox 141 D: the door's mode link sits on the light auth panel, where
+     gold-on-dark read pale yellow on cream. Scoped to the door only --
+     .aw-wallet-link keeps its colour on the dark surfaces (#logoutLink). */
+  #authToggle{color:var(--amber-ink);}
+  .aw-pw-wrap{position:relative;margin-top:4px;}
+  .vg-panel .aw-pw-wrap input{margin-top:0;padding-right:72px;}
+  .aw-pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;
+    padding:6px 8px;font-family:inherit;font-size:.8rem;font-weight:700;color:var(--amber-ink);
+    text-decoration:underline;cursor:pointer;}
   .aw-hidden{display:none !important;}
   @media (max-width:640px){ .aw-choices{grid-template-columns:1fr;} }
 </style>
@@ -380,7 +389,8 @@
     <p class="aw-hidden" id="authWait" role="status" style="margin-top:10px;font-weight:700;color:var(--ink)"></p>
     <form id="authForm">
       <label>Email <input type="email" id="authEmail" required autocomplete="email"></label>
-      <label>Password <input type="password" id="authPassword" required autocomplete="current-password" minlength="6"></label>
+      <label for="authPassword">Password</label>
+      <div class="aw-pw-wrap"><input type="password" id="authPassword" required autocomplete="current-password" minlength="6"><button type="button" class="aw-pw-toggle" id="authPwToggle" aria-label="Show password" aria-pressed="false" aria-controls="authPassword">Show</button></div>
       <button type="submit" class="btn" id="authSubmit" style="margin-top:16px">Enter the Ledger</button>
     </form>
     <p style="margin-top:10px"><button type="button" class="aw-wallet-link" id="authToggle">Already have runes? Log in.</button></p>
@@ -1059,8 +1069,20 @@
   var authHeadline = byId("authHeadline"), authSubhead = byId("authSubhead"), authSubmit = byId("authSubmit"), authToggle = byId("authToggle");
   var mode = "register";
 
+  // dev-inbox 141 D: show/hide password, client-side only. type="button", so it
+  // never submits; it goes back to hidden on a mode switch and on submit.
+  var authPassword = byId("authPassword"), authPwToggle = byId("authPwToggle");
+  function setPasswordVisible(on) {
+    authPassword.type = on ? "text" : "password";
+    authPwToggle.textContent = on ? "Hide" : "Show";
+    authPwToggle.setAttribute("aria-label", on ? "Hide password" : "Show password");
+    authPwToggle.setAttribute("aria-pressed", on ? "true" : "false");
+  }
+  authPwToggle.addEventListener("click", function () { setPasswordVisible(authPassword.type === "password"); });
+
   function setMode(next) {
     mode = next;
+    setPasswordVisible(false);
     if (mode === "register") {
       authHeadline.textContent = "Every entity needs a line in the ledger.";
       authSubhead.textContent = "Give us an email and a password — the ledger takes it from there. Your runes are already inside that address; you don't have to draw them yourself.";
@@ -1166,6 +1188,7 @@
 
   authForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    setPasswordVisible(false);
     if (authInFlight || authSubmit.disabled) return;
     hideAuthError();
     var email = byId("authEmail").value.trim();
